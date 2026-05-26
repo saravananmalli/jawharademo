@@ -1,0 +1,36 @@
+@use '../../styles/variables' as *;
+
+.price-display {
+  display: flex;
+  align-items: baseline;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+
+  &__current {
+    font-weight: $font-weight-semibold;
+    color: $primary-gold;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  &__original {
+    color: $text-light;
+    text-decoration: line-through;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  &__discount {
+    font-weight: $font-weight-medium;
+    color: $accent-green;
+    padding: 2px 6px;
+    border-radius: $border-radius-sm;
+  }
+
+  // Sizes
+  &--sm  { &__current { font-size: $font-base; } &__original, &__discount { font-size: $font-xs; } }
+  &--md  { &__current { font-size: $font-md; }  &__original, &__discount { font-size: $font-sm; } }
+  &--lg  { &__current { font-size: $font-3xl; } &__original, &__discount { font-size: $font-md; } }
+}

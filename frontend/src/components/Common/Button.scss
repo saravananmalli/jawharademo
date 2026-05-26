@@ -1,0 +1,74 @@
+@use 'sass:color';
+@use '../../styles/variables' as *;
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  border: 2px solid transparent;
+  border-radius: $border-radius-md;
+  font-family: $font-primary;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: $transition-base;
+  white-space: nowrap;
+  text-decoration: none;
+  position: relative;
+
+  &:disabled { opacity: 0.55; cursor: not-allowed; }
+  &--full { width: 100%; }
+
+  // Sizes
+  &--sm { padding: 6px $spacing-md; font-size: $font-sm; height: 32px; }
+  &--md { padding: $spacing-md $spacing-xxl; font-size: $font-base; height: 42px; }
+  &--lg { padding: $spacing-lg $spacing-xxxl; font-size: $font-md; height: 52px; }
+
+  // Variants
+  &--primary {
+    background: $primary-gold;
+    color: $white;
+    border-color: $primary-gold;
+    &:hover:not(:disabled) { background: $primary-gold-hover; border-color: $primary-gold-hover; }
+  }
+
+  &--secondary {
+    background: $white;
+    color: $primary-gold;
+    border-color: $primary-gold;
+    &:hover:not(:disabled) { background: $primary-gold; color: $white; }
+  }
+
+  &--ghost {
+    background: transparent;
+    color: $text-dark;
+    border-color: $border-light;
+    &:hover:not(:disabled) { border-color: $primary-gold; color: $primary-gold; }
+  }
+
+  &--danger {
+    background: $accent-red;
+    color: $white;
+    border-color: $accent-red;
+    &:hover:not(:disabled) { background: color.adjust($accent-red, $lightness: -8%); }
+  }
+
+  // Loading state
+  &--loading { cursor: wait; }
+
+  &__spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: $white;
+    border-radius: $border-radius-full;
+    animation: btn-spin 0.7s linear infinite;
+    position: absolute;
+  }
+
+  &__label--hidden { opacity: 0; }
+}
+
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}

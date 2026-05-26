@@ -1,0 +1,580 @@
+// ============================================================
+// MENU HOVER LAYOUT - SCSS
+// ============================================================
+
+@use 'variables' as *;
+
+// ============================================================
+// MAIN MENU CONTAINER
+// ============================================================
+
+.menu-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: $navbar-height;
+  background: $white;
+  border-bottom: 1px solid $border-light;
+  padding: 0 $spacing-lg;
+  z-index: $z-sticky;
+}
+
+// ============================================================
+// CATEGORY BUTTON / TRIGGER
+// ============================================================
+
+.category-toggle {
+  @include button-base;
+  padding: $spacing-md $spacing-md;
+  background: $primary-gold;
+  color: $white;
+  font-size: $font-md;
+  font-weight: $font-weight-medium;
+  gap: $spacing-sm;
+
+  &::before {
+    font-size: $font-md;
+  }
+
+  &:hover {
+    background: $primary-gold-hover;
+  }
+
+  &.active {
+    background: $dark-maroon;
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+// ============================================================
+// SIDEBAR CATEGORY MENU (LEFT)
+// ============================================================
+
+.category-sidebar {
+  position: fixed;
+  left: 0;
+  top: $header-height;
+  width: 200px;
+  height: calc(100vh - $header-height);
+  background: $white;
+  border-right: 1px solid $border-light;
+  overflow-y: auto;
+  transform: translateX(-100%);
+  transition: transform $duration-slow $ease-in-out;
+  z-index: $z-dropdown;
+  box-shadow: $shadow-md;
+
+  &.open {
+    transform: translateX(0);
+  }
+
+  @media (min-width: $breakpoint-md) {
+    position: relative;
+    top: auto;
+    height: auto;
+    width: auto;
+    border-right: none;
+    transform: none;
+    box-shadow: none;
+    overflow-y: visible;
+  }
+}
+
+.category-list {
+  list-style: none;
+  padding: $spacing-md 0;
+  margin: 0;
+
+  @media (min-width: $breakpoint-md) {
+    display: flex;
+    padding: 0;
+    gap: $spacing-lg;
+  }
+}
+
+.category-item {
+  position: relative;
+
+  &:hover .category-submenu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+}
+
+// ============================================================
+// CATEGORY LINK (MAIN LEVEL)
+// ============================================================
+
+.category-link {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md $spacing-lg;
+  color: $text-dark;
+  text-decoration: none;
+  font-size: $font-sm;
+  font-weight: $font-weight-regular;
+  transition: $transition-color;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+
+  @media (min-width: $breakpoint-md) {
+    padding: $spacing-md 0;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+    color: $primary-gold;
+  }
+
+  &:hover,
+  &.active {
+    color: $primary-gold;
+    border-left-color: $primary-gold;
+    background-color: $cream-bg;
+
+    @media (min-width: $breakpoint-md) {
+      background-color: transparent;
+      border-left-color: transparent;
+      border-bottom-color: $primary-gold;
+    }
+  }
+
+  .arrow {
+    margin-left: auto;
+    font-size: $font-sm;
+    transition: transform $duration-base $ease-in-out;
+
+    @media (min-width: $breakpoint-md) {
+      display: none;
+    }
+  }
+
+  &:hover .arrow {
+    transform: rotate(180deg);
+  }
+}
+
+// ============================================================
+// MEGA DROPDOWN MENU (DESKTOP ONLY)
+// ============================================================
+
+.category-submenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  min-width: 800px;
+  background: $white;
+  border: 1px solid $border-light;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-xl;
+  padding: $spacing-xl;
+  margin-top: $spacing-sm;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity $duration-base $ease-in-out,
+    visibility $duration-base $ease-in-out,
+    transform $duration-base $ease-in-out;
+  z-index: $z-dropdown + 1;
+
+  @media (max-width: $breakpoint-md) {
+    position: static;
+    width: 100%;
+    min-width: auto;
+    background: $bg-light-gray;
+    border: none;
+    border-radius: 0;
+    box-shadow: $shadow-inset;
+    padding: 0;
+    margin-top: 0;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height $duration-slow $ease-in-out;
+  }
+
+  // Mobile: Expand when parent is active
+  @media (max-width: $breakpoint-md) {
+    .category-item.active & {
+      max-height: 500px;
+    }
+  }
+}
+
+// ============================================================
+// MEGA MENU GRID LAYOUT
+// ============================================================
+
+.submenu-grid {
+  @include grid(4, $spacing-xxl);
+
+  @media (max-width: 1024px) {
+    @include grid(3, $spacing-xl);
+  }
+
+  @media (max-width: $breakpoint-md) {
+    @include grid(1, $spacing-md);
+  }
+}
+
+// ============================================================
+// SUBMENU SECTION (COLUMN)
+// ============================================================
+
+.submenu-section {
+  flex: 1;
+}
+
+.submenu-section-title {
+  font-size: $font-sm;
+  font-weight: $font-weight-bold;
+  color: $text-dark;
+  margin-bottom: $spacing-lg;
+  text-transform: uppercase;
+  letter-spacing: $letter-spacing-wide;
+}
+
+.submenu-section-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.submenu-section-item {
+  a {
+    color: $text-light;
+    text-decoration: none;
+    font-size: $font-sm;
+    transition: $transition-color;
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+
+    &:hover {
+      color: $primary-gold;
+
+      span {
+        color: $primary-gold;
+      }
+    }
+
+    span {
+      display: inline-block;
+      width: 1.2em;
+      height: 1.2em;
+      line-height: 1.2em;
+      text-align: center;
+      font-size: $font-xs;
+      color: $text-light;
+      transition: $transition-color;
+    }
+  }
+}
+
+// ============================================================
+// FEATURED SECTION IN MEGA MENU (RIGHT SIDE)
+// ============================================================
+
+.submenu-featured {
+  position: relative;
+  background: linear-gradient(135deg, $dark-maroon, $dark-maroon-light);
+  border-radius: $border-radius-lg;
+  padding: $spacing-xl;
+  color: $white;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  @media (max-width: $breakpoint-md) {
+    margin-top: $spacing-lg;
+    min-height: 200px;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 400px;
+    height: 400px;
+    background: rgba($white, 0.05);
+    border-radius: 50%;
+    z-index: 0;
+  }
+}
+
+.submenu-featured-content {
+  position: relative;
+  z-index: 1;
+}
+
+.submenu-featured-title {
+  font-size: $font-lg;
+  font-weight: $font-weight-bold;
+  margin-bottom: $spacing-md;
+  line-height: $line-height-tight;
+}
+
+.submenu-featured-desc {
+  font-size: $font-sm;
+  opacity: 0.9;
+  margin-bottom: $spacing-lg;
+  line-height: $line-height-normal;
+}
+
+.submenu-featured-btn {
+  @include button-base;
+  background: $white;
+  color: $dark-maroon;
+  width: fit-content;
+  padding: $btn-padding-sm;
+  font-weight: $font-weight-bold;
+  margin-top: auto;
+
+  &:hover {
+    background: $cream-bg;
+  }
+}
+
+// ============================================================
+// HORIZONTAL CATEGORY NAVIGATION (SECONDARY MENU)
+// ============================================================
+
+.nav-secondary {
+  display: flex;
+  gap: $spacing-xl;
+  padding: $spacing-md $spacing-lg;
+  background: $white;
+  border-bottom: 1px solid $border-light;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+
+  @media (max-width: $breakpoint-md) {
+    gap: $spacing-lg;
+    padding: $spacing-md;
+  }
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $border-light;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $primary-gold;
+    border-radius: $border-radius-full;
+  }
+}
+
+.nav-secondary-item {
+  a {
+    color: $text-dark;
+    text-decoration: none;
+    font-size: $font-sm;
+    font-weight: $font-weight-medium;
+    white-space: nowrap;
+    padding: $spacing-md 0;
+    border-bottom: 2px solid transparent;
+    transition: $transition-color, $transition-border;
+    display: inline-block;
+
+    &:hover,
+    &.active {
+      color: $primary-gold;
+      border-bottom-color: $primary-gold;
+    }
+  }
+}
+
+// ============================================================
+// MOBILE MENU OVERLAY
+// ============================================================
+
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity $duration-base $ease-in-out,
+    visibility $duration-base $ease-in-out;
+  z-index: $z-dropdown - 1;
+
+  @media (min-width: $breakpoint-md) {
+    display: none;
+  }
+
+  &.open {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+// ============================================================
+// RESPONSIVE MENU TOGGLE
+// ============================================================
+
+.menu-toggle {
+  @include button-base;
+  padding: $spacing-md;
+  background: transparent;
+  color: $text-dark;
+  border: 1px solid $border-light;
+  border-radius: $border-radius-md;
+  display: none;
+
+  @media (max-width: $breakpoint-md) {
+    display: inline-flex;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// ============================================================
+// FILTER PANEL (INSIDE SIDEBAR)
+// ============================================================
+
+.filter-section {
+  padding: $spacing-lg;
+  border-bottom: 1px solid $border-light;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.filter-title {
+  font-size: $font-sm;
+  font-weight: $font-weight-bold;
+  color: $text-dark;
+  margin-bottom: $spacing-md;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+
+  .expand-icon {
+    font-size: $font-xs;
+    transition: transform $duration-base $ease-in-out;
+  }
+
+  &:hover {
+    color: $primary-gold;
+  }
+}
+
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+
+  input {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: $primary-gold;
+  }
+
+  label {
+    cursor: pointer;
+    font-size: $font-sm;
+    color: $text-gray;
+    transition: $transition-color;
+
+    &:hover {
+      color: $text-dark;
+    }
+  }
+}
+
+// ============================================================
+// ANIMATIONS
+// ============================================================
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.category-sidebar.open {
+  animation: slideInLeft $duration-slow $ease-in-out;
+}
+
+.category-submenu {
+  animation: fadeInUp $duration-base $ease-in-out;
+}
+
+// ============================================================
+// ACCESSIBILITY
+// ============================================================
+
+.category-link:focus,
+.submenu-section-item a:focus {
+  outline: 2px solid $primary-gold;
+  outline-offset: 2px;
+  border-radius: $border-radius-sm;
+}
+
+// Keyboard Navigation
+.category-link:focus-visible {
+  box-shadow: inset 0 0 0 2px $primary-gold;
+}

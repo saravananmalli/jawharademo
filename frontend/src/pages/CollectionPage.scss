@@ -1,0 +1,253 @@
+@use '../styles/variables' as *;
+
+.collection-page {
+  // ── Hero — base matches .category-page__header; flag pages add icon layout ──
+  &__hero {
+    background: $cream-bg;
+    padding: $spacing-xxl $spacing-lg;
+    margin-bottom: $spacing-xxxl;
+  }
+
+  // Icon-on-left layout used by flag collection pages (Today's Deals, Gifting…)
+  &__hero-inner {
+    display: flex;
+    align-items: center;
+    gap: $spacing-lg;
+
+    @media (max-width: $breakpoint-sm) {
+      gap: $spacing-md;
+    }
+  }
+
+  &__hero-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    background: color-mix(in srgb, #{$primary-gold} 12%, white);
+    border: 1.5px solid color-mix(in srgb, #{$primary-gold} 25%, white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: $primary-gold;
+    font-size: 1.6rem;
+
+    @media (max-width: $breakpoint-sm) {
+      width: 48px;
+      height: 48px;
+      font-size: 1.3rem;
+      border-radius: 12px;
+    }
+  }
+
+  &__title {
+    font-size: $font-3xl;
+    font-weight: $font-weight-semibold;
+    color: $text-dark;
+    font-family: $font-primary;
+    margin: 0;
+  }
+
+  &__subtitle {
+    font-size: $font-sm;
+    color: $text-gray;
+    margin: $spacing-xs 0 0;
+    max-width: 600px;
+    line-height: 1.55;
+  }
+
+  &__count {
+    font-size: $font-sm;
+    color: $text-dark;
+    margin-top: $spacing-xs;
+  }
+
+  // ── Layout ────────────────────────────────────────────────────────────────
+  &__body {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: $spacing-xl;
+    padding: $spacing-xl 0;
+    align-items: start;
+
+    @media (max-width: $breakpoint-lg) {
+      grid-template-columns: 220px 1fr;
+      gap: $spacing-lg;
+    }
+
+    @media (max-width: $breakpoint-md) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__main {
+    min-width: 0;
+  }
+
+  // ── Toolbar ───────────────────────────────────────────────────────────────
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-lg;
+    gap: $spacing-md;
+    flex-wrap: wrap;
+  }
+
+  &__filter-btn {
+    display: none;
+    align-items: center;
+    gap: $spacing-xs;
+    padding: 8px $spacing-md;
+    border: 1.5px solid $border-light;
+    border-radius: $border-radius-full;
+    background: $white;
+    font-size: $font-sm;
+    font-weight: $font-weight-medium;
+    color: $text-dark;
+    cursor: pointer;
+    transition: background $duration-fast, border-color $duration-fast;
+
+    &:hover {
+      background: $cream-bg;
+      border-color: $primary-gold;
+      color: $primary-gold;
+    }
+
+    @media (max-width: $breakpoint-md) {
+      display: flex;
+    }
+  }
+
+  &__sort {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: $font-sm;
+    color: $text-gray;
+
+    select {
+      padding: 6px $spacing-md;
+      border: 1.5px solid $border-light;
+      border-radius: $border-radius-sm;
+      background: $white;
+      font-size: $font-sm;
+      color: $text-dark;
+      cursor: pointer;
+      outline: none;
+
+      &:focus { border-color: $primary-gold; }
+    }
+  }
+
+  // ── Empty / Not Found ─────────────────────────────────────────────────────
+  &--not-found {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    text-align: center;
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $spacing-md;
+    }
+  }
+
+  &__not-found-links {
+    font-size: $font-sm;
+    color: $text-gray;
+    text-align: left;
+
+    ul {
+      list-style: disc;
+      padding-left: $spacing-lg;
+      margin: $spacing-xs 0 0;
+    }
+
+    a {
+      color: $primary-gold;
+      text-decoration: none;
+
+      &:hover { text-decoration: underline; }
+    }
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-xxl $spacing-xl;
+    text-align: center;
+
+    h3 {
+      font-size: $font-lg;
+      font-weight: $font-weight-semibold;
+      color: $text-dark;
+      margin: $spacing-md 0 $spacing-sm;
+    }
+
+    p {
+      font-size: $font-base;
+      color: $text-gray;
+      margin: 0 0 $spacing-lg;
+    }
+  }
+
+  &__empty-icon {
+    font-size: 3rem;
+    color: $text-gray;
+    opacity: 0.4;
+  }
+
+  &__empty-btn {
+    padding: 10px $spacing-xl;
+    background: $primary-gold;
+    color: $white;
+    border: none;
+    border-radius: $border-radius-full;
+    font-size: $font-sm;
+    font-weight: $font-weight-semibold;
+    cursor: pointer;
+    transition: background $duration-fast;
+
+    &:hover { background: $primary-gold-hover; }
+  }
+}
+
+// ── Breadcrumb ────────────────────────────────────────────────────────────────
+.collection-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: $font-sm;
+
+  &__item {
+    color: $text-gray;
+
+    a {
+      color: $text-gray;
+      text-decoration: none;
+
+      &:hover { color: $primary-gold; }
+    }
+
+    &--active {
+      color: $text-dark;
+      font-weight: $font-weight-medium;
+    }
+  }
+
+  &__sep {
+    color: $border-light;
+    display: flex;
+    align-items: center;
+    font-size: 0.7rem;
+  }
+}

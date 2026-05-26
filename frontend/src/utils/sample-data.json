@@ -1,0 +1,3333 @@
+{
+  "products": [
+    {
+      "_id": "prod_001",
+      "name": "Solitaire Diamond Ring",
+      "category": "Rings",
+      "subcategory": "Rings diamond",
+      "description": "Elegant solitaire diamond ring with white gold band",
+      "price": 1200,
+      "originalPrice": 1500,
+      "discount": 20,
+      "images": [
+        "/product/diamond-ring.webp",
+        "/product/diamond-ring1.webp"
+      ],
+      "rating": 4.5,
+      "reviewCount": 120,
+      "inStock": true,
+      "badge": "Best Seller",
+      "deliveryDate": "25 MAY",
+      "metal": "White Gold",
+      "metalKt": "18k",
+      "stone": "Diamond",
+      "collection": "Solitaire Festival",
+      "tags": [
+        "diamond",
+        "ring",
+        "solitaire",
+        "engagement",
+        "white gold",
+        "classic"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "1k-3k",
+      "certified": true,
+      "createdAt": "2026-05-18T10:30:00Z",
+      "fulfilledBy": "Express Delivery",
+      "arrivesBy": "Today",
+      "sizes": [
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12"
+      ],
+      "designCode": "RNG-001",
+      "metals": [
+        "White Gold"
+      ],
+      "stones": [
+        "Diamond"
+      ],
+      "featured": [
+        "Solitaire"
+      ],
+      "styles": [
+        "Classic"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals",
+        "Best Seller"
+      ]
+    },
+    {
+      "_id": "prod_002",
+      "name": "Golden Engagement Ring",
+      "category": "Rings",
+      "subcategory": "Rings gold",
+      "description": "Beautiful golden engagement ring with pearl inlay",
+      "price": 1700,
+      "originalPrice": 2400,
+      "discount": 30,
+      "images": [
+        "/product/diamond-ring.webp",
+        "/product/diamond-ring1.webp"
+      ],
+      "rating": 4.8,
+      "reviewCount": 95,
+      "inStock": true,
+      "badge": "Best Seller",
+      "metal": "Gold",
+      "metalKt": "22k",
+      "stone": "Pearl",
+      "collection": "Royal & Classic",
+      "tags": [
+        "gold",
+        "ring",
+        "engagement",
+        "pearl",
+        "luxury",
+        "modern"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "1k-3k",
+      "certified": true,
+      "createdAt": "2026-04-15T08:00:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": "Today",
+      "sizes": [
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12"
+      ],
+      "designCode": "RNG-002",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [
+        "Pearl"
+      ],
+      "featured": [],
+      "styles": [
+        "Classic",
+        "Modern"
+      ],
+      "flags": [
+        "Today Deals",
+        "Best Seller"
+      ]
+    },
+    {
+      "_id": "prod_003",
+      "name": "Diamond Pendant Necklace",
+      "category": "Necklaces & Pendants",
+      "subcategory": "Necklaces diamond",
+      "description": "Stunning diamond pendant with silver chain",
+      "price": 1175,
+      "originalPrice": 1430,
+      "discount": 18,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.6,
+      "reviewCount": 78,
+      "inStock": true,
+      "badge": null,
+      "metal": "Silver",
+      "metalKt": "925",
+      "stone": "Diamond",
+      "collection": "Timeless Collection",
+      "tags": [
+        "diamond",
+        "pendant",
+        "necklace",
+        "silver",
+        "everyday",
+        "diamond pendants",
+        "classic"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "1k-3k",
+      "certified": true,
+      "createdAt": "2026-05-10T14:20:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": "Tomorrow",
+      "designCode": "NCK-003",
+      "metals": [
+        "Silver"
+      ],
+      "stones": [
+        "Diamond"
+      ],
+      "featured": [
+        "Diamond Pendants"
+      ],
+      "styles": [
+        "Classic",
+        "Minimalist"
+      ],
+      "flags": [
+        "New Arrivals"
+      ]
+    },
+    {
+      "_id": "prod_004",
+      "name": "Gold Bracelet with Gems",
+      "category": "Bracelets & Bangles",
+      "subcategory": "Bracelets gold",
+      "description": "Elegant gold bracelet studded with precious gemstones",
+      "price": 950,
+      "originalPrice": 1250,
+      "discount": 24,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.4,
+      "reviewCount": 67,
+      "inStock": true,
+      "badge": null,
+      "metal": "Gold",
+      "metalKt": "18k",
+      "stone": "Mixed Gemstones",
+      "collection": "Festive",
+      "tags": [
+        "gold",
+        "bracelet",
+        "gemstones",
+        "bangle",
+        "gold bangles",
+        "luxury",
+        "festive",
+        "stackable"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "500-1k",
+      "certified": true,
+      "createdAt": "2026-05-05T09:15:00Z",
+      "fulfilledBy": "Express Delivery",
+      "arrivesBy": "Tomorrow",
+      "designCode": "BRC-004",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [
+        "Mixed Gemstones"
+      ],
+      "featured": [
+        "Stackable"
+      ],
+      "styles": [
+        "Festive",
+        "Stackable"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals"
+      ]
+    },
+    {
+      "_id": "prod_005",
+      "name": "Sapphire Pendant",
+      "category": "Necklaces & Pendants",
+      "subcategory": "Necklaces gemstone",
+      "description": "Royal blue sapphire pendant with gold chain",
+      "price": 1750,
+      "originalPrice": 2500,
+      "discount": 30,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.9,
+      "reviewCount": 142,
+      "inStock": true,
+      "badge": "Best Seller",
+      "deliveryDate": "27 MAY",
+      "metal": "Gold",
+      "metalKt": "22k",
+      "stone": "Sapphire",
+      "collection": "Darrah Set",
+      "tags": [
+        "sapphire",
+        "pendant",
+        "necklace",
+        "gold",
+        "luxury",
+        "royal",
+        "statement"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "1k-3k",
+      "certified": true,
+      "createdAt": "2026-05-16T11:45:00Z",
+      "fulfilledBy": "Express Delivery",
+      "arrivesBy": null,
+      "designCode": "NCK-005",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [
+        "Sapphire"
+      ],
+      "featured": [
+        "Statement",
+        "Diamond Pendants"
+      ],
+      "styles": [
+        "Classic",
+        "Statement"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals",
+        "Best Seller"
+      ]
+    },
+    {
+      "_id": "prod_006",
+      "name": "Pearl Earrings",
+      "category": "Earrings",
+      "subcategory": "Earrings pearl",
+      "description": "Classic pearl stud earrings with gold setting",
+      "price": 450,
+      "originalPrice": 650,
+      "discount": 31,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.3,
+      "reviewCount": 56,
+      "inStock": true,
+      "badge": null,
+      "metal": "Gold",
+      "metalKt": "18k",
+      "stone": "Pearl",
+      "collection": "Danna Tassel",
+      "tags": [
+        "pearl",
+        "earrings",
+        "stud",
+        "studs",
+        "gold",
+        "classic",
+        "elegant"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "under-1k",
+      "certified": true,
+      "createdAt": "2026-04-20T07:30:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": "Today",
+      "designCode": "ERG-006",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [
+        "Pearl"
+      ],
+      "featured": [],
+      "styles": [
+        "Classic"
+      ],
+      "flags": [
+        "Today Deals"
+      ]
+    },
+    {
+      "_id": "prod_007",
+      "name": "Diamond Studs",
+      "category": "Earrings",
+      "subcategory": "Earrings diamond",
+      "description": "Timeless diamond stud earrings in white gold",
+      "price": 1050,
+      "originalPrice": 1500,
+      "discount": 30,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.7,
+      "reviewCount": 189,
+      "inStock": true,
+      "badge": null,
+      "deliveryDate": "26 MAY",
+      "metal": "White Gold",
+      "metalKt": "18k",
+      "stone": "Diamond",
+      "collection": "Royal & Classic",
+      "tags": [
+        "diamond",
+        "earrings",
+        "stud",
+        "studs",
+        "diamond studs",
+        "white gold",
+        "classic"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "1k-2k",
+      "certified": true,
+      "createdAt": "2026-05-01T13:00:00Z",
+      "fulfilledBy": "Express Delivery",
+      "arrivesBy": "Tomorrow",
+      "designCode": "ERG-007",
+      "metals": [
+        "White Gold"
+      ],
+      "stones": [
+        "Diamond"
+      ],
+      "featured": [
+        "Diamond Studs"
+      ],
+      "styles": [
+        "Classic",
+        "Stud"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals"
+      ]
+    },
+    {
+      "_id": "prod_008",
+      "name": "Emerald Ring",
+      "category": "Rings",
+      "subcategory": "Rings gemstone",
+      "description": "Precious emerald ring with diamond accents in gold",
+      "price": 2200,
+      "originalPrice": 3150,
+      "discount": 30,
+      "images": [
+        "/product/diamond-ring.webp",
+        "/product/diamond-ring1.webp"
+      ],
+      "rating": 4.8,
+      "reviewCount": 104,
+      "inStock": false,
+      "badge": null,
+      "metal": "Gold",
+      "metalKt": "22k",
+      "stone": "Emerald",
+      "collection": "Luxe Collection",
+      "tags": [
+        "emerald",
+        "ring",
+        "gemstone",
+        "gold",
+        "luxury",
+        "precious",
+        "vintage",
+        "cocktail"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "1k-3k",
+      "certified": true,
+      "createdAt": "2026-03-10T10:00:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": "Tomorrow",
+      "sizes": [
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12"
+      ],
+      "designCode": "RNG-008",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [
+        "Emerald"
+      ],
+      "featured": [],
+      "styles": [
+        "Vintage"
+      ],
+      "flags": [
+        "Today Deals"
+      ]
+    },
+    {
+      "_id": "prod_009",
+      "name": "Gold Chain Necklace",
+      "category": "Necklaces & Pendants",
+      "subcategory": "Necklaces gold",
+      "description": "Delicate gold chain necklace, versatile design",
+      "price": 800,
+      "originalPrice": 1100,
+      "discount": 27,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.5,
+      "reviewCount": 73,
+      "inStock": true,
+      "badge": null,
+      "metal": "Gold",
+      "metalKt": "18k",
+      "stone": "None",
+      "collection": "Everyday",
+      "tags": [
+        "gold",
+        "necklace",
+        "chain",
+        "gold chains",
+        "lightweight",
+        "versatile",
+        "minimal",
+        "long chain"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "500-1k",
+      "certified": true,
+      "createdAt": "2026-05-12T08:45:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": "Today",
+      "designCode": "NCK-009",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [],
+      "featured": [
+        "Gold Chains"
+      ],
+      "styles": [
+        "Minimalist"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals"
+      ]
+    },
+    {
+      "_id": "prod_010",
+      "name": "Ruby and Diamond Ring",
+      "category": "Rings",
+      "subcategory": "Rings gemstone",
+      "description": "Stunning ruby with diamond halo in gold",
+      "price": 2400,
+      "originalPrice": 3600,
+      "discount": 33,
+      "images": [
+        "/product/diamond-ring.webp",
+        "/product/diamond-ring1.webp"
+      ],
+      "rating": 4.9,
+      "reviewCount": 128,
+      "inStock": true,
+      "badge": "Best Seller",
+      "metal": "Gold",
+      "metalKt": "22k",
+      "stone": "Ruby & Diamond",
+      "collection": "Royal & Classic",
+      "tags": [
+        "ruby",
+        "diamond",
+        "ring",
+        "gemstone",
+        "luxury",
+        "precious",
+        "halo",
+        "cocktail"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "1k-3k",
+      "certified": true,
+      "createdAt": "2026-05-17T15:30:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": null,
+      "sizes": [
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12"
+      ],
+      "designCode": "RNG-010",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [
+        "Ruby & Diamond"
+      ],
+      "featured": [],
+      "styles": [
+        "Classic"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals",
+        "Best Seller"
+      ]
+    },
+    {
+      "_id": "prod_011",
+      "name": "Silver Ankle Bracelet",
+      "category": "Bracelets & Bangles",
+      "subcategory": "Bracelets silver",
+      "description": "Delicate silver ankle bracelet with charm details",
+      "price": 350,
+      "originalPrice": 500,
+      "discount": 30,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.2,
+      "reviewCount": 45,
+      "inStock": true,
+      "badge": "Best Seller",
+      "metal": "Silver",
+      "metalKt": "925",
+      "stone": "None",
+      "collection": "Casual",
+      "tags": [
+        "silver",
+        "bracelet",
+        "ankle",
+        "casual",
+        "lightweight",
+        "charm"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "under-1k",
+      "certified": true,
+      "createdAt": "2026-04-25T12:00:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": "Tomorrow",
+      "designCode": "BRC-011",
+      "metals": [
+        "Silver"
+      ],
+      "stones": [],
+      "featured": [],
+      "styles": [
+        "Minimalist"
+      ],
+      "flags": [
+        "Today Deals",
+        "Best Seller"
+      ]
+    },
+    {
+      "_id": "prod_012",
+      "name": "Diamond Wedding Ring Set",
+      "category": "Rings",
+      "subcategory": "Rings diamond",
+      "description": "Matching wedding ring set with diamonds",
+      "price": 3200,
+      "originalPrice": 4500,
+      "discount": 29,
+      "images": [
+        "/product/diamond-ring.webp",
+        "/product/diamond-ring1.webp"
+      ],
+      "rating": 4.8,
+      "reviewCount": 210,
+      "inStock": true,
+      "badge": "Best Seller",
+      "deliveryDate": "24 MAY",
+      "metal": "Gold",
+      "metalKt": "18k",
+      "stone": "Diamond",
+      "collection": "Wedding Collection",
+      "tags": [
+        "diamond",
+        "ring",
+        "wedding",
+        "set",
+        "engagement",
+        "gold",
+        "classic"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "3k-5k",
+      "certified": true,
+      "createdAt": "2026-02-14T10:00:00Z",
+      "fulfilledBy": "Express Delivery",
+      "arrivesBy": "Today",
+      "sizes": [
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12"
+      ],
+      "designCode": "RNG-012",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [
+        "Diamond"
+      ],
+      "featured": [],
+      "styles": [
+        "Classic",
+        "Bridal"
+      ],
+      "flags": [
+        "Today Deals",
+        "Best Seller"
+      ]
+    },
+    {
+      "_id": "prod_013",
+      "name": "Minimalist Gold Ring",
+      "category": "Rings",
+      "subcategory": "Rings gold",
+      "description": "Sleek minimalist gold ring, perfect for everyday stacking",
+      "price": 450,
+      "originalPrice": 600,
+      "discount": 25,
+      "images": [
+        "/product/diamond-ring.webp",
+        "/product/diamond-ring1.webp"
+      ],
+      "rating": 4.3,
+      "reviewCount": 88,
+      "inStock": true,
+      "badge": null,
+      "metal": "Gold",
+      "metalKt": "18k",
+      "stone": "None",
+      "collection": "Everyday",
+      "tags": [
+        "gold",
+        "ring",
+        "minimalist",
+        "classic",
+        "stackable",
+        "modern",
+        "bohemian"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "under-500",
+      "certified": true,
+      "createdAt": "2026-05-14T09:00:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": "Today",
+      "sizes": [
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12"
+      ],
+      "designCode": "RNG-013",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [],
+      "featured": [
+        "Stackable"
+      ],
+      "styles": [
+        "Classic",
+        "Modern",
+        "Minimalist",
+        "Stackable"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals"
+      ]
+    },
+    {
+      "_id": "prod_014",
+      "name": "Rose Gold Stackable Ring",
+      "category": "Rings",
+      "subcategory": "Rings rose gold",
+      "description": "Delicate rose gold stackable ring with a modern twist",
+      "price": 750,
+      "originalPrice": 950,
+      "discount": 21,
+      "images": [
+        "/product/diamond-ring.webp",
+        "/product/diamond-ring1.webp"
+      ],
+      "rating": 4.4,
+      "reviewCount": 62,
+      "inStock": true,
+      "badge": null,
+      "metal": "Rose Gold",
+      "metalKt": "18k",
+      "stone": "None",
+      "collection": "Everyday",
+      "tags": [
+        "rose gold",
+        "ring",
+        "stackable",
+        "modern",
+        "minimalist",
+        "casual"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "500-1k",
+      "certified": true,
+      "createdAt": "2026-05-08T11:00:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": null,
+      "sizes": [
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12"
+      ],
+      "designCode": "RNG-014",
+      "metals": [
+        "Rose Gold"
+      ],
+      "stones": [],
+      "featured": [
+        "Stackable"
+      ],
+      "styles": [
+        "Modern",
+        "Minimalist",
+        "Stackable"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals"
+      ]
+    },
+    {
+      "_id": "prod_015",
+      "name": "Diamond Halo Ring",
+      "category": "Rings",
+      "subcategory": "Rings diamond",
+      "description": "Brilliant diamond halo ring in white gold, perfect for engagements",
+      "price": 3800,
+      "originalPrice": 5000,
+      "discount": 24,
+      "images": [
+        "/product/diamond-ring.webp",
+        "/product/diamond-ring1.webp"
+      ],
+      "rating": 4.9,
+      "reviewCount": 156,
+      "inStock": true,
+      "badge": "Best Seller",
+      "deliveryDate": "25 MAY",
+      "metal": "White Gold",
+      "metalKt": "18k",
+      "stone": "Diamond",
+      "collection": "Solitaire Festival",
+      "tags": [
+        "diamond",
+        "ring",
+        "halo",
+        "white gold",
+        "luxury",
+        "engagement",
+        "classic"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "3k-5k",
+      "certified": true,
+      "createdAt": "2026-05-19T08:00:00Z",
+      "fulfilledBy": "Express Delivery",
+      "arrivesBy": "Tomorrow",
+      "sizes": [
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12"
+      ],
+      "designCode": "RNG-015",
+      "metals": [
+        "White Gold"
+      ],
+      "stones": [
+        "Diamond"
+      ],
+      "featured": [
+        "Solitaire",
+        "Halo"
+      ],
+      "styles": [
+        "Classic"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals",
+        "Best Seller"
+      ]
+    },
+    {
+      "_id": "prod_016",
+      "name": "Royal Diamond Statement Ring",
+      "category": "Rings",
+      "subcategory": "Rings diamond",
+      "description": "Premium diamond statement ring in 22k gold \u2014 a true heirloom piece",
+      "price": 7500,
+      "originalPrice": 9500,
+      "discount": 21,
+      "images": [
+        "/product/diamond-ring.webp",
+        "/product/diamond-ring1.webp"
+      ],
+      "rating": 5,
+      "reviewCount": 34,
+      "inStock": true,
+      "badge": null,
+      "metal": "Gold",
+      "metalKt": "22k",
+      "stone": "Diamond",
+      "collection": "Luxe Collection",
+      "tags": [
+        "diamond",
+        "ring",
+        "statement",
+        "gold",
+        "luxury",
+        "premium",
+        "precious"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "above-5k",
+      "certified": true,
+      "createdAt": "2026-05-20T10:00:00Z",
+      "fulfilledBy": "Premium Seller",
+      "arrivesBy": null,
+      "sizes": [
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12"
+      ],
+      "designCode": "RNG-016",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [
+        "Diamond"
+      ],
+      "featured": [
+        "Statement"
+      ],
+      "styles": [
+        "Statement"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals"
+      ]
+    },
+    {
+      "_id": "prod_017",
+      "name": "Gold Eternity Band",
+      "category": "Rings",
+      "subcategory": "Rings gold",
+      "description": "Classic gold eternity band with channel-set diamonds",
+      "price": 1400,
+      "originalPrice": 1800,
+      "discount": 22,
+      "images": [
+        "/product/diamond-ring.webp",
+        "/product/diamond-ring1.webp"
+      ],
+      "rating": 4.6,
+      "reviewCount": 97,
+      "inStock": true,
+      "badge": null,
+      "metal": "Gold",
+      "metalKt": "18k",
+      "stone": "Diamond",
+      "collection": "Wedding Collection",
+      "tags": [
+        "gold",
+        "ring",
+        "eternity",
+        "band",
+        "classic",
+        "wedding",
+        "stackable",
+        "diamond"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "1k-3k",
+      "certified": true,
+      "createdAt": "2026-04-10T14:00:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": "Today",
+      "sizes": [
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12"
+      ],
+      "designCode": "RNG-017",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [
+        "Diamond"
+      ],
+      "featured": [
+        "Eternity Bands",
+        "Stackable"
+      ],
+      "styles": [
+        "Classic",
+        "Bridal",
+        "Stackable"
+      ],
+      "flags": [
+        "Today Deals"
+      ]
+    },
+    {
+      "_id": "prod_018",
+      "name": "Bohemian Silver Ring",
+      "category": "Rings",
+      "subcategory": "Rings silver",
+      "description": "Handcrafted bohemian silver ring with emerald stone",
+      "price": 480,
+      "originalPrice": 650,
+      "discount": 26,
+      "images": [
+        "/product/diamond-ring.webp",
+        "/product/diamond-ring1.webp"
+      ],
+      "rating": 4.1,
+      "reviewCount": 41,
+      "inStock": true,
+      "badge": null,
+      "metal": "Silver",
+      "metalKt": "925",
+      "stone": "Emerald",
+      "collection": "Casual",
+      "tags": [
+        "silver",
+        "ring",
+        "bohemian",
+        "casual",
+        "gemstone",
+        "minimalist",
+        "vintage"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "under-500",
+      "certified": true,
+      "createdAt": "2026-04-05T10:00:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": null,
+      "sizes": [
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12"
+      ],
+      "designCode": "RNG-018",
+      "metals": [
+        "Silver"
+      ],
+      "stones": [
+        "Emerald"
+      ],
+      "featured": [],
+      "styles": [
+        "Vintage",
+        "Minimalist"
+      ],
+      "flags": [
+        "Today Deals"
+      ]
+    },
+    {
+      "_id": "prod_019",
+      "name": "Gold Hoop Earrings",
+      "category": "Earrings",
+      "subcategory": "Earrings gold",
+      "description": "Classic lightweight gold hoop earrings for everyday wear",
+      "price": 180,
+      "originalPrice": 250,
+      "discount": 28,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.3,
+      "reviewCount": 203,
+      "inStock": true,
+      "badge": null,
+      "metal": "Gold",
+      "metalKt": "18k",
+      "stone": "None",
+      "collection": "Everyday",
+      "tags": [
+        "gold",
+        "earrings",
+        "hoop",
+        "hoops",
+        "gold hoops",
+        "classic",
+        "everyday",
+        "lightweight"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "under-200",
+      "certified": true,
+      "createdAt": "2026-05-11T07:00:00Z",
+      "fulfilledBy": "Express Delivery",
+      "arrivesBy": "Today",
+      "designCode": "ERG-019",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [],
+      "featured": [
+        "Gold Hoops"
+      ],
+      "styles": [
+        "Classic",
+        "Minimalist",
+        "Hoop"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals"
+      ]
+    },
+    {
+      "_id": "prod_020",
+      "name": "Jhumka Earrings",
+      "category": "Earrings",
+      "subcategory": "Earrings traditional",
+      "description": "Traditional gold jhumka earrings with intricate detailing",
+      "price": 380,
+      "originalPrice": 520,
+      "discount": 27,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.5,
+      "reviewCount": 118,
+      "inStock": true,
+      "badge": null,
+      "metal": "Gold",
+      "metalKt": "22k",
+      "stone": "None",
+      "collection": "Royal & Classic",
+      "tags": [
+        "gold",
+        "earrings",
+        "jhumka",
+        "jhumkas",
+        "traditional",
+        "drop",
+        "drop earrings",
+        "bohemian"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "200-600",
+      "certified": true,
+      "createdAt": "2026-05-09T10:00:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": "Tomorrow",
+      "designCode": "ERG-020",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [],
+      "featured": [
+        "Jhumkas"
+      ],
+      "styles": [
+        "Classic"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals"
+      ]
+    },
+    {
+      "_id": "prod_021",
+      "name": "Diamond Drop Earrings",
+      "category": "Earrings",
+      "subcategory": "Earrings diamond",
+      "description": "Diana Oval Natural Morganite and Round Brilliant Natural Diamonds Ring in 18K Rose Gold from the Diana Collection feature exquisite craftsmanship with stunning oval-shaped Morganite complemented by sparkling round brilliant diamonds.",
+      "price": 1100,
+      "originalPrice": 1450,
+      "discount": 24,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.6,
+      "reviewCount": 74,
+      "inStock": true,
+      "badge": null,
+      "metal": "White Gold",
+      "metalKt": "18k",
+      "stone": "Diamond",
+      "collection": "Timeless Collection",
+      "tags": [
+        "diamond",
+        "earrings",
+        "drop",
+        "drop earrings",
+        "white gold",
+        "elegant",
+        "luxury"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "600-2k",
+      "certified": true,
+      "createdAt": "2026-05-07T12:00:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": null,
+      "designCode": "ERG-021",
+      "metals": [
+        "White Gold"
+      ],
+      "stones": [
+        "Diamond"
+      ],
+      "featured": [
+        "Drop Earrings"
+      ],
+      "styles": [
+        "Classic",
+        "Drop"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals"
+      ]
+    },
+    {
+      "_id": "prod_022",
+      "name": "Diamond Chandelier Earrings",
+      "category": "Earrings",
+      "subcategory": "Earrings diamond",
+      "description": "Spectacular diamond chandelier earrings for special occasions",
+      "price": 3500,
+      "originalPrice": 4800,
+      "discount": 27,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.8,
+      "reviewCount": 52,
+      "inStock": true,
+      "badge": "Best Seller",
+      "metal": "White Gold",
+      "metalKt": "18k",
+      "stone": "Diamond",
+      "collection": "Luxe Collection",
+      "tags": [
+        "diamond",
+        "earrings",
+        "chandelier",
+        "white gold",
+        "luxury",
+        "statement",
+        "precious"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "2k-5k",
+      "certified": true,
+      "createdAt": "2026-05-15T14:00:00Z",
+      "fulfilledBy": "Premium Seller",
+      "arrivesBy": null,
+      "designCode": "ERG-022",
+      "metals": [
+        "White Gold"
+      ],
+      "stones": [
+        "Diamond"
+      ],
+      "featured": [
+        "Statement",
+        "Chandelier"
+      ],
+      "styles": [
+        "Chandelier",
+        "Statement"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals",
+        "Best Seller"
+      ]
+    },
+    {
+      "_id": "prod_023",
+      "name": "Ruby Cluster Earrings",
+      "category": "Earrings",
+      "subcategory": "Earrings gemstone",
+      "description": "Luxurious ruby cluster earrings in 22k gold \u2014 a rare collector's piece",
+      "price": 6200,
+      "originalPrice": 8000,
+      "discount": 23,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.9,
+      "reviewCount": 28,
+      "inStock": true,
+      "badge": null,
+      "metal": "Gold",
+      "metalKt": "22k",
+      "stone": "Ruby",
+      "collection": "Luxe Collection",
+      "tags": [
+        "ruby",
+        "earrings",
+        "cluster",
+        "gold",
+        "luxury",
+        "precious",
+        "premium"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "above-5k",
+      "certified": true,
+      "createdAt": "2026-05-20T09:00:00Z",
+      "fulfilledBy": "Premium Seller",
+      "arrivesBy": null,
+      "designCode": "ERG-023",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [
+        "Ruby"
+      ],
+      "featured": [],
+      "styles": [
+        "Classic"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals"
+      ]
+    },
+    {
+      "_id": "prod_024",
+      "name": "Gold Threader Earrings",
+      "category": "Earrings",
+      "subcategory": "Earrings gold",
+      "description": "Modern gold threader earrings with a minimalist aesthetic",
+      "price": 220,
+      "originalPrice": 300,
+      "discount": 27,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.2,
+      "reviewCount": 61,
+      "inStock": true,
+      "badge": null,
+      "metal": "Gold",
+      "metalKt": "18k",
+      "stone": "None",
+      "collection": "Everyday",
+      "tags": [
+        "gold",
+        "earrings",
+        "threader",
+        "modern",
+        "minimalist",
+        "delicate",
+        "everyday"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "200-600",
+      "certified": true,
+      "createdAt": "2026-05-03T10:00:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": "Tomorrow",
+      "designCode": "ERG-024",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [],
+      "featured": [],
+      "styles": [
+        "Modern",
+        "Minimalist"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals"
+      ]
+    },
+    {
+      "_id": "prod_025",
+      "name": "Silver Minimal Chain Necklace",
+      "category": "Necklaces & Pendants",
+      "subcategory": "Necklaces silver",
+      "description": "Ultra-fine silver chain necklace for a clean, minimal look",
+      "price": 260,
+      "originalPrice": 360,
+      "discount": 28,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.2,
+      "reviewCount": 84,
+      "inStock": true,
+      "badge": null,
+      "metal": "Silver",
+      "metalKt": "925",
+      "stone": "None",
+      "collection": "Everyday",
+      "tags": [
+        "silver",
+        "necklace",
+        "chain",
+        "minimal",
+        "lightweight",
+        "everyday",
+        "long chain",
+        "gold chains"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "under-300",
+      "certified": true,
+      "createdAt": "2026-05-06T08:00:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": "Today",
+      "designCode": "NCK-025",
+      "metals": [
+        "Silver"
+      ],
+      "stones": [],
+      "featured": [
+        "Gold Chains"
+      ],
+      "styles": [
+        "Minimalist"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals"
+      ]
+    },
+    {
+      "_id": "prod_026",
+      "name": "Pearl Layered Necklace",
+      "category": "Necklaces & Pendants",
+      "subcategory": "Necklaces pearl",
+      "description": "Elegant layered pearl necklace with gold spacers",
+      "price": 650,
+      "originalPrice": 880,
+      "discount": 26,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.5,
+      "reviewCount": 93,
+      "inStock": true,
+      "badge": null,
+      "metal": "Gold",
+      "metalKt": "18k",
+      "stone": "Pearl",
+      "collection": "Danna Tassel",
+      "tags": [
+        "pearl",
+        "necklace",
+        "layered",
+        "gold",
+        "classic",
+        "pearl necklaces",
+        "layered sets"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "300-800",
+      "certified": true,
+      "createdAt": "2026-04-28T11:00:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": "Tomorrow",
+      "designCode": "NCK-026",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [
+        "Pearl"
+      ],
+      "featured": [
+        "Pearl Necklaces",
+        "Layered Sets"
+      ],
+      "styles": [
+        "Classic",
+        "Layered"
+      ],
+      "flags": [
+        "Today Deals"
+      ]
+    },
+    {
+      "_id": "prod_027",
+      "name": "Ruby Pendant Necklace",
+      "category": "Necklaces & Pendants",
+      "subcategory": "Necklaces gemstone",
+      "description": "Bold ruby pendant in gold chain, a timeless statement piece",
+      "price": 1400,
+      "originalPrice": 1900,
+      "discount": 26,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.6,
+      "reviewCount": 67,
+      "inStock": true,
+      "badge": null,
+      "metal": "Gold",
+      "metalKt": "18k",
+      "stone": "Ruby",
+      "collection": "Royal & Classic",
+      "tags": [
+        "ruby",
+        "pendant",
+        "necklace",
+        "gold",
+        "luxury",
+        "statement",
+        "classic"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "800-2k",
+      "certified": true,
+      "createdAt": "2026-04-18T10:00:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": null,
+      "designCode": "NCK-027",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [
+        "Ruby"
+      ],
+      "featured": [
+        "Statement",
+        "Diamond Pendants"
+      ],
+      "styles": [
+        "Classic",
+        "Statement"
+      ],
+      "flags": [
+        "Today Deals"
+      ]
+    },
+    {
+      "_id": "prod_028",
+      "name": "Emerald Statement Necklace",
+      "category": "Necklaces & Pendants",
+      "subcategory": "Necklaces gemstone",
+      "description": "Bold emerald necklace with diamonds set in 22k gold",
+      "price": 2800,
+      "originalPrice": 3800,
+      "discount": 26,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.7,
+      "reviewCount": 45,
+      "inStock": true,
+      "badge": null,
+      "metal": "Gold",
+      "metalKt": "22k",
+      "stone": "Emerald",
+      "collection": "Luxe Collection",
+      "tags": [
+        "emerald",
+        "necklace",
+        "statement",
+        "gold",
+        "luxury",
+        "precious",
+        "diamond"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "2k-5k",
+      "certified": true,
+      "createdAt": "2026-05-13T14:00:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": null,
+      "designCode": "NCK-028",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [
+        "Emerald"
+      ],
+      "featured": [
+        "Statement"
+      ],
+      "styles": [
+        "Statement"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals"
+      ]
+    },
+    {
+      "_id": "prod_029",
+      "name": "Diamond Choker Necklace",
+      "category": "Necklaces & Pendants",
+      "subcategory": "Necklaces diamond",
+      "description": "Breathtaking diamond choker in white gold \u2014 the pinnacle of elegance",
+      "price": 6500,
+      "originalPrice": 8500,
+      "discount": 24,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 5,
+      "reviewCount": 19,
+      "inStock": true,
+      "badge": null,
+      "metal": "White Gold",
+      "metalKt": "18k",
+      "stone": "Diamond",
+      "collection": "Luxe Collection",
+      "tags": [
+        "diamond",
+        "necklace",
+        "choker",
+        "white gold",
+        "luxury",
+        "premium",
+        "diamond pendants"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "above-5k",
+      "certified": true,
+      "createdAt": "2026-05-20T11:00:00Z",
+      "fulfilledBy": "Premium Seller",
+      "arrivesBy": null,
+      "designCode": "NCK-029",
+      "metals": [
+        "White Gold"
+      ],
+      "stones": [
+        "Diamond"
+      ],
+      "featured": [
+        "Chokers"
+      ],
+      "styles": [
+        "Choker"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals"
+      ]
+    },
+    {
+      "_id": "prod_030",
+      "name": "Gold Charm Bracelet",
+      "category": "Bracelets & Bangles",
+      "subcategory": "Bracelets gold",
+      "description": "Playful gold charm bracelet with unique pendants",
+      "price": 260,
+      "originalPrice": 380,
+      "discount": 32,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.3,
+      "reviewCount": 112,
+      "inStock": true,
+      "badge": null,
+      "metal": "Gold",
+      "metalKt": "18k",
+      "stone": "None",
+      "collection": "Casual",
+      "tags": [
+        "gold",
+        "bracelet",
+        "charm",
+        "casual",
+        "everyday",
+        "lightweight"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "under-300",
+      "certified": true,
+      "createdAt": "2026-05-04T09:00:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": "Tomorrow",
+      "designCode": "BRC-030",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [],
+      "featured": [
+        "Charm Bracelets"
+      ],
+      "styles": [
+        "Minimalist",
+        "Charm"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals"
+      ]
+    },
+    {
+      "_id": "prod_031",
+      "name": "Silver Cuff Bracelet",
+      "category": "Bracelets & Bangles",
+      "subcategory": "Bracelets silver",
+      "description": "Bold silver cuff bracelet with modern geometric design",
+      "price": 580,
+      "originalPrice": 780,
+      "discount": 26,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.2,
+      "reviewCount": 55,
+      "inStock": true,
+      "badge": null,
+      "metal": "Silver",
+      "metalKt": "925",
+      "stone": "None",
+      "collection": "Casual",
+      "tags": [
+        "silver",
+        "bracelet",
+        "cuff",
+        "modern",
+        "minimalist",
+        "geometric"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "300-800",
+      "certified": true,
+      "createdAt": "2026-04-22T10:00:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": null,
+      "designCode": "BRC-031",
+      "metals": [
+        "Silver"
+      ],
+      "stones": [],
+      "featured": [],
+      "styles": [
+        "Modern",
+        "Minimalist"
+      ],
+      "flags": [
+        "Today Deals"
+      ]
+    },
+    {
+      "_id": "prod_032",
+      "name": "Gold Chain Bracelet",
+      "category": "Bracelets & Bangles",
+      "subcategory": "Bracelets gold",
+      "description": "Classic gold chain bracelet for everyday elegance",
+      "price": 1100,
+      "originalPrice": 1500,
+      "discount": 27,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.4,
+      "reviewCount": 78,
+      "inStock": true,
+      "badge": null,
+      "metal": "Gold",
+      "metalKt": "18k",
+      "stone": "None",
+      "collection": "Everyday",
+      "tags": [
+        "gold",
+        "bracelet",
+        "chain",
+        "classic",
+        "everyday",
+        "stackable"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "800-2k",
+      "certified": true,
+      "createdAt": "2026-04-30T10:00:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": null,
+      "designCode": "BRC-032",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [],
+      "featured": [
+        "Gold Chains",
+        "Stackable"
+      ],
+      "styles": [
+        "Classic",
+        "Minimalist",
+        "Stackable"
+      ],
+      "flags": [
+        "Today Deals"
+      ]
+    },
+    {
+      "_id": "prod_033",
+      "name": "Diamond Tennis Bracelet",
+      "category": "Bracelets & Bangles",
+      "subcategory": "Bracelets diamond",
+      "description": "Stunning diamond tennis bracelet in white gold",
+      "price": 4500,
+      "originalPrice": 6000,
+      "discount": 25,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.9,
+      "reviewCount": 87,
+      "inStock": true,
+      "badge": "Best Seller",
+      "deliveryDate": "25 MAY",
+      "metal": "White Gold",
+      "metalKt": "18k",
+      "stone": "Diamond",
+      "collection": "Luxe Collection",
+      "tags": [
+        "diamond",
+        "bracelet",
+        "tennis",
+        "white gold",
+        "luxury",
+        "classic",
+        "precious"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "2k-5k",
+      "certified": true,
+      "createdAt": "2026-05-17T09:00:00Z",
+      "fulfilledBy": "Express Delivery",
+      "arrivesBy": "Today",
+      "designCode": "BRC-033",
+      "metals": [
+        "White Gold"
+      ],
+      "stones": [
+        "Diamond"
+      ],
+      "featured": [
+        "Tennis Bracelets"
+      ],
+      "styles": [
+        "Classic",
+        "Tennis"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals",
+        "Best Seller"
+      ]
+    },
+    {
+      "_id": "prod_034",
+      "name": "Gold Diamond Bangle",
+      "category": "Bracelets & Bangles",
+      "subcategory": "Bracelets diamond",
+      "description": "Heirloom-quality gold bangle set with brilliant diamonds",
+      "price": 7200,
+      "originalPrice": 9500,
+      "discount": 24,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 5,
+      "reviewCount": 23,
+      "inStock": true,
+      "badge": null,
+      "metal": "Gold",
+      "metalKt": "22k",
+      "stone": "Diamond",
+      "collection": "Luxe Collection",
+      "tags": [
+        "gold",
+        "diamond",
+        "bracelet",
+        "bangle",
+        "gold bangles",
+        "diamond bangles",
+        "luxury",
+        "premium"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "above-5k",
+      "certified": true,
+      "createdAt": "2026-05-20T08:00:00Z",
+      "fulfilledBy": "Premium Seller",
+      "arrivesBy": null,
+      "designCode": "BRC-034",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [
+        "Diamond"
+      ],
+      "featured": [
+        "Gold Bangles",
+        "Diamond Bangles"
+      ],
+      "styles": [
+        "Bangle"
+      ],
+      "flags": [
+        "Today Deals",
+        "New Arrivals"
+      ]
+    },
+    {
+      "_id": "prod_035",
+      "name": "Beaded Gemstone Bracelet",
+      "category": "Bracelets & Bangles",
+      "subcategory": "Bracelets gemstone",
+      "description": "Colourful beaded bracelet with mixed precious gemstones",
+      "price": 450,
+      "originalPrice": 600,
+      "discount": 25,
+      "images": [
+        "/product/55..webp",
+        "/product/55.1_72ce62de-cb5f-4fc7-89bd-f46772cb02d8.webp"
+      ],
+      "rating": 4.3,
+      "reviewCount": 69,
+      "inStock": true,
+      "badge": null,
+      "metal": "Gold",
+      "metalKt": "18k",
+      "stone": "Mixed Gemstones",
+      "collection": "Festive",
+      "tags": [
+        "gold",
+        "bracelet",
+        "beaded",
+        "gemstones",
+        "colorful",
+        "casual",
+        "stackable"
+      ],
+      "forWho": [
+        "women"
+      ],
+      "priceRange": "300-800",
+      "certified": true,
+      "createdAt": "2026-04-12T10:00:00Z",
+      "fulfilledBy": "Jawhara",
+      "arrivesBy": "Tomorrow",
+      "designCode": "BRC-035",
+      "metals": [
+        "Gold"
+      ],
+      "stones": [
+        "Mixed Gemstones"
+      ],
+      "featured": [
+        "Stackable"
+      ],
+      "styles": [
+        "Minimalist",
+        "Festive",
+        "Stackable"
+      ],
+      "flags": [
+        "Today Deals"
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "_id": "cat_001",
+      "name": "Rings",
+      "icon": "\ud83d\udc8d",
+      "subcategories": [
+        "Rings diamond",
+        "Rings gold",
+        "Rings silver",
+        "Rings gemstone",
+        "Rings solitaire",
+        "Rings rose gold"
+      ],
+      "featured": [
+        "prod_001",
+        "prod_015",
+        "prod_010"
+      ]
+    },
+    {
+      "_id": "cat_002",
+      "name": "Earrings",
+      "icon": "\ud83d\udc8e",
+      "subcategories": [
+        "Earrings diamond",
+        "Earrings pearl",
+        "Earrings gold",
+        "Earrings gemstone",
+        "Earrings traditional"
+      ],
+      "featured": [
+        "prod_007",
+        "prod_022",
+        "prod_019"
+      ]
+    },
+    {
+      "_id": "cat_003",
+      "name": "Bracelets & Bangles",
+      "icon": "\u2728",
+      "subcategories": [
+        "Bracelets gold",
+        "Bracelets silver",
+        "Bracelets diamond",
+        "Bracelets gemstone"
+      ],
+      "featured": [
+        "prod_033",
+        "prod_034",
+        "prod_004"
+      ]
+    },
+    {
+      "_id": "cat_004",
+      "name": "Necklaces & Pendants",
+      "icon": "\u26d3\ufe0f",
+      "subcategories": [
+        "Necklaces diamond",
+        "Necklaces gold",
+        "Necklaces gemstone",
+        "Necklaces pearl",
+        "Necklaces silver"
+      ],
+      "featured": [
+        "prod_029",
+        "prod_005",
+        "prod_026"
+      ]
+    },
+    {
+      "_id": "cat_005",
+      "name": "Kids Jewellery",
+      "icon": "\ud83d\udc76",
+      "subcategories": [
+        "Rings kids",
+        "Bracelets kids",
+        "Necklaces kids",
+        "Earrings kids"
+      ],
+      "featured": []
+    }
+  ],
+  "collections": [
+    {
+      "_id": "col_001",
+      "name": "Solitaire Festival",
+      "image": "https://via.placeholder.com/300x300?text=Solitaire",
+      "description": "Special edition diamond collection",
+      "featured": true,
+      "discount": 20
+    },
+    {
+      "_id": "col_002",
+      "name": "Royal & Classic",
+      "image": "https://via.placeholder.com/300x300?text=Royal",
+      "description": "Timeless classic jewelry pieces",
+      "featured": true,
+      "discount": 0
+    },
+    {
+      "_id": "col_003",
+      "name": "Darrah Set",
+      "image": "https://via.placeholder.com/300x300?text=Darrah",
+      "description": "Exclusive Darrah collection",
+      "featured": false,
+      "discount": 15
+    },
+    {
+      "_id": "col_004",
+      "name": "Danna Tassel",
+      "image": "https://via.placeholder.com/300x300?text=Danna",
+      "description": "Elegant tassel jewelry",
+      "featured": false,
+      "discount": 25
+    },
+    {
+      "_id": "col_005",
+      "name": "Festive",
+      "image": "https://via.placeholder.com/300x300?text=Festive",
+      "description": "Festive season collection",
+      "featured": true,
+      "discount": 30
+    }
+  ],
+  "reviews": [
+    {
+      "_id": "review_001",
+      "productId": "prod_001",
+      "userId": "user_001",
+      "userName": "Aisha K",
+      "userInitial": "A",
+      "location": "Dubai",
+      "rating": 5,
+      "title": "Absolutely stunning",
+      "text": "This solitaire ring is absolutely stunning. The diamond catches the light beautifully and the white gold band is flawlessly finished. Arrived in a gorgeous gift box \u2014 perfect for an engagement!",
+      "verified": true,
+      "helpful": 22,
+      "notHelpful": 1,
+      "createdAt": "2026-05-15T10:00:00Z"
+    },
+    {
+      "_id": "review_002",
+      "productId": "prod_001",
+      "userId": "user_002",
+      "userName": "Fatema S",
+      "userInitial": "F",
+      "location": "Abu Dhabi",
+      "rating": 4,
+      "title": "Elegant everyday ring",
+      "text": "Very nice piece. The solitaire design is clean and sophisticated \u2014 works for both daily wear and special occasions. Delivery was fast and the packaging was premium quality.",
+      "verified": true,
+      "helpful": 14,
+      "notHelpful": 2,
+      "createdAt": "2026-05-12T14:30:00Z"
+    },
+    {
+      "_id": "review_003",
+      "productId": "prod_001",
+      "userId": "user_003",
+      "userName": "Noor S",
+      "userInitial": "N",
+      "location": "Sharjah",
+      "rating": 5,
+      "title": "Worth every dirham",
+      "text": "The diamond is brilliant and the setting is secure. I've been wearing it daily for 3 weeks and it still looks brand new. The hallmark certification gave me full confidence in the purchase.",
+      "verified": true,
+      "helpful": 18,
+      "notHelpful": 0,
+      "createdAt": "2026-05-10T08:15:00Z"
+    },
+    {
+      "_id": "review_006",
+      "productId": "prod_001",
+      "userId": "user_006",
+      "userName": "Reem A",
+      "userInitial": "R",
+      "location": "Riyadh",
+      "rating": 5,
+      "title": "Perfect engagement ring",
+      "text": "My fianc\u00e9 proposed with this ring and I am beyond in love. The diamond sparkles in every light and the 18k white gold band is incredibly comfortable to wear all day. Jawhara delivered on time too.",
+      "verified": true,
+      "helpful": 31,
+      "notHelpful": 0,
+      "createdAt": "2026-05-01T09:00:00Z"
+    },
+    {
+      "_id": "review_007",
+      "productId": "prod_002",
+      "userId": "user_007",
+      "userName": "Mariam H",
+      "userInitial": "M",
+      "location": "Dubai",
+      "rating": 5,
+      "title": "Breathtaking gold ring",
+      "text": "The 22k gold with pearl inlay is absolutely regal. The craftsmanship is exceptional \u2014 you can tell real artisans made this. My mother-in-law complimented it immediately at our family gathering.",
+      "verified": true,
+      "helpful": 19,
+      "notHelpful": 1,
+      "createdAt": "2026-05-14T11:00:00Z"
+    },
+    {
+      "_id": "review_008",
+      "productId": "prod_002",
+      "userId": "user_008",
+      "userName": "Layla F",
+      "userInitial": "L",
+      "location": "Kuwait City",
+      "rating": 5,
+      "title": "Royal and classic",
+      "text": "I purchased this as a gift for my engagement and the reaction was priceless. The pearl is lustrous and perfectly centered. The 30% discount made luxury very accessible. Will shop from Jawhara again.",
+      "verified": true,
+      "helpful": 25,
+      "notHelpful": 0,
+      "createdAt": "2026-05-11T16:20:00Z"
+    },
+    {
+      "_id": "review_009",
+      "productId": "prod_002",
+      "userId": "user_009",
+      "userName": "Hessa R",
+      "userInitial": "H",
+      "location": "Doha",
+      "rating": 4,
+      "title": "Elegant and luxurious",
+      "text": "Beautifully crafted ring with a warm gold tone. The pearl inlay gives it a classic, heirloom feel. Packaging was impeccable. Docking one star only because sizing ran slightly large.",
+      "verified": true,
+      "helpful": 11,
+      "notHelpful": 2,
+      "createdAt": "2026-05-07T09:45:00Z"
+    },
+    {
+      "_id": "review_010",
+      "productId": "prod_003",
+      "userId": "user_010",
+      "userName": "Yasmin A",
+      "userInitial": "Y",
+      "location": "Abu Dhabi",
+      "rating": 5,
+      "title": "Gorgeous pendant necklace",
+      "text": "The diamond pendant is absolutely breathtaking. It sits perfectly on the 925 silver chain and catches light from every angle. I wear it every day and receive compliments constantly. Fast delivery to Abu Dhabi!",
+      "verified": true,
+      "helpful": 20,
+      "notHelpful": 0,
+      "createdAt": "2026-05-13T12:00:00Z"
+    },
+    {
+      "_id": "review_011",
+      "productId": "prod_003",
+      "userId": "user_011",
+      "userName": "Dana M",
+      "userInitial": "D",
+      "location": "Dubai",
+      "rating": 4,
+      "title": "Timeless and elegant",
+      "text": "The pendant is exactly as shown \u2014 clean, minimal, and elegant. The silver chain is sturdy and the clasp is secure. Great value at the discounted price. Would make a wonderful gift.",
+      "verified": true,
+      "helpful": 13,
+      "notHelpful": 1,
+      "createdAt": "2026-05-09T14:30:00Z"
+    },
+    {
+      "_id": "review_012",
+      "productId": "prod_003",
+      "userId": "user_012",
+      "userName": "Lina B",
+      "userInitial": "L",
+      "location": "Sharjah",
+      "rating": 5,
+      "title": "A perfect gift",
+      "text": "Bought this for my sister's birthday and she was overjoyed. The diamond sparkle is real and visible even in indoor lighting. The Timeless Collection box it came in made the unboxing experience magical.",
+      "verified": false,
+      "helpful": 9,
+      "notHelpful": 0,
+      "createdAt": "2026-05-06T08:00:00Z"
+    },
+    {
+      "_id": "review_013",
+      "productId": "prod_003",
+      "userId": "user_013",
+      "userName": "Amira N",
+      "userInitial": "A",
+      "location": "Muscat",
+      "rating": 5,
+      "title": "Exactly what I wanted",
+      "text": "I searched for months for the perfect everyday pendant and this is it. Light enough to wear daily but elegant enough for events. The hallmark certification is a big plus \u2014 I know exactly what I'm getting.",
+      "verified": true,
+      "helpful": 17,
+      "notHelpful": 0,
+      "createdAt": "2026-05-02T10:15:00Z"
+    },
+    {
+      "_id": "review_014",
+      "productId": "prod_004",
+      "userId": "user_014",
+      "userName": "Rania K",
+      "userInitial": "R",
+      "location": "Dubai",
+      "rating": 4,
+      "title": "Stunning bracelet",
+      "text": "The mixed gemstones on this bracelet are vibrant and beautifully set. It's the perfect piece to elevate any outfit. The 18k gold quality is clearly premium. Fast delivery and excellent packaging.",
+      "verified": true,
+      "helpful": 16,
+      "notHelpful": 2,
+      "createdAt": "2026-05-14T09:30:00Z"
+    },
+    {
+      "_id": "review_015",
+      "productId": "prod_004",
+      "userId": "user_015",
+      "userName": "Suha L",
+      "userInitial": "S",
+      "location": "Bahrain",
+      "rating": 5,
+      "title": "Festive and glamorous",
+      "text": "I wore this to an Eid celebration and it was the highlight of my outfit. The gemstones catch the light beautifully under chandelier lighting. Fits perfectly and the clasp is very secure. Worth every fils.",
+      "verified": true,
+      "helpful": 21,
+      "notHelpful": 0,
+      "createdAt": "2026-05-09T18:00:00Z"
+    },
+    {
+      "_id": "review_016",
+      "productId": "prod_004",
+      "userId": "user_016",
+      "userName": "Noura T",
+      "userInitial": "N",
+      "location": "Abu Dhabi",
+      "rating": 4,
+      "title": "Beautiful everyday bracelet",
+      "text": "Great quality gold bracelet with colourful gemstone accents. Lightweight yet feels substantial. I've been wearing it daily for a month with no tarnishing. The discount made it excellent value.",
+      "verified": true,
+      "helpful": 10,
+      "notHelpful": 1,
+      "createdAt": "2026-05-05T11:00:00Z"
+    },
+    {
+      "_id": "review_017",
+      "productId": "prod_005",
+      "userId": "user_017",
+      "userName": "Shaikha M",
+      "userInitial": "S",
+      "location": "Dubai",
+      "rating": 5,
+      "title": "A true statement piece",
+      "text": "The Sapphire Pendant is absolutely royal. The deep blue sapphire against the 22k gold chain is striking. I've been stopped and asked about it multiple times. This is heirloom-quality jewellery.",
+      "verified": true,
+      "helpful": 28,
+      "notHelpful": 0,
+      "createdAt": "2026-05-17T14:00:00Z"
+    },
+    {
+      "_id": "review_018",
+      "productId": "prod_005",
+      "userId": "user_018",
+      "userName": "Zainab H",
+      "userInitial": "Z",
+      "location": "Riyadh",
+      "rating": 5,
+      "title": "Luxury at its finest",
+      "text": "The colour of the sapphire is rich and deep \u2014 not a pale blue but a genuine royal blue. The gold chain is thick and high quality. Arrived beautifully packaged and certified. Couldn't be happier.",
+      "verified": true,
+      "helpful": 23,
+      "notHelpful": 1,
+      "createdAt": "2026-05-14T10:00:00Z"
+    },
+    {
+      "_id": "review_019",
+      "productId": "prod_005",
+      "userId": "user_019",
+      "userName": "Hana J",
+      "userInitial": "H",
+      "location": "Doha",
+      "rating": 5,
+      "title": "Exceeded expectations",
+      "text": "I purchased this as an anniversary gift and my wife was speechless. The sapphire is vibrant, the gold is gleaming, and the packaging felt truly premium. Fast shipping too \u2014 arrived exactly as promised.",
+      "verified": true,
+      "helpful": 19,
+      "notHelpful": 0,
+      "createdAt": "2026-05-11T08:30:00Z"
+    },
+    {
+      "_id": "review_020",
+      "productId": "prod_005",
+      "userId": "user_020",
+      "userName": "Maha W",
+      "userInitial": "M",
+      "location": "Jeddah",
+      "rating": 4,
+      "title": "Gorgeous but heavy",
+      "text": "The pendant is absolutely beautiful and the sapphire colour is stunning. My only note is that it's a bit heavy for everyday wear \u2014 but for evenings and occasions it's perfect. Quality is unquestionable.",
+      "verified": false,
+      "helpful": 8,
+      "notHelpful": 1,
+      "createdAt": "2026-05-08T15:00:00Z"
+    },
+    {
+      "_id": "review_021",
+      "productId": "prod_006",
+      "userId": "user_021",
+      "userName": "Sara A",
+      "userInitial": "S",
+      "location": "Dubai",
+      "rating": 4,
+      "title": "Classic pearl elegance",
+      "text": "These pearl studs are exactly what I wanted \u2014 clean, classic, and versatile. They look beautiful with both casual and formal outfits. The gold setting is polished and secure. Very happy with the purchase.",
+      "verified": true,
+      "helpful": 12,
+      "notHelpful": 1,
+      "createdAt": "2026-05-16T11:00:00Z"
+    },
+    {
+      "_id": "review_022",
+      "productId": "prod_006",
+      "userId": "user_022",
+      "userName": "Rana F",
+      "userInitial": "R",
+      "location": "Sharjah",
+      "rating": 5,
+      "title": "Perfectly sized pearls",
+      "text": "The pearls are beautifully round and lustrous \u2014 not too large, not too small. The 18k gold setting is solid and the earring backs are comfortable. I wear these almost every day. Excellent quality for the price.",
+      "verified": true,
+      "helpful": 15,
+      "notHelpful": 0,
+      "createdAt": "2026-05-13T08:00:00Z"
+    },
+    {
+      "_id": "review_023",
+      "productId": "prod_006",
+      "userId": "user_023",
+      "userName": "Hind K",
+      "userInitial": "H",
+      "location": "Abu Dhabi",
+      "rating": 4,
+      "title": "Great gift",
+      "text": "Bought as a gift for my mother and she was delighted. The pearl earrings look more expensive than they are \u2014 in the best way. They came in a lovely jewellery box perfect for gifting.",
+      "verified": false,
+      "helpful": 9,
+      "notHelpful": 0,
+      "createdAt": "2026-05-10T12:30:00Z"
+    },
+    {
+      "_id": "review_004",
+      "productId": "prod_007",
+      "userId": "user_004",
+      "userName": "Mariam M",
+      "userInitial": "M",
+      "location": "Kuwait City",
+      "rating": 4,
+      "title": "Brilliant diamond studs",
+      "text": "Great earrings for special occasions. The sparkle is real and the quality is excellent. The white gold settings are very secure and the diamonds don't wobble at all. Fast delivery to Kuwait.",
+      "verified": true,
+      "helpful": 14,
+      "notHelpful": 2,
+      "createdAt": "2026-05-08T16:45:00Z"
+    },
+    {
+      "_id": "review_005",
+      "productId": "prod_007",
+      "userId": "user_005",
+      "userName": "Sara M",
+      "userInitial": "S",
+      "location": "Dubai",
+      "rating": 5,
+      "title": "Perfect gift",
+      "text": "Perfect gift option. They look stunning in person \u2014 far better than the photos. The diamond brilliance under light is amazing. I gifted these to my daughter for her graduation and she loves them.",
+      "verified": true,
+      "helpful": 21,
+      "notHelpful": 0,
+      "createdAt": "2026-05-05T11:20:00Z"
+    },
+    {
+      "_id": "review_024",
+      "productId": "prod_007",
+      "userId": "user_024",
+      "userName": "Lana S",
+      "userInitial": "L",
+      "location": "Muscat",
+      "rating": 5,
+      "title": "Timeless classic",
+      "text": "Diamond studs never go out of style and these are a perfect example. The white gold setting complements the diamond brilliance perfectly. My go-to earrings for every occasion. Certified and authentic.",
+      "verified": true,
+      "helpful": 18,
+      "notHelpful": 0,
+      "createdAt": "2026-05-01T09:15:00Z"
+    },
+    {
+      "_id": "review_025",
+      "productId": "prod_008",
+      "userId": "user_025",
+      "userName": "Dina R",
+      "userInitial": "D",
+      "location": "Dubai",
+      "rating": 5,
+      "title": "Royally beautiful",
+      "text": "The emerald is a stunning deep green and the diamond accents make it even more luxurious. The 22k gold setting is impeccable. This ring truly feels like a collector's piece. Worth the investment.",
+      "verified": true,
+      "helpful": 16,
+      "notHelpful": 0,
+      "createdAt": "2026-05-12T10:00:00Z"
+    },
+    {
+      "_id": "review_026",
+      "productId": "prod_008",
+      "userId": "user_026",
+      "userName": "Kholoud B",
+      "userInitial": "K",
+      "location": "Riyadh",
+      "rating": 4,
+      "title": "Vintage cocktail ring",
+      "text": "The emerald colour is rich and the diamond halo adds beautiful sparkle. The ring has a vintage, cocktail feel that's very unique. Slightly heavier than expected but the quality justifies it completely.",
+      "verified": true,
+      "helpful": 11,
+      "notHelpful": 1,
+      "createdAt": "2026-05-08T14:00:00Z"
+    },
+    {
+      "_id": "review_027",
+      "productId": "prod_008",
+      "userId": "user_027",
+      "userName": "Wafa N",
+      "userInitial": "W",
+      "location": "Bahrain",
+      "rating": 5,
+      "title": "A true heirloom",
+      "text": "This emerald ring is something I plan to pass down to my daughter. The craftsmanship is exceptional and the gemstone quality is top tier. Even though it's listed as out of stock, I got the last one \u2014 so lucky!",
+      "verified": true,
+      "helpful": 20,
+      "notHelpful": 0,
+      "createdAt": "2026-04-30T11:00:00Z"
+    },
+    {
+      "_id": "review_028",
+      "productId": "prod_009",
+      "userId": "user_028",
+      "userName": "Nada T",
+      "userInitial": "N",
+      "location": "Dubai",
+      "rating": 5,
+      "title": "My everyday necklace",
+      "text": "This gold chain has become my everyday staple. It's lightweight, delicate, and goes with literally everything. The 18k gold hasn't tarnished at all in 6 weeks of daily wear. Excellent value.",
+      "verified": true,
+      "helpful": 17,
+      "notHelpful": 0,
+      "createdAt": "2026-05-15T09:00:00Z"
+    },
+    {
+      "_id": "review_029",
+      "productId": "prod_009",
+      "userId": "user_029",
+      "userName": "Sana A",
+      "userInitial": "S",
+      "location": "Abu Dhabi",
+      "rating": 4,
+      "title": "Minimalist perfection",
+      "text": "Exactly what I was looking for \u2014 a simple, elegant gold chain without any fuss. The clasp is sturdy and the length is perfect for layering. Great discount from Jawhara. Arrived same day!",
+      "verified": true,
+      "helpful": 13,
+      "notHelpful": 1,
+      "createdAt": "2026-05-12T15:00:00Z"
+    },
+    {
+      "_id": "review_030",
+      "productId": "prod_009",
+      "userId": "user_030",
+      "userName": "Haya M",
+      "userInitial": "H",
+      "location": "Sharjah",
+      "rating": 5,
+      "title": "Perfect for layering",
+      "text": "I stack this with two other necklaces and the combination is gorgeous. The chain is fine enough to layer but substantial enough to wear alone. The gold colour is beautiful and warm. Love it.",
+      "verified": false,
+      "helpful": 10,
+      "notHelpful": 0,
+      "createdAt": "2026-05-10T07:30:00Z"
+    },
+    {
+      "_id": "review_031",
+      "productId": "prod_010",
+      "userId": "user_031",
+      "userName": "Ruba F",
+      "userInitial": "R",
+      "location": "Dubai",
+      "rating": 5,
+      "title": "Showstopper ring",
+      "text": "The ruby and diamond combination is absolutely striking. The deep red ruby against the diamond halo is regal and attention-commanding. I wore this to a wedding and received more compliments than the bride!",
+      "verified": true,
+      "helpful": 26,
+      "notHelpful": 0,
+      "createdAt": "2026-05-18T12:00:00Z"
+    },
+    {
+      "_id": "review_032",
+      "productId": "prod_010",
+      "userId": "user_032",
+      "userName": "Fatima J",
+      "userInitial": "F",
+      "location": "Doha",
+      "rating": 5,
+      "title": "Luxurious investment",
+      "text": "The ruby colour is vivid and deep, the diamonds are brilliant, and the 22k gold setting is impeccable. This is the kind of ring that appreciates in value. Jawhara's packaging and service matched the quality.",
+      "verified": true,
+      "helpful": 22,
+      "notHelpful": 0,
+      "createdAt": "2026-05-15T10:30:00Z"
+    },
+    {
+      "_id": "review_033",
+      "productId": "prod_010",
+      "userId": "user_033",
+      "userName": "Noura K",
+      "userInitial": "N",
+      "location": "Jeddah",
+      "rating": 4,
+      "title": "Stunning cocktail ring",
+      "text": "Beautiful halo ring with vivid ruby. The setting is secure and the diamonds add wonderful sparkle around the stone. Slightly larger stone than I imagined from the photos, but in the best possible way!",
+      "verified": true,
+      "helpful": 14,
+      "notHelpful": 1,
+      "createdAt": "2026-05-12T16:00:00Z"
+    },
+    {
+      "_id": "review_034",
+      "productId": "prod_011",
+      "userId": "user_034",
+      "userName": "Lana H",
+      "userInitial": "L",
+      "location": "Dubai",
+      "rating": 4,
+      "title": "Delicate and charming",
+      "text": "The ankle bracelet is exactly what I needed for summer. Light, delicate, and the charm details add a lovely touch. The 925 silver is quality \u2014 no discolouration after weeks of wear including at the beach.",
+      "verified": true,
+      "helpful": 11,
+      "notHelpful": 1,
+      "createdAt": "2026-05-13T14:00:00Z"
+    },
+    {
+      "_id": "review_035",
+      "productId": "prod_011",
+      "userId": "user_035",
+      "userName": "Amira S",
+      "userInitial": "A",
+      "location": "Sharjah",
+      "rating": 4,
+      "title": "Perfect summer accessory",
+      "text": "Love this ankle bracelet \u2014 it's the perfect weight, not too chunky and not too dainty. The charm detail adds a playful touch. Great price for 925 silver quality. Will buy the matching bracelet next.",
+      "verified": false,
+      "helpful": 9,
+      "notHelpful": 0,
+      "createdAt": "2026-05-10T09:00:00Z"
+    },
+    {
+      "_id": "review_036",
+      "productId": "prod_011",
+      "userId": "user_036",
+      "userName": "Maryam O",
+      "userInitial": "M",
+      "location": "Muscat",
+      "rating": 5,
+      "title": "Best value purchase",
+      "text": "Incredibly beautiful ankle bracelet for the price. The silver is genuine quality and the craftsmanship is detailed. I've recommended this to three friends who all ordered immediately. Jawhara never disappoints.",
+      "verified": true,
+      "helpful": 15,
+      "notHelpful": 0,
+      "createdAt": "2026-05-07T11:30:00Z"
+    },
+    {
+      "_id": "review_037",
+      "productId": "prod_012",
+      "userId": "user_037",
+      "userName": "Nour W",
+      "userInitial": "N",
+      "location": "Dubai",
+      "rating": 5,
+      "title": "Our wedding rings",
+      "text": "We used this set for our wedding and they are absolutely perfect. The matching design looks beautiful together and the diamonds are brilliant. The 18k gold feels substantial and premium. A purchase for life.",
+      "verified": true,
+      "helpful": 35,
+      "notHelpful": 0,
+      "createdAt": "2026-05-16T09:00:00Z"
+    },
+    {
+      "_id": "review_038",
+      "productId": "prod_012",
+      "userId": "user_038",
+      "userName": "Fatima A",
+      "userInitial": "F",
+      "location": "Abu Dhabi",
+      "rating": 5,
+      "title": "Breathtaking set",
+      "text": "The wedding ring set is breathtaking. Every piece is perfectly crafted and the diamond placement is flawless. The matching design creates such a harmonious look when wearing both rings together.",
+      "verified": true,
+      "helpful": 29,
+      "notHelpful": 0,
+      "createdAt": "2026-05-10T12:00:00Z"
+    },
+    {
+      "_id": "review_039",
+      "productId": "prod_012",
+      "userId": "user_039",
+      "userName": "Hessa B",
+      "userInitial": "H",
+      "location": "Riyadh",
+      "rating": 4,
+      "title": "Stunning wedding rings",
+      "text": "Both rings arrived beautifully packaged, clearly a luxury experience from start to finish. The diamonds are bright and the gold is warm. The set was worth the investment. Just wish they had more size options.",
+      "verified": true,
+      "helpful": 17,
+      "notHelpful": 2,
+      "createdAt": "2026-05-04T15:00:00Z"
+    },
+    {
+      "_id": "review_040",
+      "productId": "prod_013",
+      "userId": "user_040",
+      "userName": "Reem S",
+      "userInitial": "R",
+      "location": "Dubai",
+      "rating": 4,
+      "title": "Great minimalist ring",
+      "text": "Exactly what I needed \u2014 a simple, elegant gold ring for stacking. The finish is smooth and the gold colour is warm and beautiful. Great for everyday wear and stacks perfectly with my other rings.",
+      "verified": true,
+      "helpful": 12,
+      "notHelpful": 1,
+      "createdAt": "2026-05-15T10:30:00Z"
+    },
+    {
+      "_id": "review_041",
+      "productId": "prod_013",
+      "userId": "user_041",
+      "userName": "Dana K",
+      "userInitial": "D",
+      "location": "Sharjah",
+      "rating": 5,
+      "title": "Stacking essential",
+      "text": "I ordered three of these to stack together and the effect is gorgeous. The 18k gold quality is evident and they haven't scratched or tarnished after weeks of daily wear. Simple, beautiful, and worth it.",
+      "verified": true,
+      "helpful": 16,
+      "notHelpful": 0,
+      "createdAt": "2026-05-12T08:00:00Z"
+    },
+    {
+      "_id": "review_042",
+      "productId": "prod_013",
+      "userId": "user_042",
+      "userName": "Suha F",
+      "userInitial": "S",
+      "location": "Bahrain",
+      "rating": 4,
+      "title": "Clean and versatile",
+      "text": "A beautifully simple ring that goes with everything. The 18k gold is warm and rich looking. Arrived quickly and in great packaging. Very satisfied with this minimalist piece.",
+      "verified": false,
+      "helpful": 8,
+      "notHelpful": 0,
+      "createdAt": "2026-05-09T11:00:00Z"
+    },
+    {
+      "_id": "review_043",
+      "productId": "prod_014",
+      "userId": "user_043",
+      "userName": "Yasmin L",
+      "userInitial": "Y",
+      "location": "Dubai",
+      "rating": 4,
+      "title": "Pretty rose gold ring",
+      "text": "The rose gold colour is beautiful and feminine. The ring is lightweight and comfortable for daily wear. It stacks wonderfully with my yellow gold rings too. Delivery was very fast from Jawhara.",
+      "verified": true,
+      "helpful": 10,
+      "notHelpful": 1,
+      "createdAt": "2026-05-14T13:00:00Z"
+    },
+    {
+      "_id": "review_044",
+      "productId": "prod_014",
+      "userId": "user_044",
+      "userName": "Lina M",
+      "userInitial": "L",
+      "location": "Abu Dhabi",
+      "rating": 5,
+      "title": "Modern and chic",
+      "text": "This rose gold ring is the perfect modern twist on a classic band. The colour is a true rose gold \u2014 not too pink, not too yellow. I've been wearing it daily and love how it looks. Great quality for the price.",
+      "verified": true,
+      "helpful": 13,
+      "notHelpful": 0,
+      "createdAt": "2026-05-11T10:00:00Z"
+    },
+    {
+      "_id": "review_045",
+      "productId": "prod_014",
+      "userId": "user_045",
+      "userName": "Hind A",
+      "userInitial": "H",
+      "location": "Doha",
+      "rating": 4,
+      "title": "Lovely stackable ring",
+      "text": "A delicate and pretty rose gold ring. The finish is smooth and the colour is beautiful. I love stacking it with my diamond ring. Came in lovely packaging \u2014 could go straight to gifting.",
+      "verified": false,
+      "helpful": 7,
+      "notHelpful": 0,
+      "createdAt": "2026-05-08T09:30:00Z"
+    },
+    {
+      "_id": "review_046",
+      "productId": "prod_015",
+      "userId": "user_046",
+      "userName": "Amira R",
+      "userInitial": "A",
+      "location": "Dubai",
+      "rating": 5,
+      "title": "Dream engagement ring",
+      "text": "My partner proposed with this diamond halo ring and it's absolutely perfect. The halo of diamonds makes the center stone look enormous. The white gold band is sleek and comfortable. I'm completely in love.",
+      "verified": true,
+      "helpful": 33,
+      "notHelpful": 0,
+      "createdAt": "2026-05-19T10:00:00Z"
+    },
+    {
+      "_id": "review_047",
+      "productId": "prod_015",
+      "userId": "user_047",
+      "userName": "Mariam D",
+      "userInitial": "M",
+      "location": "Riyadh",
+      "rating": 5,
+      "title": "Brilliant halo design",
+      "text": "The halo setting is absolutely stunning \u2014 every stone is perfectly placed and the brilliance is incredible. The 18k white gold is premium quality. I get compliments every single day. Worth the investment.",
+      "verified": true,
+      "helpful": 27,
+      "notHelpful": 0,
+      "createdAt": "2026-05-16T14:00:00Z"
+    },
+    {
+      "_id": "review_048",
+      "productId": "prod_015",
+      "userId": "user_048",
+      "userName": "Rania B",
+      "userInitial": "R",
+      "location": "Sharjah",
+      "rating": 4,
+      "title": "Spectacular but large",
+      "text": "The ring is spectacular \u2014 the halo of diamonds is truly eye-catching and the center stone is clear and brilliant. My only note is it runs a bit large so I'd size down. But the quality is absolutely top-notch.",
+      "verified": true,
+      "helpful": 15,
+      "notHelpful": 2,
+      "createdAt": "2026-05-13T11:30:00Z"
+    },
+    {
+      "_id": "review_049",
+      "productId": "prod_016",
+      "userId": "user_049",
+      "userName": "Kholoud S",
+      "userInitial": "K",
+      "location": "Dubai",
+      "rating": 5,
+      "title": "True heirloom quality",
+      "text": "The Royal Diamond Statement Ring is exactly that \u2014 royal. The 22k gold is deep and warm and the diamond is exceptional. This is the kind of ring you pass down generations. The Premium Seller service was flawless.",
+      "verified": true,
+      "helpful": 24,
+      "notHelpful": 0,
+      "createdAt": "2026-05-20T11:00:00Z"
+    },
+    {
+      "_id": "review_050",
+      "productId": "prod_016",
+      "userId": "user_050",
+      "userName": "Fatima N",
+      "userInitial": "F",
+      "location": "Kuwait City",
+      "rating": 5,
+      "title": "Extraordinary piece",
+      "text": "I've purchased many fine jewellery pieces over the years and this statement ring stands apart. The diamond quality is extraordinary \u2014 the clarity and cut are visible to the naked eye. Worth every AED.",
+      "verified": true,
+      "helpful": 19,
+      "notHelpful": 0,
+      "createdAt": "2026-05-18T09:00:00Z"
+    },
+    {
+      "_id": "review_051",
+      "productId": "prod_016",
+      "userId": "user_051",
+      "userName": "Noura H",
+      "userInitial": "N",
+      "location": "Jeddah",
+      "rating": 5,
+      "title": "A statement in every sense",
+      "text": "This ring commands attention and admiration wherever I wear it. The diamond is large, brilliant, and perfectly set in 22k gold. The Luxe Collection packaging was as premium as the jewellery itself. Remarkable.",
+      "verified": false,
+      "helpful": 14,
+      "notHelpful": 0,
+      "createdAt": "2026-05-15T13:00:00Z"
+    },
+    {
+      "_id": "review_052",
+      "productId": "prod_017",
+      "userId": "user_052",
+      "userName": "Haya B",
+      "userInitial": "H",
+      "location": "Dubai",
+      "rating": 5,
+      "title": "Symbol of forever",
+      "text": "I chose this eternity band as my anniversary ring and it's everything I dreamed of. The channel-set diamonds go all the way around and shimmer beautifully. The 18k gold band is comfortable and secure.",
+      "verified": true,
+      "helpful": 21,
+      "notHelpful": 0,
+      "createdAt": "2026-05-17T10:00:00Z"
+    },
+    {
+      "_id": "review_053",
+      "productId": "prod_017",
+      "userId": "user_053",
+      "userName": "Zainab M",
+      "userInitial": "Z",
+      "location": "Muscat",
+      "rating": 4,
+      "title": "Elegant eternity band",
+      "text": "The channel-set diamonds are well secured and brilliantly cut. The band itself is smooth and comfortable for daily wear. Great for stacking with an engagement ring. Arrived quickly and beautifully packaged.",
+      "verified": true,
+      "helpful": 13,
+      "notHelpful": 1,
+      "createdAt": "2026-05-14T09:00:00Z"
+    },
+    {
+      "_id": "review_054",
+      "productId": "prod_017",
+      "userId": "user_054",
+      "userName": "Ruba A",
+      "userInitial": "R",
+      "location": "Doha",
+      "rating": 5,
+      "title": "Classic beauty",
+      "text": "This eternity band is classic perfection. The diamonds are set evenly all around and the gold is a rich warm tone. I've worn it every day alongside my engagement ring and it couldn't look more beautiful together.",
+      "verified": true,
+      "helpful": 18,
+      "notHelpful": 0,
+      "createdAt": "2026-05-11T12:00:00Z"
+    },
+    {
+      "_id": "review_055",
+      "productId": "prod_018",
+      "userId": "user_055",
+      "userName": "Shaikha F",
+      "userInitial": "S",
+      "location": "Dubai",
+      "rating": 4,
+      "title": "Beautifully crafted set",
+      "text": "The matching necklace and earring set is cohesive and elegant. The design is tasteful without being overdone. Great quality for the price and arrived beautifully boxed. Perfect for special occasions.",
+      "verified": true,
+      "helpful": 11,
+      "notHelpful": 1,
+      "createdAt": "2026-05-16T14:30:00Z"
+    },
+    {
+      "_id": "review_056",
+      "productId": "prod_018",
+      "userId": "user_056",
+      "userName": "Dina L",
+      "userInitial": "D",
+      "location": "Abu Dhabi",
+      "rating": 5,
+      "title": "Complete look in one set",
+      "text": "I wore this set to a formal dinner and received so many compliments. The earrings and necklace complement each other perfectly. The gold is warm and high quality. Excellent gift option too.",
+      "verified": true,
+      "helpful": 16,
+      "notHelpful": 0,
+      "createdAt": "2026-05-13T11:00:00Z"
+    },
+    {
+      "_id": "review_057",
+      "productId": "prod_019",
+      "userId": "user_057",
+      "userName": "Wafa K",
+      "userInitial": "W",
+      "location": "Sharjah",
+      "rating": 5,
+      "title": "Gorgeous gemstone ring",
+      "text": "The gemstone colour is vivid and the gold setting is beautifully detailed. The ring is striking without being overwhelming. I've received multiple compliments since buying it. Jawhara's quality never disappoints.",
+      "verified": true,
+      "helpful": 14,
+      "notHelpful": 0,
+      "createdAt": "2026-05-15T09:30:00Z"
+    },
+    {
+      "_id": "review_058",
+      "productId": "prod_019",
+      "userId": "user_058",
+      "userName": "Nada H",
+      "userInitial": "N",
+      "location": "Bahrain",
+      "rating": 4,
+      "title": "Vibrant and beautiful",
+      "text": "The gemstone is beautifully vibrant and the gold setting is solid. The ring is comfortable on the finger and sits level without tilting. Great value for the quality. Fast delivery and excellent packaging.",
+      "verified": false,
+      "helpful": 9,
+      "notHelpful": 1,
+      "createdAt": "2026-05-12T10:00:00Z"
+    },
+    {
+      "_id": "review_059",
+      "productId": "prod_020",
+      "userId": "user_059",
+      "userName": "Hessa L",
+      "userInitial": "H",
+      "location": "Dubai",
+      "rating": 5,
+      "title": "Exquisite bracelet",
+      "text": "The diamond tennis bracelet is absolutely exquisite. Each stone is perfectly matched and the bracelet lies flat on the wrist with no twisting. The white gold clasp is secure. A truly luxurious purchase.",
+      "verified": true,
+      "helpful": 22,
+      "notHelpful": 0,
+      "createdAt": "2026-05-18T11:00:00Z"
+    },
+    {
+      "_id": "review_060",
+      "productId": "prod_020",
+      "userId": "user_060",
+      "userName": "Rana N",
+      "userInitial": "R",
+      "location": "Riyadh",
+      "rating": 5,
+      "title": "Classic tennis bracelet",
+      "text": "I've always wanted a diamond tennis bracelet and this one exceeded all expectations. The diamonds are brilliant and evenly matched. It's comfortable, secure, and looks absolutely stunning. My favourite purchase ever.",
+      "verified": true,
+      "helpful": 27,
+      "notHelpful": 0,
+      "createdAt": "2026-05-14T16:00:00Z"
+    },
+    {
+      "_id": "review_061",
+      "productId": "prod_020",
+      "userId": "user_061",
+      "userName": "Sana K",
+      "userInitial": "S",
+      "location": "Doha",
+      "rating": 4,
+      "title": "Beautiful but delicate",
+      "text": "The bracelet is stunning and the diamonds are very sparkly. My only note is it feels slightly delicate for active daily wear \u2014 I save it for evenings. The quality of the diamonds and gold is undeniable.",
+      "verified": true,
+      "helpful": 12,
+      "notHelpful": 2,
+      "createdAt": "2026-05-11T08:30:00Z"
+    },
+    {
+      "_id": "review_062",
+      "productId": "prod_021",
+      "userId": "user_062",
+      "userName": "Maha S",
+      "userInitial": "M",
+      "location": "Dubai",
+      "rating": 5,
+      "title": "Perfect chandelier earrings",
+      "text": "These chandelier earrings are absolutely dramatic and gorgeous. They're lighter than they look and very comfortable to wear for hours. The gold detailing is intricate and the movement when walking is mesmerizing.",
+      "verified": true,
+      "helpful": 19,
+      "notHelpful": 0,
+      "createdAt": "2026-05-17T13:00:00Z"
+    },
+    {
+      "_id": "review_063",
+      "productId": "prod_021",
+      "userId": "user_063",
+      "userName": "Yasmin R",
+      "userInitial": "Y",
+      "location": "Jeddah",
+      "rating": 4,
+      "title": "Statement earrings",
+      "text": "Beautiful chandelier design that makes a real statement. The earrings are well balanced and don't pull on the ear despite their size. Great for weddings and formal events. Arrived perfectly packaged.",
+      "verified": true,
+      "helpful": 14,
+      "notHelpful": 1,
+      "createdAt": "2026-05-14T11:00:00Z"
+    },
+    {
+      "_id": "review_064",
+      "productId": "prod_022",
+      "userId": "user_064",
+      "userName": "Amira T",
+      "userInitial": "A",
+      "location": "Abu Dhabi",
+      "rating": 5,
+      "title": "Pearl perfection",
+      "text": "This pearl necklace is simply gorgeous. The pearls are lustrous and uniformly matched. The gold clasp is sturdy and beautiful. It elevates any outfit instantly \u2014 from casual to formal. A jewellery box essential.",
+      "verified": true,
+      "helpful": 18,
+      "notHelpful": 0,
+      "createdAt": "2026-05-16T10:00:00Z"
+    },
+    {
+      "_id": "review_065",
+      "productId": "prod_022",
+      "userId": "user_065",
+      "userName": "Lana F",
+      "userInitial": "L",
+      "location": "Dubai",
+      "rating": 4,
+      "title": "Classic pearl necklace",
+      "text": "The pearls are beautifully round and have a lovely lustre. The matching size and colour makes it look very expensive. The gold clasp works smoothly. A timeless piece that will never go out of fashion.",
+      "verified": false,
+      "helpful": 11,
+      "notHelpful": 1,
+      "createdAt": "2026-05-13T09:00:00Z"
+    },
+    {
+      "_id": "review_066",
+      "productId": "prod_023",
+      "userId": "user_066",
+      "userName": "Hind M",
+      "userInitial": "H",
+      "location": "Sharjah",
+      "rating": 5,
+      "title": "Delicate gold bangle",
+      "text": "This bangle is perfect \u2014 light, elegant, and versatile. The design has a lovely understated quality that makes it suitable for both everyday wear and special occasions. The 18k gold is warm and beautiful.",
+      "verified": true,
+      "helpful": 13,
+      "notHelpful": 0,
+      "createdAt": "2026-05-15T11:30:00Z"
+    },
+    {
+      "_id": "review_067",
+      "productId": "prod_023",
+      "userId": "user_067",
+      "userName": "Reem T",
+      "userInitial": "R",
+      "location": "Muscat",
+      "rating": 4,
+      "title": "Classic gold bangle",
+      "text": "The bangle is lightweight enough to wear all day and stacks beautifully with other bracelets. The gold quality is solid and it hasn't changed colour at all over weeks of daily wear. Great everyday piece.",
+      "verified": true,
+      "helpful": 9,
+      "notHelpful": 1,
+      "createdAt": "2026-05-11T14:00:00Z"
+    },
+    {
+      "_id": "review_068",
+      "productId": "prod_024",
+      "userId": "user_068",
+      "userName": "Mariam W",
+      "userInitial": "M",
+      "location": "Dubai",
+      "rating": 5,
+      "title": "Art deco beauty",
+      "text": "The art deco style of this ring is stunning. The geometric design in white gold is eye-catching and unique. It's completely different from any other ring I own and I get the most comments on it. Jawhara delivered beautifully.",
+      "verified": true,
+      "helpful": 17,
+      "notHelpful": 0,
+      "createdAt": "2026-05-17T09:00:00Z"
+    },
+    {
+      "_id": "review_069",
+      "productId": "prod_024",
+      "userId": "user_069",
+      "userName": "Fatima R",
+      "userInitial": "F",
+      "location": "Bahrain",
+      "rating": 4,
+      "title": "Unique and elegant",
+      "text": "I love the art deco aesthetic of this ring. The geometric design is very distinctive and the white gold finish is clean and polished. A very conversation-worthy piece. Arrived exactly on time.",
+      "verified": true,
+      "helpful": 10,
+      "notHelpful": 1,
+      "createdAt": "2026-05-14T12:00:00Z"
+    },
+    {
+      "_id": "review_070",
+      "productId": "prod_025",
+      "userId": "user_070",
+      "userName": "Nour L",
+      "userInitial": "N",
+      "location": "Dubai",
+      "rating": 5,
+      "title": "Colourful and vibrant",
+      "text": "The multi-stone gemstone bracelet is absolutely gorgeous. The variety of coloured stones creates a rainbow effect that's both playful and elegant. The gold setting is solid and the clasp is secure. Love it.",
+      "verified": true,
+      "helpful": 16,
+      "notHelpful": 0,
+      "createdAt": "2026-05-18T10:30:00Z"
+    },
+    {
+      "_id": "review_071",
+      "productId": "prod_025",
+      "userId": "user_071",
+      "userName": "Dana B",
+      "userInitial": "D",
+      "location": "Abu Dhabi",
+      "rating": 4,
+      "title": "A pop of colour",
+      "text": "This bracelet is a beautiful burst of colour. The gemstones are vibrant and well-matched in quality. The gold links are smooth and the bracelet drapes nicely on the wrist. Great for adding colour to any outfit.",
+      "verified": false,
+      "helpful": 9,
+      "notHelpful": 0,
+      "createdAt": "2026-05-15T08:00:00Z"
+    }
+  ],
+  "stores": [
+    {
+      "_id": "store_001",
+      "name": "Jawhara - Dubai Mall",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          55.2708,
+          25.1972
+        ]
+      },
+      "address": "Dubai Mall, Dubai, UAE",
+      "phone": "+971 4 439 8000",
+      "hours": "10:00 AM - 10:00 PM",
+      "services": [
+        "store_pickup",
+        "gift_wrapping",
+        "consultation"
+      ]
+    },
+    {
+      "_id": "store_002",
+      "name": "Jawhara - Gold Souk",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          55.2961,
+          25.2667
+        ]
+      },
+      "address": "Gold Souk, Dubai, UAE",
+      "phone": "+971 4 228 5678",
+      "hours": "9:00 AM - 10:00 PM",
+      "services": [
+        "store_pickup",
+        "customization",
+        "repair"
+      ]
+    },
+    {
+      "_id": "store_003",
+      "name": "Jawhara - Marina Mall",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          55.1497,
+          25.0827
+        ]
+      },
+      "address": "Dubai Marina, Dubai, UAE",
+      "phone": "+971 4 339 5000",
+      "hours": "10:00 AM - 11:00 PM",
+      "services": [
+        "store_pickup",
+        "gift_wrapping"
+      ]
+    }
+  ],
+  "searchSuggestions": [
+    "diamond ring",
+    "gold necklace",
+    "pearl earrings",
+    "engagement ring",
+    "wedding ring",
+    "solitaire diamond",
+    "sapphire pendant",
+    "gold bracelet",
+    "gemstone ring",
+    "luxury jewelry"
+  ]
+}

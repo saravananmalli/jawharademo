@@ -1,0 +1,222 @@
+@use '../styles/variables' as *;
+
+.order-confirm {
+  padding: $spacing-xxxl $spacing-lg $spacing-6xl;
+
+  &__loading {
+    display: flex;
+    justify-content: center;
+    padding: $spacing-6xl 0;
+  }
+
+  &__spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid $border-light;
+    border-top-color: $primary-gold;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  &__not-found {
+    text-align: center;
+    padding: $spacing-6xl 0;
+    color: $text-gray;
+
+    svg { font-size: 64px; margin-bottom: $spacing-xl; }
+    h2 { margin-bottom: $spacing-xl; }
+    a { color: $primary-gold; }
+  }
+
+  &__card {
+    max-width: 680px;
+    margin: 0 auto;
+    background: $white;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-2xl;
+    overflow: hidden;
+    box-shadow: $shadow-lg;
+  }
+
+  // ── Header ────────────────────────────────────────────────
+  &__header {
+    background: linear-gradient(135deg, #f0f9f0, #e8f5e9);
+    padding: $spacing-4xl $spacing-xxxl;
+    text-align: center;
+    border-bottom: 1px solid $border-light;
+
+    h1 {
+      font-size: $font-2xl;
+      font-weight: $font-weight-bold;
+      color: $text-dark;
+      margin-bottom: $spacing-md;
+    }
+
+    p {
+      color: $text-gray;
+      font-size: $font-base;
+      margin-bottom: $spacing-xl;
+    }
+  }
+
+  &__icon {
+    font-size: 56px;
+    color: $accent-green;
+    margin-bottom: $spacing-xl;
+    display: block;
+  }
+
+  &__id {
+    display: inline-block;
+    background: $white;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-full;
+    padding: $spacing-sm $spacing-xl;
+    font-size: $font-sm;
+    color: $text-gray;
+
+    strong { color: $text-dark; }
+  }
+
+  // ── Body ──────────────────────────────────────────────────
+  &__body {
+    padding: $spacing-xxxl;
+  }
+
+  &__section {
+    margin-bottom: $spacing-xxxl;
+
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      font-size: $font-md;
+      font-weight: $font-weight-semibold;
+      color: $text-dark;
+      margin-bottom: $spacing-xl;
+
+      svg { color: $primary-gold; }
+    }
+
+    &--totals {
+      background: $cream-bg;
+      border-radius: $border-radius-lg;
+      padding: $spacing-xl;
+      margin-bottom: 0;
+    }
+  }
+
+  // ── Items ─────────────────────────────────────────────────
+  &__items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-md;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-lg;
+    background: $cream-bg-light;
+
+    img {
+      width: 56px;
+      height: 56px;
+      object-fit: cover;
+      border-radius: $border-radius-md;
+      flex-shrink: 0;
+    }
+
+    &-info { flex: 1; min-width: 0; }
+
+    &-name {
+      font-size: $font-sm;
+      font-weight: $font-weight-medium;
+      color: $text-dark;
+      @include line-clamp(2);
+    }
+
+    &-meta {
+      font-size: $font-xs;
+      color: $text-gray;
+      margin-top: 2px;
+    }
+
+    &-price {
+      font-size: $font-sm;
+      font-weight: $font-weight-semibold;
+      color: $primary-gold;
+      white-space: nowrap;
+    }
+  }
+
+  // ── Address ───────────────────────────────────────────────
+  &__address {
+    background: $cream-bg-light;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-lg;
+    padding: $spacing-xl;
+    font-size: $font-sm;
+    color: $text-gray;
+    line-height: $line-height-relaxed;
+
+    strong { color: $text-dark; font-size: $font-base; }
+  }
+
+  // ── Totals ────────────────────────────────────────────────
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    font-size: $font-sm;
+    color: $text-gray;
+    margin-bottom: $spacing-sm;
+
+    &--total {
+      font-size: $font-lg;
+      font-weight: $font-weight-bold;
+      color: $text-dark;
+      margin-bottom: 0;
+    }
+  }
+
+  &__divider {
+    border-top: 1px solid $border-light;
+    margin: $spacing-md 0;
+  }
+
+  // ── Footer ────────────────────────────────────────────────
+  &__footer {
+    padding: $spacing-xxl $spacing-xxxl;
+    border-top: 1px solid $border-light;
+    display: flex;
+    justify-content: center;
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-lg $spacing-4xl;
+    border-radius: $border-radius-full;
+    font-weight: $font-weight-semibold;
+    text-decoration: none;
+    transition: $transition-bg;
+
+    &--primary {
+      background: $primary-gold;
+      color: $white;
+
+      &:hover { background: $primary-gold-hover; }
+    }
+  }
+}

@@ -1,0 +1,61 @@
+@use '../../styles/variables' as *;
+
+.ui-input {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+
+  &__label {
+    font-size: $font-sm;
+    font-weight: $font-weight-semibold;
+    color: $text-dark;
+  }
+
+  &__wrap {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid $border-light;
+    border-radius: $border-radius-md;
+    background: $white;
+    transition: $transition-border;
+
+    &:focus-within {
+      border-color: $primary-gold;
+      box-shadow: 0 0 0 3px rgba(196, 169, 96, 0.12);
+    }
+  }
+
+  &__field {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: $spacing-md $spacing-lg;
+    font-family: $font-primary;
+    font-size: $font-base;
+    color: $text-dark;
+    background: transparent;
+    min-width: 0;
+
+    &::placeholder { color: $text-light; }
+  }
+
+  &__affix {
+    padding: 0 $spacing-md;
+    color: $text-gray;
+    font-size: $font-base;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  &__prefix { padding-left: $spacing-md; }
+  &__suffix { padding-right: $spacing-md; }
+
+  &__error { font-size: $font-xs; color: $error-color; }
+  &__hint  { font-size: $font-xs; color: $text-light; }
+
+  &--error .ui-input__wrap {
+    border-color: $error-color;
+    &:focus-within { box-shadow: 0 0 0 3px rgba(212, 30, 58, 0.12); }
+  }
+}

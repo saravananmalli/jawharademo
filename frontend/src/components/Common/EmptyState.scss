@@ -1,0 +1,30 @@
+@use '../../styles/variables' as *;
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-6xl $spacing-lg;
+  text-align: center;
+  gap: $spacing-lg;
+
+  &__icon {
+    font-size: 72px;
+    color: $border-gray;
+    line-height: 1;
+  }
+
+  &__title {
+    font-size: $font-2xl;
+    font-weight: $font-weight-bold;
+    color: $text-gray;
+  }
+
+  &__desc {
+    font-size: $font-base;
+    color: $text-light;
+    max-width: 360px;
+    line-height: $line-height-relaxed;
+  }
+}

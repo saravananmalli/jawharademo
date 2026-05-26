@@ -1,0 +1,84 @@
+@use "../../styles/variables" as *;
+
+.reviews-section {
+  padding: $spacing-6xl 0;
+  background: $cream-bg-light;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-xl;
+  }
+
+  &__title {
+    font-size: $font-xl;
+    font-weight: $font-weight-semibold;
+    color: $text-dark;
+    font-family: $font-primary;
+    position: relative;
+    padding-bottom: $spacing-sm;
+    margin: 0 auto;
+
+  }
+
+  &__view-all {
+    font-size: $font-sm;
+    font-weight: $font-weight-semibold;
+    color: $primary-gold;
+    text-decoration: none;
+    transition: $transition-color;
+    white-space: nowrap;
+
+    &:hover { color: $primary-gold-hover; }
+  }
+
+  // Mobile only: simple stacked list
+  &__mobile-list {
+    display: none;
+    flex-direction: column;
+    gap: $spacing-lg;
+
+    @media (max-width: #{$breakpoint-sm - 1px}) {
+      display: flex;
+    }
+  }
+
+  // Tablet+: Swiper
+  &__slider {
+    @media (max-width: #{$breakpoint-sm - 1px}) { display: none; }
+  }
+
+  &__swiper {
+    .swiper-button-prev,
+    .swiper-button-next {
+      width: 36px;
+      height: 36px;
+      background: $white;
+      border: 1px solid $border-light;
+      border-radius: $border-radius-full;
+      box-shadow: $shadow-sm;
+      top: 40%;
+
+      &::after {
+        font-size: $font-sm;
+        font-weight: $font-weight-bold;
+        color: $primary-gold;
+      }
+
+      &:hover {
+        background: $primary-gold;
+        border-color: $primary-gold;
+        &::after { color: $white; }
+      }
+      svg {
+      font-size: 18px;
+      width: 22px;
+      height: 22px;
+      color: $text-dark;
+    }
+    }
+
+    .swiper-button-disabled { opacity: 0.35; }
+  }
+}

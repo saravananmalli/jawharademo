@@ -1,0 +1,25 @@
+@use '../../styles/variables' as *;
+
+.rating {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+
+  &__stars {
+    display: inline-flex;
+    gap: 1px;
+    color: $star-gold;
+    svg { color: inherit; }
+  }
+
+  &__count {
+    color: $text-light;
+    font-size: $font-xs;
+  }
+
+  // Sizes
+  &--xs { font-size: 10px; }
+  &--sm { font-size: $font-sm; }
+  &--md { font-size: $font-base; }
+  &--lg { font-size: $font-lg; }
+}

@@ -1,0 +1,783 @@
+@use '../../styles/variables' as *;
+
+.header {
+  background: $white;
+  border-bottom: 1px solid $border-light;
+  position: sticky;
+  top: 0;
+  z-index: $z-fixed;
+  box-shadow: $shadow-xs;
+
+  // ── Desktop inner grid (unchanged) ────────────────────────
+  &__inner {
+    display: grid;
+    grid-template-columns: 1fr minmax(0, 560px) 1fr;
+    align-items: center;
+    gap: $spacing-xl;
+    padding: $spacing-md $spacing-xl;
+    max-width: $container-max;
+    margin: 0 auto;
+
+    @media (max-width: $breakpoint-lg) {
+      grid-template-columns: auto 1fr auto;
+      gap: $spacing-md;
+    }
+
+    @media (max-width: $breakpoint-md) {
+      display: none;
+    }
+  }
+
+  // ── Left: Logo + Delivery ──────────────────────────────────
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xxl;
+    justify-self: start;
+
+    @media (max-width: $breakpoint-lg) {
+      gap: $spacing-md;
+    }
+  }
+
+  &__logo {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+
+    img {
+      height: 64px;
+      width: auto;
+      object-fit: contain;
+    }
+  }
+
+  &__delivery {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: $spacing-sm $spacing-md $spacing-sm $spacing-sm;
+    border: 1.5px solid $border-light;
+    border-radius: $border-radius-lg;
+    background: none;
+    cursor: pointer;
+    font-family: $font-primary;
+    transition: $transition-base;
+
+    &:hover {
+      border-color: $primary-gold;
+      background: $cream-bg-light;
+      color: $primary-gold;
+    }
+
+    @media (max-width: $breakpoint-lg) { display: none; }
+  }
+
+  &__delivery-chevron {
+    color: $text-light;
+    flex-shrink: 0;
+    margin-left: 2px;
+    transition: $transition-color;
+
+    .header__delivery:hover & {
+      color: $primary-gold;
+    }
+  }
+
+  &__delivery-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    opacity: 0.7;
+  }
+
+  &__delivery-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+
+    span {
+      font-size: $font-xs;
+      color: $text-gray;
+    }
+
+    strong {
+      font-size: $font-sm;
+      font-weight: $font-weight-semibold;
+      color: $text-dark;
+    }
+  }
+
+  // ── Center: Search ─────────────────────────────────────────
+  &__search {
+    width: 100%;
+  }
+
+  // ── Right: Actions ─────────────────────────────────────────
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    justify-self: end;
+  }
+
+  &__action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    color: $text-dark;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $border-radius-md;
+    transition: $transition-color;
+    white-space: nowrap;
+
+    &:hover { color: $primary-gold; }
+
+    &--pill {
+      flex-direction: row;
+      gap: $spacing-xs;
+      border: 1.5px solid $border-light;
+      border-radius: $border-radius-lg;
+      padding: $spacing-sm $spacing-md;
+
+      .label {
+        font-size: $font-sm;
+        color: inherit;
+
+        @media (max-width: $breakpoint-lg) { display: none; }
+      }
+
+      @media (max-width: $breakpoint-lg) {
+        padding: $spacing-xs $spacing-sm;
+      }
+    }
+
+    .label {
+      font-size: $font-base;
+      color: inherit;
+    }
+  }
+
+  // ── Icons ──────────────────────────────────────────────────
+  &__icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+
+    &--flag {
+      width: 26px;
+      height: 18px;
+      border-radius: 2px;
+    }
+  }
+
+  &__icon-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // ── Count Badge ────────────────────────────────────────────
+  .count-badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    background: $accent-red;
+    color: $white;
+    border-radius: $border-radius-full;
+    min-width: 17px;
+    height: 17px;
+    font-size: 10px;
+    font-weight: $font-weight-bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+    line-height: 1;
+  }
+
+  // ────────────────────────────────────────────────────────────
+  // MOBILE HEADER
+  // ────────────────────────────────────────────────────────────
+  &__mobile {
+    display: none;
+
+    @media (max-width: $breakpoint-md) {
+      display: block;
+    }
+  }
+
+  // Row 1: Hamburger | Centered Logo | Icons
+  &__mobile-top {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-sm $spacing-md;
+    background: $white;
+    min-height: 56px;
+  }
+
+  // Logo — absolutely centered in the row
+  &__mobile-logo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    pointer-events: all;
+
+    img {
+      height: 38px;
+      width: auto;
+      object-fit: contain;
+    }
+  }
+
+  // Hamburger button
+  &__mobile-hamburger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: $spacing-xs;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    z-index: 1;
+
+    .hamburger-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      width: 22px;
+
+      span {
+        display: block;
+        height: 2.2px;
+        background: $primary-gold;
+        border-radius: 2px;
+        width: 100%;
+      }
+    }
+  }
+
+  // Right icons cluster
+  &__mobile-icons {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+
+  &__mobile-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: $spacing-xs;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-dark;
+    transition: $transition-color;
+    position: relative;
+
+    svg {
+      width: 22px;
+      height: 22px;
+      display: block;
+    }
+
+    img {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+    }
+
+    &:hover { color: $primary-gold; }
+  }
+
+  // Row 2: Location + Language bar
+  &__mobile-location-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px $spacing-md;
+    background: $cream-bg-light;
+    border-top: 1px solid $border-light;
+  }
+
+  &__mobile-location {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px $spacing-sm 2px 0;
+    border-radius: $border-radius-md;
+    font-family: $font-primary;
+    transition: $transition-color;
+
+    &:hover {
+      color: $primary-gold;
+    }
+
+    img {
+      width: 16px;
+      height: 16px;
+      object-fit: contain;
+      opacity: 0.65;
+      flex-shrink: 0;
+    }
+  }
+
+  &__mobile-location-chevron {
+    color: $text-light;
+    flex-shrink: 0;
+    margin-left: 2px;
+  }
+
+  &__mobile-location-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+
+    span {
+      font-size: 10px;
+      color: $text-gray;
+    }
+
+    strong {
+      font-size: $font-sm;
+      font-weight: $font-weight-semibold;
+      color: $text-dark;
+
+      .header__mobile-location:hover & {
+        color: $primary-gold;
+      }
+    }
+  }
+
+  &__mobile-lang-btn {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    background: none;
+    border: 1px solid $border-gray;
+    border-radius: $border-radius-lg;
+    padding: 4px $spacing-sm;
+    cursor: pointer;
+    color: $text-dark;
+    font-size: $font-sm;
+    font-weight: $font-weight-medium;
+    font-family: $font-primary;
+    transition: $transition-border;
+
+    img {
+      width: 20px;
+      height: 13px;
+      object-fit: cover;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    svg {
+      color: $text-gray;
+      flex-shrink: 0;
+      display: none;
+    }
+
+    &:hover { border-color: $primary-gold; color: $primary-gold; }
+  }
+}
+
+// ── Mobile Drawer Backdrop ────────────────────────────────────
+.mobile-drawer-backdrop {
+  display: none;
+
+  @media (max-width: $breakpoint-md) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0);
+    z-index: $z-modal-backdrop;
+    pointer-events: none;
+    transition: background $duration-slow $ease-in-out;
+
+    &.open {
+      background: rgba(0, 0, 0, 0.55);
+      pointer-events: all;
+    }
+  }
+}
+
+// ── Mobile Drawer ─────────────────────────────────────────────
+.mobile-drawer {
+  display: none;
+
+  @media (max-width: $breakpoint-md) {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 82%;
+    max-width: 340px;
+    background: $white;
+    z-index: $z-modal;
+    transform: translateX(-100%);
+    transition: transform $duration-slow $ease-in-out;
+    // overflow is intentionally hidden — panels handle their own scroll
+    overflow: hidden;
+  }
+
+  &.open {
+    transform: translateX(0);
+  }
+
+  // ── Drawer sticky header ──────────────────────────────────
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-md $spacing-lg;
+    background: $primary-gold;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  &__logo {
+    display: flex;
+    align-items: center;
+
+    img {
+      height: 34px;
+      width: auto;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+    }
+  }
+
+  &__close {
+    background: rgba($white, 0.15);
+    border: 1px solid rgba($white, 0.3);
+    border-radius: $border-radius-md;
+    cursor: pointer;
+    color: $white;
+    padding: $spacing-xs;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: $transition-bg;
+
+    &:hover { background: rgba($white, 0.28); }
+  }
+
+  // ── Sliding panels container ──────────────────────────────
+  // Two panels sit side-by-side at 200% total width.
+  // Translating -50% shifts from root panel to sub panel.
+  &__panels {
+    display: flex;
+    width: 200%;
+    flex: 1;
+    min-height: 0;
+    transition: transform $duration-slow $ease-in-out;
+
+    &.show-sub {
+      transform: translateX(-50%);
+    }
+  }
+
+  // Each panel = 50% of 200% track = 100% of drawer width
+  &__panel {
+    width: 50%;
+    flex-shrink: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: $spacing-xxxl;
+  }
+
+  // ── Sub-panel back header ─────────────────────────────────
+  &__sub-header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+    background: $cream-bg;
+    border-bottom: 2px solid $primary-gold-light;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    flex-shrink: 0;
+  }
+
+  &__back {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: $primary-gold;
+    font-size: $font-sm;
+    font-weight: $font-weight-semibold;
+    font-family: $font-primary;
+    padding: $spacing-xs $spacing-sm $spacing-xs $spacing-xs;
+    border-radius: $border-radius-md;
+    transition: $transition-bg;
+
+    &:hover { background: $primary-gold-light; }
+  }
+
+  &__sub-title {
+    font-size: $font-base;
+    font-weight: $font-weight-medium;
+    color: $primary-gold;
+    flex: 1;
+    text-align: center;
+    padding-right: 60px; // offset so title appears centred relative to back btn
+  }
+
+  // ── Menu items ────────────────────────────────────────────
+  &__section-label {
+    font-size: $font-xs;
+    font-weight: $font-weight-semibold;
+    color: $text-light;
+    letter-spacing: $letter-spacing-wider;
+    text-transform: uppercase;
+    padding: $spacing-md $spacing-lg $spacing-xs;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: $spacing-md $spacing-lg;
+    font-size: $font-base;
+    font-weight: $font-weight-medium;
+    color: $text-dark;
+    text-align: left;
+    font-family: $font-primary;
+    transition: background $duration-base $ease-in-out;
+    border-bottom: 1px solid $bg-light-gray;
+
+    svg {
+      color: $text-light;
+      flex-shrink: 0;
+      transition: $transition-color;
+    }
+
+    &:hover {
+      background: $cream-bg;
+      color: $primary-gold;
+
+      svg { color: $primary-gold; }
+    }
+
+    // Parent items with sub-menus get a slightly bolder look
+    &--parent svg {
+      color: $border-gray;
+    }
+
+    // "View all" item — gold accent
+    &--view-all {
+      color: $primary-gold;
+      font-weight: $font-weight-semibold;
+      border-bottom: none;
+
+      svg { color: $primary-gold; }
+
+      &:hover { background: $primary-gold-light; color: $primary-gold; }
+    }
+  }
+
+  &__divider {
+    height: 6px;
+    background: $bg-gray;
+    flex-shrink: 0;
+  }
+
+  &__lang-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+
+    img {
+      width: 22px;
+      height: 15px;
+      object-fit: cover;
+      border-radius: 2px;
+    }
+  }
+}
+
+// ── Mobile Bottom Navigation ──────────────────────────────────
+.mobile-bottom-nav {
+  display: none;
+
+  @media (max-width: $breakpoint-md) {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: $white;
+    border-top: 1px solid $border-light;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.10);
+    z-index: $z-fixed;
+    padding: $spacing-sm 0;
+    padding-bottom: calc(#{$spacing-sm} + env(safe-area-inset-bottom));
+  }
+
+  &__item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: $text-gray;
+    padding: $spacing-xs;
+    position: relative;
+    transition: $transition-color;
+
+    svg {
+      width: 24px;
+      height: 24px;
+      display: block;
+    }
+
+    .header__icon-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    &:hover { color: $dark-maroon; }
+    &:active { color: $primary-gold; }
+  }
+}
+
+// ── Body bottom padding for fixed nav ─────────────────────────
+@media (max-width: $breakpoint-md) {
+  body {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom));
+  }
+}
+
+// ── User dropdown ──────────────────────────────────────────────
+.header__user-wrap {
+  position: relative;
+}
+
+.header__action-btn--user {
+  &.signed-in {
+    padding: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: $gradient-gold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.header__user-initial {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+
+.header__user-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 14px;
+  min-width: 200px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+  z-index: 1000;
+  overflow: hidden;
+  animation: dropdown-in 0.15s ease;
+
+  &__header {
+    padding: 1rem 1.125rem 0.875rem;
+    background: $gradient-gold;
+  }
+
+  &__name {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+  }
+
+  &__email {
+    display: block;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.65);
+    word-break: break-all;
+  }
+
+  &__items {
+    padding: 0.375rem 0;
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 0.65rem 1.125rem;
+      background: none;
+      border: none;
+      text-align: left;
+      font-size: 0.875rem;
+      color: #333;
+      cursor: pointer;
+      transition: background 0.12s;
+
+      &:hover { background: #fdf8f0; color: #c4a960; }
+    }
+  }
+
+  &__divider {
+    height: 1px;
+    background: rgba(0,0,0,0.07);
+    margin: 0.25rem 0;
+  }
+
+  &__logout {
+    color: #ef4444 !important;
+    &:hover { background: #fff5f5 !important; }
+  }
+}
+
+@keyframes dropdown-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

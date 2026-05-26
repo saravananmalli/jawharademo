@@ -1,0 +1,12 @@
+// ============================================================
+// JAWHARA ADMIN SCSS — Entry Point
+// ============================================================
+// Import order: variables → mixins → themes → global
+// Components import variables + mixins directly via @use.
+// ============================================================
+
+@forward 'variables';
+@forward 'mixins';
+
+@use 'themes';
+@use 'global';

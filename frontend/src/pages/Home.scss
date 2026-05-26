@@ -1,0 +1,8 @@
+@use '../styles/variables' as *;
+
+.home {
+  &__rows {
+    padding-top: $spacing-xl;
+    padding-bottom: $spacing-xl;
+  }
+}

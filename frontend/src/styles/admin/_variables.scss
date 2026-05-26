@@ -1,0 +1,161 @@
+// ============================================================
+// JAWHARA ADMIN PANEL — SCSS VARIABLES
+// ============================================================
+// All admin-specific design tokens. Values mirror MUI theme.js
+// so SCSS components stay visually in sync with MUI theming.
+// ============================================================
+
+// ── Brand ────────────────────────────────────────────────────
+
+$admin-gold:          #967123;
+$admin-gold-hover:    #b39650;
+$admin-gold-light:    rgba(150, 113, 35, 0.12);
+$admin-maroon:        #8B1538;
+$admin-maroon-light:  rgba(139, 21, 56, 0.1);
+
+// ── Dark Theme ───────────────────────────────────────────────
+
+$dark-bg:               #23242B;   // page bg + sidebar
+$dark-paper:            #2D2E38;   // cards / elevated surfaces
+$dark-elevated:         #34353F;   // modals, menus
+$dark-border:           rgba(255, 255, 255, 0.06);
+$dark-divider:          rgba(255, 255, 255, 0.07);
+$dark-text-primary:     #f0f1f5;
+$dark-text-secondary:   #8b8fa8;
+$dark-hover:            rgba(255, 255, 255, 0.05);
+$dark-selected:         rgba(255, 255, 255, 0.09);
+$dark-table-head:       rgba(255, 255, 255, 0.04);
+$dark-row-hover:        rgba(255, 255, 255, 0.03);
+$dark-input-bg:         rgba(255, 255, 255, 0.04);
+$dark-scrollbar:        rgba(255, 255, 255, 0.12);
+$gradient-gold: linear-gradient(90deg,rgba(255, 188, 54, 1) 0%, rgba(117, 78, 5, 1) 100%);
+
+// ── Light Theme ──────────────────────────────────────────────
+
+$light-bg:              #F6F7FA;   // page background
+$light-paper:           #ffffff;   // cards
+$light-border:          rgba(0, 0, 0, 0.06);
+$light-divider:         rgba(0, 0, 0, 0.07);
+$light-text-primary:    #23242B;
+$light-text-secondary:  #6b7280;
+$light-hover:           rgba(0, 0, 0, 0.04);
+$light-selected:        rgba(0, 0, 0, 0.06);
+$light-table-head:      #f4f5f8;
+$light-row-hover:       #fafbfc;
+$light-input-bg:        #f0f1f5;
+$light-scrollbar:       rgba(0, 0, 0, 0.15);
+
+// ── Sidebar (always dark across both themes) ─────────────────
+
+$sidebar-bg:            #23242B;
+$sidebar-width:         252px;
+$sidebar-text:          rgba(255, 255, 255, 0.52);
+$sidebar-text-active:   #ffffff;
+$sidebar-active-bg:     rgba(255, 255, 255, 0.10);
+$sidebar-hover-bg:      rgba(255, 255, 255, 0.07);
+$sidebar-border:        rgba(255, 255, 255, 0.08);
+$sidebar-section:       rgba(255, 255, 255, 0.25);
+$sidebar-scrollbar:     rgba(255, 255, 255, 0.12);
+
+// ── Status Colors ────────────────────────────────────────────
+
+$status-success:            #16a34a;
+$status-success-bg-light:   #f0fdf4;
+$status-success-bg-dark:    rgba(22, 163, 74, 0.15);
+
+$status-error:              #dc2626;
+$status-error-bg-light:     #fef2f2;
+$status-error-bg-dark:      rgba(220, 38, 38, 0.15);
+
+$status-warning:            #d97706;
+$status-warning-bg-light:   #fffbeb;
+$status-warning-bg-dark:    rgba(217, 119, 6, 0.15);
+
+$status-info:               #2563eb;
+$status-info-bg-light:      #eff6ff;
+$status-info-bg-dark:       rgba(37, 99, 235, 0.15);
+
+$status-pending:            #c2410c;
+$status-pending-bg:         #fff7ed;
+
+$status-processing:         #1d4ed8;
+$status-processing-bg:      #eff6ff;
+
+// ── Layout Dimensions ────────────────────────────────────────
+
+$admin-topbar-height:       64px;
+$admin-topbar-height-xs:    56px;
+$admin-content-padding:     24px;
+$admin-content-padding-sm:  20px;
+$admin-content-padding-xs:  16px;
+
+// ── Typography ───────────────────────────────────────────────
+
+$admin-font:      'Inter', 'Segoe UI', system-ui, -apple-system, 'Dirham-Sans', sans-serif;
+$admin-font-xs:   0.6rem;
+$admin-font-sm:   0.72rem;
+$admin-font-base: 0.845rem;
+$admin-font-md:   0.875rem;
+$admin-font-lg:   0.95rem;
+$admin-font-xl:   1rem;
+$admin-font-2xl:  1.2rem;
+$admin-font-3xl:  1.5rem;
+
+$admin-weight-regular:   400;
+$admin-weight-medium:    500;
+$admin-weight-semibold:  600;
+$admin-weight-bold:      700;
+$admin-weight-extrabold: 800;
+
+// ── Border Radius ────────────────────────────────────────────
+
+$admin-radius-sm:   6px;
+$admin-radius-md:   8px;
+$admin-radius-lg:   10px;
+$admin-radius-xl:   12px;
+$admin-radius-2xl:  14px;
+$admin-radius-3xl:  16px;
+$admin-radius-full: 9999px;
+
+// ── Shadows ──────────────────────────────────────────────────
+
+$admin-shadow-light:        0 1px 8px rgba(0, 0, 0, 0.06);
+$admin-shadow-dark:         0 2px 12px rgba(0, 0, 0, 0.35);
+$admin-shadow-modal-light:  0 8px 40px rgba(0, 0, 0, 0.12);
+$admin-shadow-modal-dark:   0 8px 40px rgba(0, 0, 0, 0.6);
+$admin-shadow-menu-light:   0 4px 24px rgba(0, 0, 0, 0.1);
+$admin-shadow-menu-dark:    0 4px 24px rgba(0, 0, 0, 0.5);
+
+// ── Transitions ──────────────────────────────────────────────
+
+$admin-transition-fast: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+$admin-transition-base: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+$admin-transition-slow: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+// ── Z-Index ──────────────────────────────────────────────────
+
+$admin-z-sidebar:   1200;
+$admin-z-topbar:    1100;
+$admin-z-dropdown:  1300;
+$admin-z-modal:     1400;
+$admin-z-tooltip:   1500;
+
+// ── Breakpoints ──────────────────────────────────────────────
+
+$admin-bp-xs: 0px;
+$admin-bp-sm: 600px;
+$admin-bp-md: 900px;
+$admin-bp-lg: 1200px;
+$admin-bp-xl: 1536px;
+
+// ── Spacing Scale ────────────────────────────────────────────
+
+$admin-space-1:   4px;
+$admin-space-2:   8px;
+$admin-space-3:   12px;
+$admin-space-4:   16px;
+$admin-space-5:   20px;
+$admin-space-6:   24px;
+$admin-space-8:   32px;
+$admin-space-10:  40px;
+$admin-space-12:  48px;

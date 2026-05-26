@@ -1,0 +1,424 @@
+@use '../../styles/variables' as *;
+
+// ════════════════════════════════════════════════════════════════════
+// Category Nav — root bar (height kept at 46px to match sticky offsets)
+// ════════════════════════════════════════════════════════════════════
+
+.category-nav {
+  background: $primary-gold;
+  position: sticky;
+  top: $header-height;   // sits directly below the fixed Header
+  z-index: $z-sticky;
+  height: 46px;
+  display: flex;
+  align-items: center;
+
+  @media (max-width: $breakpoint-md) {
+    display: none;
+  }
+}
+
+.category-nav__inner {
+  max-width: $container-max;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 $spacing-xl;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 0;
+}
+
+// ── Separator ──────────────────────────────────────────────────────
+
+.nav-sep {
+  width: 1px;
+  height: 20px;
+  background: $border-light;
+  margin: 0 $spacing-lg;
+  flex-shrink: 0;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// "All Category" dropdown
+// ════════════════════════════════════════════════════════════════════
+
+.category-dropdown {
+  position: relative;
+  flex-shrink: 0;
+
+  // Scoped toggle overrides (global .category-toggle from _menu-hover.scss
+  // sets background/color; we only need to patch size + icon sizing here)
+  .category-toggle {
+    font-size: $font-base;
+    border-radius: 0px;
+    font-weight: $font-weight-medium;
+    font-family: $font-primary;
+    user-select: none;
+
+    .toggle-icon    { width: 15px; height: 15px; }
+    .toggle-chevron {
+      width: 13px;
+      height: 13px;
+      transition: transform $duration-fast $ease-in-out;
+    }
+    &:hover,
+    &.category-toggle--open {
+      background: rgba(0, 0, 0, 0.3);
+      color: $white;
+    }
+
+    &.category-toggle--open .toggle-chevron {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+// Dropdown panel — hidden by default, shown via JS --open class
+.category-panel {
+  position: absolute;
+  left: 0;
+  width: 230px;
+  background: $white;
+  box-shadow: $shadow-xl;
+  list-style: none;
+  padding: $spacing-sm 0;
+  margin: 0;
+  z-index: $z-modal;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition:
+    opacity    $duration-base $ease-in-out,
+    visibility $duration-base $ease-in-out,
+    transform  $duration-base $ease-in-out;
+  pointer-events: none;
+
+  li { margin: 0; }
+
+  &--open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+}
+
+.category-panel__link {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-sm $spacing-lg;
+  text-decoration: none;
+  color: $text-dark;
+  font-size: $font-sm;
+  transition: background $duration-fast $ease-in-out, color $duration-fast $ease-in-out;
+
+  &:hover {
+    background: $cream-bg-light;
+    color: $primary-gold;
+
+    .category-panel__icon { border-color: $primary-gold-light; }
+  }
+}
+
+.category-panel__icon {
+  width: 28px;
+  height: 28px;
+  border-radius: $border-radius-sm;
+  border: 1px solid $border-light;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: border-color $duration-fast $ease-in-out;
+
+  img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+  }
+}
+
+.category-panel__label {
+  font-size: $font-base;
+  font-weight: $font-weight-regular;
+  white-space: nowrap;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// Mega Nav — Rings / Earrings / Necklaces / Bracelets + simple links
+// ════════════════════════════════════════════════════════════════════
+
+.mega-nav {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 0;
+  flex: 1;
+}
+
+.mega-nav__sep {
+  width: 1px;
+  height: 16px;
+  background: $border-light;
+  margin: 0 $spacing-sm;
+  flex-shrink: 0;
+}
+
+// ── Each mega-nav item ───────────────────────────────────────────
+
+.mega-nav__item {
+  position: static;
+  height: 100%;
+  display: flex;
+  align-items: center;
+
+  // Chevron rotates when menu is open
+  &--open .mega-nav__link .chevron {
+    transform: rotate(180deg);
+  }
+}
+
+.mega-nav__link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 $spacing-md;
+  height: 100%;
+  color: $white;
+  text-decoration: none;
+  font-size: $font-base;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition:
+    color        $duration-fast $ease-in-out,
+    border-color $duration-fast $ease-in-out;
+
+  .chevron {
+    width: 13px;
+    height: 13px;
+    color: $white;
+    transition: transform $duration-fast $ease-in-out;
+    flex-shrink: 0;
+  }
+
+  &:hover,
+  &--active {
+    background: rgba(0, 0, 0, 0.3);
+    color: $white;
+    border-bottom-color: $primary-gold;
+  }
+
+  &--plain {
+    color: $white;
+    font-weight: $font-weight-medium;
+
+    &:hover {
+      color: $white;
+      border-bottom-color: $primary-gold;
+    }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// Mega dropdown — full-width panel, controlled by JS --open class
+// ════════════════════════════════════════════════════════════════════
+
+.mega-dropdown {
+  position: fixed;
+  top: calc(#{$header-height} + 44px);   // below Header + CategoryNav
+  left: 0;
+  right: 0;
+  background: $white;
+  border-top: 1px solid $border-light;
+  border-bottom: 1px solid $border-light;
+  box-shadow: $shadow-xl;
+  z-index: $z-modal;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition:
+    opacity    $duration-base $ease-in-out,
+    visibility $duration-base $ease-in-out,
+    transform  $duration-base $ease-in-out;
+  pointer-events: none;
+
+  &--open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+}
+
+.mega-dropdown__inner {
+  max-width: $container-max;
+  margin: 0 auto;
+  padding: $spacing-xl $spacing-xl $spacing-xxl;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
+
+// Sub-type pill bar (e.g. All / Necklaces / Pendants)
+.mega-type-bar {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding-bottom: $spacing-md;
+  border-bottom: 1px solid $border-light;
+
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px $spacing-xl;
+    border-radius: $border-radius-full;
+    border: 1.5px solid $border-light;
+    background: $white;
+    color: $text-gray;
+    font-size: $font-sm;
+    font-weight: $font-weight-medium;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      background  $duration-fast $ease-in-out,
+      color       $duration-fast $ease-in-out,
+      border-color $duration-fast $ease-in-out;
+
+    &:first-child {
+      border-color: $primary-gold-light;
+      color: $primary-gold-dark;
+    }
+
+    &:hover {
+      background: $primary-gold;
+      color: $white;
+      border-color: $primary-gold;
+    }
+  }
+}
+
+// Inner row: sections + promos side by side
+.mega-dropdown__body {
+  display: flex;
+  gap: $spacing-xxxl;
+}
+
+// Section columns
+.mega-dropdown__sections {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-xl;
+  flex: 1;
+}
+
+.mega-section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.mega-section__title {
+  font-size: $font-base;
+  font-weight: $font-weight-semibold;
+  color: $primary-gold;
+  text-transform: uppercase;
+  letter-spacing: $letter-spacing-wider;
+  padding-bottom: $spacing-sm;
+  border-bottom: 1px solid $border-light;
+  margin-bottom: $spacing-xs;
+}
+
+.mega-section__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  li a {
+    display: block;
+    padding: 4px 0;
+    font-size: $font-base;
+    color: $text-dark;
+    text-decoration: none;
+    transition: color $duration-fast $ease-in-out;
+
+    &:hover { color: $primary-gold; }
+  }
+}
+
+// Promo cards
+.mega-dropdown__promos {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  width: 200px;
+  flex-shrink: 0;
+}
+
+.mega-promo {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid $border-light;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  text-decoration: none;
+  transition: box-shadow $duration-fast $ease-in-out;
+
+  &:hover {
+    box-shadow: $shadow-md;
+    .mega-promo__cta { color: $primary-gold; }
+  }
+}
+
+.mega-promo__img {
+  height: 210px;
+  overflow: hidden;
+  background: $cream-bg;   // fallback while image loads
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: transform 0.35s ease;
+  }
+}
+
+.mega-promo:hover .mega-promo__img img {
+  transform: scale(1.04);
+}
+
+.mega-promo__info {
+  padding: $spacing-sm $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mega-promo__title {
+  font-size: $font-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-dark;
+  margin: 0;
+}
+
+.mega-promo__desc {
+  font-size: $font-xs;
+  color: $text-gray;
+}
+
+.mega-promo__cta {
+  font-size: $font-xs;
+  font-weight: $font-weight-medium;
+  color: $text-dark;
+  margin-top: 2px;
+  transition: color $duration-fast $ease-in-out;
+}

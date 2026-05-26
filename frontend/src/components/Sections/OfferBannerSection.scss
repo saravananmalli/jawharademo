@@ -1,0 +1,108 @@
+@use '../../styles/variables' as *;
+
+.offer-banner {
+  padding: $spacing-xxl 0 0;
+  direction: ltr; // prevent RTL cascade from flipping flex overlay layout
+
+  &__inner {
+    // nothing extra — container handles padding
+  }
+
+  &__card {
+    display: block;
+    position: relative;
+    border-radius: $border-radius-2xl;
+    overflow: hidden;
+    box-shadow: $shadow-lg;
+    text-decoration: none;
+    cursor: pointer;
+
+    // Fixed landscape banner height
+    height: 220px;
+
+    @media (max-width: $breakpoint-lg) { height: 200px; }
+    @media (max-width: $breakpoint-md) { height: 180px; }
+    @media (max-width: $breakpoint-sm) { height: 160px; }
+
+    &:hover .offer-banner__img { transform: scale(1.04); }
+  }
+
+  &__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.45s ease;
+  }
+
+  // Strong left-to-right gradient so text is legible
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.72) 0%,
+      rgba(0, 0, 0, 0.45) 45%,
+      transparent 70%
+    );
+    display: flex;
+    align-items: center;
+  }
+
+  &__content {
+    padding: $spacing-xxxl $spacing-4xl;
+    color: #fff;
+    max-width: 480px;
+
+    @media (max-width: $breakpoint-md) { padding: $spacing-xxl $spacing-xxxl; }
+    @media (max-width: $breakpoint-sm) { padding: $spacing-lg $spacing-xxl; max-width: 280px; }
+  }
+
+  &__eyebrow {
+    font-size: $font-xs;
+    font-weight: $font-weight-semibold;
+    letter-spacing: $letter-spacing-wider;
+    text-transform: uppercase;
+    color: $primary-gold-light;
+    margin: 0 0 $spacing-xs;
+  }
+
+  &__title {
+    font-family: $font-primary;
+    font-size: $font-3xl;
+    font-weight: $font-weight-bold;
+    line-height: $line-height-tight;
+    margin: 0 0 $spacing-sm;
+
+    @media (max-width: $breakpoint-md) { font-size: $font-xl; }
+    @media (max-width: $breakpoint-sm) { font-size: $font-lg; }
+  }
+
+  &__desc {
+    font-size: $font-base;
+    opacity: 0.88;
+    line-height: 1.55;
+    margin: 0 0 $spacing-lg;
+
+    @media (max-width: $breakpoint-sm) { font-size: $font-sm; margin-bottom: $spacing-md; }
+  }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    background: $primary-gold;
+    color: #fff;
+    font-size: $font-sm;
+    font-weight: $font-weight-semibold;
+    padding: $spacing-sm $spacing-xl;
+    border-radius: $border-radius-full;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+
+    .offer-banner__card:hover & {
+      background: $primary-gold-hover;
+      box-shadow: 0 4px 14px rgba(150, 113, 35, 0.38);
+    }
+  }
+}

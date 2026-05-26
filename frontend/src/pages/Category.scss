@@ -1,0 +1,285 @@
+@use '../styles/variables' as *;
+
+// ════════════════════════════════════════════════════════════════════
+// Category tab strip
+// ════════════════════════════════════════════════════════════════════
+
+.category-tabs-bar {
+  background: $white;
+  border-bottom: 1px solid $border-light;
+  position: sticky;
+  top: calc(#{$header-height} + 46px);   // Header + CategoryMenu
+  z-index: 10;
+}
+
+.category-tabs {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  overflow-x: auto;
+  padding: $spacing-sm 0;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.category-tab {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px $spacing-lg;
+  border-radius: $border-radius-full;
+  border: 1.5px solid $border-light;
+  background: $white;
+  color: $text-gray;
+  font-size: $font-sm;
+  font-weight: $font-weight-medium;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background  $duration-fast $ease-in-out,
+    color       $duration-fast $ease-in-out,
+    border-color $duration-fast $ease-in-out;
+
+  &:hover {
+    background: $cream-bg;
+    color: $primary-gold;
+    border-color: $primary-gold-light;
+  }
+
+  &--active {
+    background: $primary-gold;
+    color: $white;
+    border-color: $primary-gold;
+    font-weight: $font-weight-semibold;
+
+    &:hover {
+      background: $primary-gold-hover;
+      color: $white;
+      border-color: $primary-gold-hover;
+    }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// Necklaces / Pendants sub-type tab bar
+// ════════════════════════════════════════════════════════════════════
+
+.category-subtabs-bar {
+  background: $white;
+  border-bottom: 1px solid $border-light;
+}
+
+.category-subtabs {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.category-subtab {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px $spacing-xl;
+  border-radius: $border-radius-full;
+  border: 1.5px solid $border-light;
+  background: $white;
+  color: $text-gray;
+  font-size: $font-sm;
+  font-weight: $font-weight-medium;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background  $duration-fast $ease-in-out,
+    color       $duration-fast $ease-in-out,
+    border-color $duration-fast $ease-in-out;
+
+  &:hover {
+    background: $cream-bg;
+    color: $primary-gold;
+    border-color: $primary-gold-light;
+  }
+
+  &--active {
+    background: $primary-gold;
+    color: $white;
+    border-color: $primary-gold;
+    font-weight: $font-weight-semibold;
+
+    &:hover {
+      background: $primary-gold-hover;
+      color: $white;
+      border-color: $primary-gold-hover;
+    }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// Page header
+// ════════════════════════════════════════════════════════════════════
+
+.category-page {
+  &__header {
+    background: $cream-bg;
+    padding: $spacing-xxl $spacing-lg;
+    margin-bottom: $spacing-xxxl;
+  }
+
+  &__title {
+    font-size: $font-3xl;
+    font-weight: $font-weight-semibold;
+    color: $text-dark;
+    font-family: $font-primary;
+  }
+
+  &__count {
+    font-size: $font-sm;
+    color: $text-dark;
+    margin-top: $spacing-xs;
+  }
+
+  &__sort {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    font-size: $font-sm;
+    color: $text-gray;
+
+    select {
+      padding: $spacing-sm $spacing-md;
+      border: 1px solid $border-light;
+      border-radius: $border-radius-md;
+      font-size: $font-sm;
+      color: $text-dark;
+      outline: none;
+      cursor: pointer;
+      background: $white;
+
+      &:focus { border-color: $primary-gold; }
+    }
+  }
+
+  // ── Empty state ───────────────────────────────────────────────────
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-6xl $spacing-lg;
+    text-align: center;
+    gap: $spacing-md;
+    color: $text-gray;
+  }
+
+  &__empty-icon {
+    font-size: 48px;
+    color: $primary-gold-light;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__empty h3 {
+    font-size: $font-xl;
+    font-weight: $font-weight-semibold;
+    color: $text-dark;
+    margin: 0;
+  }
+
+  &__empty p {
+    font-size: $font-base;
+    margin: 0;
+  }
+
+  &__empty-btn {
+    margin-top: $spacing-sm;
+    padding: $spacing-sm $spacing-xxl;
+    background: $primary-gold;
+    color: $white;
+    border: none;
+    border-radius: $border-radius-full;
+    font-size: $font-base;
+    font-weight: $font-weight-semibold;
+    cursor: pointer;
+    transition: background $duration-base $ease-in-out;
+
+    &:hover { background: $primary-gold-hover; }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// Sidebar + main content layout
+// ════════════════════════════════════════════════════════════════════
+
+.category-page__body {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-xxl;
+  padding-bottom: $spacing-6xl;
+}
+
+.category-page__main {
+  flex: 1;
+  min-width: 0; // prevent grid overflow inside flex
+}
+
+// ── Toolbar: filter button (mobile) + sort dropdown ──────────────────
+
+.category-page__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+  padding: $spacing-md 0;
+}
+
+// Mobile filter button — hidden on desktop, visible on mobile
+.category-page__filter-btn {
+  display: none;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: $white;
+  border: 1.5px solid $border-light;
+  border-radius: $border-radius-full;
+  font-size: $font-sm;
+  font-weight: $font-weight-medium;
+  color: $text-dark;
+  cursor: pointer;
+  transition: all $duration-fast $ease-in-out;
+  font-family: $font-primary;
+
+  svg { width: 15px; height: 15px; }
+
+  &:hover {
+    border-color: $primary-gold;
+    color: $primary-gold;
+  }
+}
+
+// ── Mobile: tab bar sits below mobile header (CategoryMenu hidden on mobile) ──
+@media (max-width: $breakpoint-md) {
+  .category-tabs-bar {
+    top: $header-height;   // stick just below mobile header
+  }
+
+  .category-tab {
+    padding: 5px $spacing-md;
+    font-size: $font-xs;
+  }
+
+  .category-page__body {
+    gap: 0;
+    padding-bottom: $spacing-4xl;
+  }
+
+  .category-page__filter-btn {
+    display: flex;
+  }
+
+  // Remove old toolbar justify-end on mobile (filter btn is on left)
+  .category-page__toolbar {
+    justify-content: space-between;
+  }
+}

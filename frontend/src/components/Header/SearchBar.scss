@@ -1,0 +1,472 @@
+@use '../../styles/variables' as *;
+
+// ── Header trigger ────────────────────────────────────────────────
+.search-bar {
+  position: relative;
+  width: 100%;
+
+  &__form {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid $border-light;
+    border-radius: $border-radius-lg;
+    overflow: hidden;
+    background: $white;
+    cursor: pointer;
+    transition: border-color $duration-base $ease-in-out;
+
+    &:hover,
+    &:focus-within {
+      border-color: $primary-gold;
+      box-shadow: 0 0 0 3px rgba(150, 113, 35, 0.10);
+    }
+  }
+
+  &__input-area {
+    flex: 1;
+    position: relative;
+    min-width: 0;
+    height: 44px;
+  }
+
+  &__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    border: none;
+    outline: none;
+    padding: 0 $spacing-lg;
+    font-size: $font-base;
+    color: $text-dark;
+    background: transparent;
+    cursor: pointer;
+    font-family: $font-primary;
+    z-index: 1;
+
+    &::placeholder { color: $text-light; }
+  }
+
+  &__anim-ph {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 $spacing-lg;
+    pointer-events: none;
+    color: $text-light;
+    font-size: $font-base;
+    font-family: $font-primary;
+    white-space: nowrap;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  &__anim-prefix {
+    flex-shrink: 0;
+  }
+
+  &__anim-kw {
+    display: inline-block;
+    color: $text-dark;
+    margin-left: $spacing-xs;
+
+    &--idle {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    &--exit {
+      animation: phExit 0.55s cubic-bezier(0.4, 0, 1, 1) both;
+    }
+
+    &--enter {
+      animation: phEnter 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+  }
+
+  &__btn {
+    height: 44px;
+    width: 52px;
+    background: $primary-gold;
+    border: none;
+    border-radius: 0 $border-radius-lg $border-radius-lg 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background-color $duration-base $ease-in-out;
+
+    img {
+      width: 20px;
+      height: 20px;
+      filter: brightness(0) invert(1);
+      object-fit: contain;
+    }
+
+    &:hover { background: $primary-gold-hover; }
+  }
+}
+
+// ── Overlay animations ────────────────────────────────────────────
+@keyframes searchSlideDown {
+  from { opacity: 0; transform: translateY(-14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes backdropFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes phExit {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-80%); }
+}
+
+@keyframes phEnter {
+  from { opacity: 0; transform: translateY(80%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Search overlay ────────────────────────────────────────────────
+.search-overlay {
+  // Backdrop
+  &__backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.32);
+    z-index: 49; // just below panel
+    animation: backdropFadeIn $duration-slow $ease-out both;
+  }
+
+  // Sliding panel – anchored to top of viewport
+  &__panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50; // $z-modal
+    background: $white;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.14);
+    padding: $spacing-xl $spacing-xxl $spacing-xxl;
+    animation: searchSlideDown $duration-slow $ease-out both;
+
+    @media (max-width: $breakpoint-md) {
+      padding: $spacing-lg $spacing-lg $spacing-xl;
+    }
+  }
+
+  // ── Input row ─────────────────────────────────────────────────
+  &__input-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    max-width: $container-xl;
+    margin: 0 auto $spacing-xl;
+  }
+
+  &__input-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    border: 1.5px solid $primary-gold;
+    border-radius: $border-radius-lg;
+    padding: 0 $spacing-lg;
+    height: 48px;
+    background: $white;
+    box-shadow: 0 0 0 3px rgba(150, 113, 35, 0.08);
+    min-width: 0;
+  }
+
+  &__input-icon {
+    display: flex;
+    align-items: center;
+    color: $text-light;
+    flex-shrink: 0;
+  }
+
+  &__input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: $font-base;
+    color: $text-dark;
+    background: transparent;
+    font-family: $font-primary;
+    min-width: 0;
+
+    &::placeholder { color: $text-light; }
+  }
+
+  &__clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $bg-light-gray;
+    border: none;
+    cursor: pointer;
+    color: $text-gray;
+    width: 22px;
+    height: 22px;
+    border-radius: $border-radius-full;
+    flex-shrink: 0;
+    transition: background-color $duration-base $ease-in-out, color $duration-base $ease-in-out;
+
+    &:hover { background: $border-gray; color: $text-dark; }
+  }
+
+  &__search-btn {
+    height: 48px;
+    width: 56px;
+    background: $primary-gold;
+    border: none;
+    border-radius: $border-radius-lg;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background-color $duration-base $ease-in-out;
+
+    img {
+      width: 20px;
+      height: 20px;
+      filter: brightness(0) invert(1);
+      object-fit: contain;
+    }
+
+    &:hover { background: $primary-gold-hover; }
+  }
+
+  &__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: $border-radius-full;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: $text-gray;
+    flex-shrink: 0;
+    transition: background-color $duration-base $ease-in-out, color $duration-base $ease-in-out;
+
+    &:hover { background: $bg-light-gray; color: $text-dark; }
+  }
+
+  // ── Two-column content area ───────────────────────────────────
+  &__content {
+    display: flex;
+    align-items: flex-start;
+    max-width: $container-xl;
+    margin: 0 auto;
+    min-height: 220px;
+  }
+
+  // Left: category sidebar
+  &__categories {
+    width: 200px;
+    flex-shrink: 0;
+    padding-right: $spacing-xl;
+
+    @media (max-width: $breakpoint-md) {
+      width: 100%;
+      padding-right: 0;
+      padding-bottom: $spacing-md;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: $spacing-sm;
+      min-height: unset;
+    }
+  }
+
+  &__trending-label {
+    font-size: $font-xs;
+    color: $text-light;
+    text-transform: uppercase;
+    letter-spacing: $letter-spacing-wider;
+    margin-bottom: $spacing-md;
+    font-weight: $font-weight-medium;
+
+    @media (max-width: $breakpoint-md) {
+      width: 100%;
+      margin-bottom: 0;
+    }
+  }
+
+  &__cat-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: $spacing-sm $spacing-md;
+    border-radius: $border-radius-md;
+    font-size: $font-base;
+    color: $text-dark;
+    font-family: $font-primary;
+    font-weight: $font-weight-regular;
+    transition: background-color $duration-base $ease-in-out, color $duration-base $ease-in-out;
+    margin-bottom: 2px;
+    white-space: nowrap;
+
+    &:hover { background: $cream-bg; color: $primary-gold; }
+
+    &.active {
+      background: $primary-gold-light;
+      color: $primary-gold;
+      font-weight: $font-weight-semibold;
+    }
+
+    @media (max-width: $breakpoint-md) {
+      width: auto;
+      margin-bottom: 0;
+      font-size: $font-sm;
+      padding: $spacing-xs $spacing-md;
+    }
+  }
+
+  // Vertical divider
+  &__divider {
+    width: 1px;
+    align-self: stretch;
+    background: $border-light;
+    margin: 0 $spacing-xl;
+    flex-shrink: 0;
+
+    @media (max-width: $breakpoint-md) {
+      width: 100%;
+      height: 1px;
+      margin: $spacing-md 0;
+    }
+  }
+
+  // Right: suggestions list
+  &__suggestions {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__suggestion {
+    display: flex;
+    align-items: center;
+    gap: $spacing-lg;
+    padding: $spacing-sm $spacing-md;
+    border-radius: $border-radius-lg;
+    cursor: pointer;
+    transition: background-color $duration-fast $ease-in-out;
+
+    &:hover,
+    &.active { background: $cream-bg; }
+  }
+
+  &__suggestion-img {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: $cream-bg;
+    border: 1px solid $border-light;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__suggestion-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__suggestion-name {
+    font-size: $font-base;
+    color: $text-gray;
+    font-family: $font-primary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    strong {
+      font-weight: $font-weight-semibold;
+      color: $text-dark;
+    }
+  }
+
+  &__suggestion-suffix {
+    color: $text-gray;
+  }
+
+  &__suggestion-meta {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    flex-wrap: wrap;
+    font-size: $font-xs;
+    color: $text-light;
+    font-family: $font-primary;
+  }
+
+  &__suggestion-category {
+    text-transform: capitalize;
+  }
+
+  &__suggestion-dot {
+    opacity: 0.4;
+  }
+
+  &__suggestion-price {
+    color: $primary-gold;
+    font-weight: $font-weight-medium;
+  }
+
+  &__suggestion-delivery {
+    color: $text-light;
+  }
+
+  &__loading {
+    color: $text-light;
+    font-size: $font-base;
+    padding: $spacing-xl $spacing-md;
+    text-align: center;
+  }
+
+  &__no-results {
+    color: $text-light;
+    font-size: $font-base;
+    padding: $spacing-xl $spacing-md;
+    text-align: center;
+  }
+
+  // ── Mobile: stack vertically ──────────────────────────────────
+  @media (max-width: $breakpoint-md) {
+    &__content {
+      flex-direction: column;
+    }
+
+    &__divider {
+      display: block;
+    }
+
+    &__suggestions {
+      max-height: 50vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+}

@@ -1,0 +1,55 @@
+@use 'variables' as *;
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: clip;
+  &[dir='rtl'] { direction: rtl; text-align: right; }
+}
+
+body {
+  font-family: $font-primary;
+  font-size: $font-base;
+  line-height: $line-height-normal;
+  color: $text-dark;
+  background: $white;
+  letter-spacing: 0.8px;
+  overflow-x: clip;
+  width: 100%;
+}
+
+a { text-decoration: none; color: inherit; }
+ul, ol { list-style: none; }
+img { max-width: 100%; display: block; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+input, textarea, select { font-family: inherit; }
+
+.container {
+  max-width: $container-max;
+  margin: 0 auto;
+  padding: 0 $spacing-lg;
+  @media (max-width: $breakpoint-md) { padding: 0 $spacing-md; }
+}
+
+.section-title {
+  font-size: $font-2xl;
+  font-weight: $font-weight-bold;
+  color: $text-dark;
+  margin-bottom: $spacing-xl;
+  @media (max-width: $breakpoint-md) { font-size: $font-xl; }
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: $border-radius-sm;
+  font-size: $font-xs;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+
+  &.badge-new { background: $sage-green; color: $white; }
+  &.badge-sale { background: $primary-gold; color: $white; }
+  &.badge-limited { background: $accent-red; color: $white; }
+  &.badge-hot { background: $dark-maroon; color: $white; }
+}

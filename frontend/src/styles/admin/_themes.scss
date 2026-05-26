@@ -1,0 +1,118 @@
+// ============================================================
+// JAWHARA ADMIN PANEL — THEME CSS CUSTOM PROPERTIES
+// ============================================================
+// AdminThemeContext sets [data-admin-theme="dark|light"] on
+// the admin root element. These CSS vars respond to that attr
+// so all SCSS components get theme-aware values automatically.
+// ============================================================
+
+@use 'variables' as *;
+
+// ── Light theme (default) ────────────────────────────────────
+
+:root,
+[data-admin-theme='light'] {
+  // Backgrounds
+  --admin-bg:           #{$light-bg};
+  --admin-card:         #{$light-paper};
+  --admin-elevated:     #{$light-paper};
+  --admin-input-bg:     #{$light-input-bg};
+  --admin-table-head:   #{$light-table-head};
+  --admin-row-hover:    #{$light-row-hover};
+
+  // Text
+  --admin-text-primary:   #{$light-text-primary};
+  --admin-text-secondary: #{$light-text-secondary};
+  --admin-text-disabled:  rgba(0, 0, 0, 0.28);
+
+  // Borders & Dividers
+  --admin-border:         #{$light-border};
+  --admin-border-hover:   rgba(0, 0, 0, 0.20);
+  --admin-border-strong:  rgba(0, 0, 0, 0.12);
+  --admin-divider:        #{$light-divider};
+
+  // Interactive
+  --admin-hover:          #{$light-hover};
+  --admin-selected:       #{$light-selected};
+  --admin-focus-ring:     rgba(150, 113, 35, 0.15);
+
+  // Shadows
+  --admin-shadow-card:    #{$admin-shadow-light};
+  --admin-shadow-modal:   #{$admin-shadow-modal-light};
+  --admin-shadow-menu:    #{$admin-shadow-menu-light};
+
+  // Scrollbar
+  --admin-scrollbar:        #{$light-scrollbar};
+  --admin-scrollbar-hover:  rgba(0, 0, 0, 0.25);
+
+  // Topbar
+  --admin-topbar-bg:      #{$light-paper};
+  --admin-topbar-color:   #{$light-text-primary};
+  --admin-topbar-border:  #e9eaec;
+  --admin-search-bg:      rgba(0, 0, 0, 0.05);
+  --admin-search-border:  rgba(0, 0, 0, 0.09);
+
+  // Status badge backgrounds
+  --admin-success-bg:     #{$status-success-bg-light};
+  --admin-error-bg:       #{$status-error-bg-light};
+  --admin-warning-bg:     #{$status-warning-bg-light};
+  --admin-info-bg:        #{$status-info-bg-light};
+
+  // Chart grid / axis lines
+  --admin-chart-grid:     rgba(0, 0, 0, 0.06);
+  --admin-chart-tick:     #9ca3af;
+}
+
+// ── Dark theme ───────────────────────────────────────────────
+
+[data-admin-theme='dark'] {
+  // Backgrounds
+  --admin-bg:           #{$dark-bg};
+  --admin-card:         #{$dark-paper};
+  --admin-elevated:     #{$dark-elevated};
+  --admin-input-bg:     #{$dark-input-bg};
+  --admin-table-head:   #{$dark-table-head};
+  --admin-row-hover:    #{$dark-row-hover};
+
+  // Text
+  --admin-text-primary:   #{$dark-text-primary};
+  --admin-text-secondary: #{$dark-text-secondary};
+  --admin-text-disabled:  rgba(255, 255, 255, 0.28);
+
+  // Borders & Dividers
+  --admin-border:         #{$dark-border};
+  --admin-border-hover:   rgba(255, 255, 255, 0.18);
+  --admin-border-strong:  rgba(255, 255, 255, 0.12);
+  --admin-divider:        #{$dark-divider};
+
+  // Interactive
+  --admin-hover:          #{$dark-hover};
+  --admin-selected:       #{$dark-selected};
+  --admin-focus-ring:     rgba(150, 113, 35, 0.20);
+
+  // Shadows
+  --admin-shadow-card:    #{$admin-shadow-dark};
+  --admin-shadow-modal:   #{$admin-shadow-modal-dark};
+  --admin-shadow-menu:    #{$admin-shadow-menu-dark};
+
+  // Scrollbar
+  --admin-scrollbar:        #{$dark-scrollbar};
+  --admin-scrollbar-hover:  rgba(255, 255, 255, 0.20);
+
+  // Topbar
+  --admin-topbar-bg:      #{$dark-bg};
+  --admin-topbar-color:   #{$dark-text-primary};
+  --admin-topbar-border:  #{$dark-divider};
+  --admin-search-bg:      rgba(255, 255, 255, 0.06);
+  --admin-search-border:  rgba(255, 255, 255, 0.09);
+
+  // Status badge backgrounds
+  --admin-success-bg:     #{$status-success-bg-dark};
+  --admin-error-bg:       #{$status-error-bg-dark};
+  --admin-warning-bg:     #{$status-warning-bg-dark};
+  --admin-info-bg:        #{$status-info-bg-dark};
+
+  // Chart grid / axis lines
+  --admin-chart-grid:     rgba(255, 255, 255, 0.06);
+  --admin-chart-tick:     #6b7280;
+}

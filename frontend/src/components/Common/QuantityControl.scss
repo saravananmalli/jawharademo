@@ -1,0 +1,37 @@
+@use '../../styles/variables' as *;
+
+.qty-ctrl {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid $border-light;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+  user-select: none;
+
+  &__btn {
+    width: 36px;
+    height: 36px;
+    background: $bg-gray;
+    border: none;
+    cursor: pointer;
+    font-size: $font-xl;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: $transition-bg;
+    color: $text-dark;
+
+    &:hover:not(:disabled) { background: $primary-gold; color: $white; }
+    &:disabled { opacity: 0.4; cursor: not-allowed; }
+  }
+
+  &__value {
+    min-width: 44px;
+    text-align: center;
+    font-size: $font-base;
+    font-weight: $font-weight-semibold;
+    color: $text-dark;
+    padding: 0 $spacing-xs;
+  }
+}

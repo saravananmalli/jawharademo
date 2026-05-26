@@ -1,0 +1,110 @@
+// ============================================================
+// JAWHARA ADMIN PANEL — GLOBAL BASE STYLES
+// ============================================================
+
+@use 'variables' as *;
+@use 'mixins'    as *;
+
+// ── Admin root wrapper ───────────────────────────────────────
+
+.admin-root {
+  font-family: $admin-font;
+  background: var(--admin-bg);
+  color: var(--admin-text-primary);
+  min-height: 100vh;
+  transition:
+    background-color $admin-transition-slow,
+    color            $admin-transition-slow;
+
+  @include admin-scrollbar(6px);
+
+  *:focus-visible {
+    outline: 2px solid $admin-gold;
+    outline-offset: 2px;
+  }
+}
+
+// ── Page wrapper ─────────────────────────────────────────────
+
+.admin-page {
+  padding: $admin-content-padding;
+
+  @include admin-respond-to('sm') { padding: $admin-content-padding-sm; }
+  @include admin-respond-to('xs') { padding: $admin-content-padding-xs; }
+}
+
+// ── Page / section headings ──────────────────────────────────
+
+.admin-page-title {
+  font-size: $admin-font-2xl;
+  font-weight: $admin-weight-bold;
+  color: var(--admin-text-primary);
+  margin: 0 0 $admin-space-6;
+  line-height: 1.3;
+}
+
+.admin-section-title {
+  font-size: $admin-font-xl;
+  font-weight: $admin-weight-bold;
+  color: var(--admin-text-primary);
+  margin: 0 0 $admin-space-4;
+  line-height: 1.3;
+}
+
+.admin-label {
+  font-size: $admin-font-sm;
+  font-weight: $admin-weight-semibold;
+  color: var(--admin-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+// ── Divider ──────────────────────────────────────────────────
+
+.admin-divider {
+  border: none;
+  border-top: 1px solid var(--admin-divider);
+  margin: $admin-space-4 0;
+}
+
+// ── Empty state ──────────────────────────────────────────────
+
+.admin-empty {
+  text-align: center;
+  padding: $admin-space-12 $admin-space-6;
+  color: var(--admin-text-secondary);
+  font-size: $admin-font-md;
+}
+
+// ── Loading spinner wrapper ───────────────────────────────────
+
+.admin-loading {
+  text-align: center;
+  padding: $admin-space-12;
+  color: var(--admin-text-secondary);
+}
+
+// ── Scrollable containers ────────────────────────────────────
+
+.admin-scroll {
+  overflow-y: auto;
+  @include admin-scrollbar(4px);
+}
+
+// ── Generic skeleton placeholder ─────────────────────────────
+
+.admin-skeleton {
+  @include admin-skeleton;
+  height: 16px;
+  width: 100%;
+}
+
+// ── Generic overlay backdrop ─────────────────────────────────
+
+.admin-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: $admin-z-modal - 1;
+  backdrop-filter: blur(2px);
+}

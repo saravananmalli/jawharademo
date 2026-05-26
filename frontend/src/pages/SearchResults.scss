@@ -1,0 +1,23 @@
+@use '../styles/variables' as *;
+
+.search-results-page {
+  padding: $spacing-xxxl $spacing-lg $spacing-6xl;
+
+  &__header {
+    margin-bottom: $spacing-xxxl;
+
+    h1 {
+      font-size: $font-3xl;
+      font-weight: $font-weight-bold;
+      color: $text-dark;
+      margin-bottom: $spacing-sm;
+
+      em {
+        font-style: italic;
+        color: $primary-gold;
+      }
+    }
+
+    p { font-size: $font-base; color: $text-light; }
+  }
+}

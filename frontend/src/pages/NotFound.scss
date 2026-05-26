@@ -1,0 +1,47 @@
+@use '../styles/variables' as *;
+
+.not-found {
+  padding: $spacing-6xl $spacing-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+
+  &__inner { text-align: center; }
+
+  &__code {
+    font-size: 120px;
+    font-weight: $font-weight-extrabold;
+    color: $primary-gold;
+    opacity: 0.3;
+    line-height: 1;
+    margin-bottom: $spacing-lg;
+  }
+
+  &__title {
+    font-size: $font-3xl;
+    font-weight: $font-weight-bold;
+    color: $text-dark;
+    margin-bottom: $spacing-md;
+  }
+
+  &__desc {
+    font-size: $font-md;
+    color: $text-gray;
+    margin-bottom: $spacing-xxxl;
+  }
+
+  &__btn {
+    display: inline-block;
+    padding: $spacing-md $spacing-xxxl;
+    background: $primary-gold;
+    color: $white;
+    border-radius: $border-radius-full;
+    font-size: $font-md;
+    font-weight: $font-weight-semibold;
+    text-decoration: none;
+    transition: $transition-bg;
+
+    &:hover { background: $primary-gold-hover; }
+  }
+}

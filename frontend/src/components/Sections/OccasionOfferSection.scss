@@ -1,0 +1,304 @@
+@use '../../styles/variables' as *;
+
+// ── Section wrapper ────────────────────────────────────────────────────────────
+.occ-offer {
+  padding: $spacing-xxl 0 $spacing-4xl;
+}
+
+// ── Two-column grid (left banner + right offer) ────────────────────────────────
+.occ-offer__inner {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: $spacing-xxl;
+  align-items: start;
+
+  &--full {
+    grid-template-columns: 1fr;
+  }
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: 260px 1fr;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Shared "Check All / View All" link ────────────────────────────────────────
+.occ-check-all {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $font-sm;
+  font-weight: $font-weight-semibold;
+  color: $primary-gold;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover { color: $primary-gold-hover; }
+}
+
+// ── Left: Campaign banner card ────────────────────────────────────────────────
+.occ-left {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: $spacing-md;
+  }
+
+  &__title {
+    font-size: $font-lg;
+    font-weight: $font-weight-semibold;
+    color: $text-dark;
+    line-height: $line-height-tight;
+  }
+
+  &__sub {
+    font-size: $font-sm;
+    color: $text-gray;
+    margin-top: $spacing-xs;
+  }
+
+  &__card {
+    display: block;
+    position: relative;
+    border-radius: $border-radius-xl;
+    overflow: hidden;
+    box-shadow: $shadow-md;
+    cursor: pointer;
+    text-decoration: none;
+
+    img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      object-fit: cover;
+      transition: transform 0.45s ease;
+    }
+
+    &:hover img { transform: scale(1.04); }
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: $spacing-4xl $spacing-lg $spacing-lg;
+    background: linear-gradient(to top, rgba(0,0,0,0.78) 0%, transparent 55%);
+    color: #fff;
+  }
+
+  &__overlay-title {
+    font-size: $font-xl;
+    font-weight: $font-weight-semibold;
+    font-family: $font-primary;
+    margin-bottom: $spacing-xs;
+    line-height: $line-height-tight;
+  }
+
+  &__overlay-sub {
+    font-size: $font-sm;
+    opacity: 0.88;
+    margin-bottom: $spacing-md;
+    line-height: 1.5;
+  }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    font-size: $font-sm;
+    font-weight: $font-weight-medium;
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+// ── Right: Offer column ───────────────────────────────────────────────────────
+.occ-right {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  min-width: 0;
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+  }
+
+  // Title row: [title + timer] on the left, "Check All →" on the right
+  &__title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-lg;
+    flex-wrap: wrap;
+  }
+
+  // Title and timer sit side-by-side, vertically centred
+  &__title-wrap {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xl;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  // Title style matches occ-left__title (Christmas Gifts card)
+  &__title {
+    font-size: $font-lg;
+    font-weight: $font-weight-semibold;
+    color: $text-dark;
+    font-family: $font-primary;
+    line-height: $line-height-tight;
+  }
+
+  // Subtitle style matches occ-left__sub
+  &__sub {
+    font-size: $font-sm;
+    color: $text-gray;
+    margin: 0;
+  }
+
+  &__expired {
+    font-size: $font-sm;
+    font-weight: $font-weight-semibold;
+    color: #c0392b;
+    margin: 0;
+  }
+
+  // Mobile: 2-col grid, hidden on tablet+
+  &__mobile-grid {
+    display: none;
+
+    @media (max-width: #{$breakpoint-sm - 1px}) {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: $spacing-md;
+    }
+  }
+
+  // Swiper wrapper: hidden on mobile, visible on tablet+
+  &__swiper-wrap {
+    width: 100%;
+    min-width: 0;
+    direction: ltr; // Swiper translate3d set at LTR init — block RTL cascade
+
+    @media (max-width: #{$breakpoint-sm - 1px}) { display: none; }
+
+    .swiper-slide { height: auto; }
+
+    // ── Navigation arrows — mirrors product-row__swiper arrows ────────────
+    .swiper-button-prev,
+    .swiper-button-next {
+      width: 36px;
+      height: 36px;
+      background: $white;
+      border: 1px solid $border-light;
+      border-radius: $border-radius-full;
+      box-shadow: $shadow-sm;
+      top: 40%; // align to image area
+
+      &::after {
+        font-size: $font-sm;
+        font-weight: $font-weight-bold;
+        color: $primary-gold;
+      }
+
+      &:hover {
+        background: $primary-gold;
+        border-color: $primary-gold;
+        &::after { color: $white; }
+      }
+      svg {
+      font-size: 18px;
+      width: 22px;
+      height: 22px;
+      color: $text-dark;
+    }
+    }
+
+    .swiper-button-disabled { opacity: 0.35; }
+  }
+}
+
+// ── Countdown timer boxes ─────────────────────────────────────────────────────
+.occ-timer {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+
+  &__group {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-xs;
+  }
+
+  &__box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &__num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border: 1.5px solid $primary-gold;
+    border-radius: $border-radius-md;
+    font-size: $font-base;
+    font-weight: $font-weight-semibold;
+    color: $text-dark;
+    background: $cream-bg-light;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  &__label {
+    display: block;
+    font-size: 10px;
+    color: $text-gray;
+    text-align: center;
+    margin-top: 4px;
+  }
+
+  &__sep {
+    font-size: $font-lg;
+    font-weight: $font-weight-bold;
+    color: $primary-gold;
+    align-self: flex-start;
+    padding-top: 10px;
+    line-height: 1;
+  }
+}
+
+// ── Responsive overrides ──────────────────────────────────────────────────────
+@media (max-width: $breakpoint-md) {
+  .occ-timer {
+    &__num {
+      width: 36px;
+      height: 36px;
+      font-size: $font-sm;
+    }
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  .occ-timer {
+    &__num { width: 32px; height: 32px; }
+    &__sep { font-size: $font-base; padding-top: 8px; }
+  }
+}

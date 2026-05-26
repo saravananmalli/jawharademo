@@ -1,0 +1,443 @@
+// ============================================================
+// JAWHARA JEWELRY - SCSS VARIABLES
+// ============================================================
+
+// ============================================================
+// 1. COLOR PALETTE
+// ============================================================
+
+// Primary Colors
+$primary-gold: #967123;
+$primary-gold-hover: #B39650;
+$primary-gold-light: #E8DCC8;
+$primary-gold-dark: #8B7355;
+
+// Secondary Colors
+$dark-maroon: #8B1538;
+$dark-maroon-light: #A82D4A;
+$dark-maroon-transparent: rgba(139, 21, 56, 0.6);
+
+// Accent Colors
+$sage-green: #7A9B8E;
+$sage-green-light: #A8BEB3;
+$accent-red: #D41E3A;
+$accent-green: #34C759;
+
+// Neutral Colors
+$cream-bg: #F5EFE6;
+$cream-bg-light: #FAF7F2;
+$white: #FFFFFF;
+$off-white: #FAFAFA;
+
+// Text Colors
+$text-dark: #3C3528;
+$text-gray: #898989;
+$text-light: #9B9B9B;
+$text-light-gray: #8B7355;
+
+// Border & Background
+$border-light: #E8E8E8;
+$border-gray: #D1D1D1;
+$bg-gray: #F8F8F8;
+$bg-light-gray: #EFEFEF;
+
+// Feedback Colors
+$success-color: #7A9B8E;
+$warning-color: #F5A623;
+$error-color: #D41E3A;
+$info-color: #2196F3;
+
+// Star & Rating Colors
+$star-gold: #FFD700;
+$star-gray: #CCCCCC;
+
+$verfied-bg: #FFCC00;
+$gradient-gold: linear-gradient(90deg,rgba(255, 188, 54, 1) 0%, rgba(117, 78, 5, 1) 100%);
+
+// ============================================================
+// 2. SPACING / SIZING
+// ============================================================
+
+// Spacing Scale (based on 4px base)
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 12px;
+$spacing-lg: 16px;
+$spacing-xl: 20px;
+$spacing-xxl: 24px;
+$spacing-xxxl: 32px;
+$spacing-4xl: 40px;
+$spacing-5xl: 48px;
+$spacing-6xl: 64px;
+
+// Common Margins/Paddings
+$margin-0: 0;
+$margin-sm: 8px;
+$margin-md: 16px;
+$margin-lg: 24px;
+$margin-xl: 32px;
+
+$padding-xs: 4px;
+$padding-sm: 8px;
+$padding-md: 12px;
+$padding-lg: 16px;
+$padding-xl: 20px;
+$padding-xxl: 24px;
+
+// ============================================================
+// 3. TYPOGRAPHY
+// ============================================================
+
+// Font Families
+$font-primary:'Poppins', 'Dirham-Sans', sans-serif;
+$font-secondary: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+$font-serif: 'Georgia', 'Times New Roman', serif;
+$font-mono: 'Monaco', 'Courier New', monospace;
+
+// Font Weights
+$font-weight-light: 300;
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-extrabold: 800;
+
+// Font Sizes
+$font-xs: 11px;
+$font-sm: 12px;
+$font-base: 14px;
+$font-md: 16px;
+$font-lg: 18px;
+$font-xl: 20px;
+$font-2xl: 24px;
+$font-3xl: 28px;
+$font-4xl: 32px;
+$font-5xl: 36px;
+$font-6xl: 40px;
+$font-7xl: 48px;
+
+// Line Heights
+$line-height-tight: 1.2;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.75;
+$line-height-loose: 2;
+
+// Letter Spacing
+$letter-spacing-tight: -0.5px;
+$letter-spacing-normal: 0;
+$letter-spacing-wide: 0.5px;
+$letter-spacing-wider: 1px;
+
+// ============================================================
+// 4. BORDER RADIUS
+// ============================================================
+
+$border-radius-none: 0;
+$border-radius-xs: 2px;
+$border-radius-sm: 4px;
+$border-radius-md: 6px;
+$border-radius-lg: 8px;
+$border-radius-xl: 12px;
+$border-radius-2xl: 16px;
+$border-radius-full: 9999px;
+
+// ============================================================
+// 5. SHADOWS
+// ============================================================
+
+// Box Shadows
+$shadow-none: none;
+$shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+  0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+  0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+  0 10px 10px -5px rgba(0, 0, 0, 0.04);
+$shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+// Inset Shadow
+$shadow-inset: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+
+// Gold Shadows
+$shadow-gold: 0 4px 12px rgba(196, 169, 96, 0.15);
+$shadow-maroon: 0 4px 12px rgba(139, 21, 56, 0.15);
+
+// ============================================================
+// 6. TRANSITIONS / ANIMATIONS
+// ============================================================
+
+// Durations
+$duration-fast: 150ms;
+$duration-base: 200ms;
+$duration-slow: 300ms;
+$duration-slower: 500ms;
+
+// Timing Functions
+$ease-in: cubic-bezier(0.4, 0, 1, 1);
+$ease-out: cubic-bezier(0, 0, 0.2, 1);
+$ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+$ease-linear: linear;
+
+// Common Transitions
+$transition-fast: all $duration-fast $ease-in-out;
+$transition-base: all $duration-base $ease-in-out;
+$transition-slow: all $duration-slow $ease-in-out;
+$transition-color: color $duration-base $ease-in-out;
+$transition-bg: background-color $duration-base $ease-in-out;
+$transition-border: border-color $duration-base $ease-in-out;
+$transition-transform: transform $duration-base $ease-in-out;
+$transition-opacity: opacity $duration-base $ease-in-out;
+$transition-box-shadow: box-shadow $duration-base $ease-in-out;
+
+// ============================================================
+// 7. LAYOUT / CONTAINER
+// ============================================================
+
+// Container Widths
+$container-xs: 320px;
+$container-sm: 640px;
+$container-md: 768px;
+$container-lg: 1024px;
+$container-xl: 1280px;
+$container-2xl: 1536px;
+$container-max: 1500px;
+
+// Common Widths
+$width-full: 100%;
+$width-half: 50%;
+$width-third: 33.333%;
+$width-two-thirds: 66.666%;
+$width-quarter: 25%;
+$width-three-quarters: 75%;
+
+// Header Heights
+$header-height: 88px;
+$navbar-height: 48px;
+$hero-height: 250px;
+
+// ============================================================
+// 8. BREAKPOINTS
+// ============================================================
+
+$breakpoint-xs: 320px;
+$breakpoint-sm: 480px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-2xl: 1536px;
+
+// ============================================================
+// 9. Z-INDEX SCALE
+// ============================================================
+
+$z-dropdown: 10;
+$z-sticky: 20;
+$z-fixed: 30;
+$z-modal-backdrop: 40;
+$z-modal: 50;
+$z-popover: 60;
+$z-tooltip: 70;
+$z-notification: 80;
+
+// ============================================================
+// 10. COMPONENT SPECIFIC VARIABLES
+// ============================================================
+
+// Button Sizes
+$btn-padding-xs: $padding-sm $padding-md;
+$btn-padding-sm: $padding-md $padding-lg;
+$btn-padding-md: $padding-lg $padding-xl;
+$btn-padding-lg: $padding-xl $padding-xxl;
+
+$btn-height-sm: 32px;
+$btn-height-md: 40px;
+$btn-height-lg: 48px;
+
+// Button Border Radius
+$btn-border-radius: $border-radius-md;
+
+// Input Sizes
+$input-padding: $padding-md $padding-lg;
+$input-height: 40px;
+$input-border-radius: $border-radius-md;
+$input-border-width: 1px;
+$input-border-color: $border-light;
+
+// Badge Sizes
+$badge-padding: $padding-xs $padding-md;
+$badge-font-size: $font-xs;
+$badge-border-radius: $border-radius-sm;
+
+// Product Card
+$product-card-width: 200px;
+$product-image-height: 200px;
+$product-card-radius: $border-radius-lg;
+
+// Menu/Dropdown
+$dropdown-border-radius: $border-radius-lg;
+$dropdown-min-width: 200px;
+$dropdown-shadow: $shadow-lg;
+$dropdown-bg: $white;
+$dropdown-z-index: $z-dropdown;
+
+// Modal
+$modal-max-width: 600px;
+$modal-z-index: $z-modal;
+
+// ============================================================
+// 11. MIXIN SHORTCUTS
+// ============================================================
+
+// Flexbox Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+// Grid Mixin
+@mixin grid($columns: 1, $gap: $spacing-lg) {
+  display: grid;
+  grid-template-columns: repeat($columns, 1fr);
+  gap: $gap;
+}
+
+// Text Truncation
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin line-clamp($lines: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Responsive Text
+@mixin responsive-text($xs: $font-base, $sm: $font-md, $md: $font-lg, $lg: $font-xl) {
+  font-size: $xs;
+
+  @media (min-width: $breakpoint-sm) {
+    font-size: $sm;
+  }
+
+  @media (min-width: $breakpoint-md) {
+    font-size: $md;
+  }
+
+  @media (min-width: $breakpoint-lg) {
+    font-size: $lg;
+  }
+}
+
+// Button Base Style
+@mixin button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: $btn-padding-md;
+  border: none;
+  border-radius: $btn-border-radius;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: $transition-base;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// Input Base Style
+@mixin input-base {
+  width: 100%;
+  padding: $input-padding;
+  height: $input-height;
+  border: $input-border-width solid $input-border-color;
+  border-radius: $input-border-radius;
+  font-family: $font-primary;
+  font-size: $font-base;
+  color: $text-dark;
+  transition: $transition-border;
+
+  &:hover {
+    border-color: $primary-gold;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $primary-gold;
+    box-shadow: 0 0 0 3px rgba(196, 169, 96, 0.1);
+  }
+
+  &::placeholder {
+    color: $text-light;
+  }
+}
+
+// Card Base Style
+@mixin card-base {
+  background: $white;
+  border: 1px solid $border-light;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-sm;
+  transition: $transition-box-shadow;
+
+  &:hover {
+    box-shadow: $shadow-lg;
+  }
+}
+
+// Gradient Background
+@mixin gradient-bg($from: $dark-maroon, $to: $accent-red) {
+  background: linear-gradient(135deg, $from, $to);
+}
+
+// Responsive Hidden
+@mixin hidden-sm {
+  @media (max-width: $breakpoint-sm) {
+    display: none;
+  }
+}
+
+@mixin hidden-md {
+  @media (max-width: $breakpoint-md) {
+    display: none;
+  }
+}
+
+@mixin visible-sm {
+  display: none;
+
+  @media (max-width: $breakpoint-sm) {
+    display: block;
+  }
+}
+
+@mixin visible-md {
+  display: none;
+
+  @media (max-width: $breakpoint-md) {
+    display: block;
+  }
+}

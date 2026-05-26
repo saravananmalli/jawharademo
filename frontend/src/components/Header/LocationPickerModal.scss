@@ -1,0 +1,297 @@
+@use '../../styles/variables' as *;
+
+.loc-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.52);
+  z-index: $z-modal-backdrop;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-lg;
+  animation: loc-backdrop-in $duration-base $ease-out;
+
+  @media (max-width: $breakpoint-sm) {
+    align-items: flex-end;
+    padding: 0;
+  }
+}
+
+.loc-modal {
+  background: $white;
+  border-radius: $border-radius-2xl;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: $shadow-2xl;
+  overflow: hidden;
+  animation: loc-modal-in $duration-slow $ease-out;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: $breakpoint-sm) {
+    border-radius: $border-radius-2xl $border-radius-2xl 0 0;
+    max-height: 85vh;
+    animation: loc-modal-slide-up $duration-slow $ease-out;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-lg $spacing-xl;
+    background: $gradient-gold;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: $font-md;
+    font-weight: $font-weight-semibold;
+    color: $white;
+    font-family: $font-primary;
+
+    svg {
+      flex-shrink: 0;
+      opacity: 0.9;
+    }
+  }
+
+  &__close {
+    background: rgba($white, 0.15);
+    border: 1px solid rgba($white, 0.3);
+    border-radius: $border-radius-md;
+    cursor: pointer;
+    color: $white;
+    padding: $spacing-xs;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: $transition-bg;
+    flex-shrink: 0;
+
+    &:hover { background: rgba($white, 0.28); }
+  }
+
+  &__body {
+    padding: $spacing-xl;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    flex: 1;
+    min-height: 0;
+  }
+
+  &__detect-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    padding: $spacing-md $spacing-lg;
+    background: $cream-bg;
+    border: 1.5px solid $primary-gold-light;
+    border-radius: $border-radius-lg;
+    font-size: $font-base;
+    font-weight: $font-weight-semibold;
+    color: $primary-gold;
+    font-family: $font-primary;
+    cursor: pointer;
+    transition: $transition-base;
+
+    svg {
+      flex-shrink: 0;
+      animation: none;
+    }
+
+    &:hover:not(:disabled) {
+      background: $primary-gold-light;
+      border-color: $primary-gold;
+      transform: translateY(-1px);
+      box-shadow: $shadow-gold;
+    }
+
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+
+      svg {
+        animation: loc-spin 1s linear infinite;
+      }
+    }
+  }
+
+  &__or {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    margin: $spacing-lg 0;
+    color: $text-light;
+    font-size: $font-sm;
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: $border-light;
+    }
+
+    span {
+      white-space: nowrap;
+      font-family: $font-primary;
+    }
+  }
+
+  &__search-wrap {
+    position: relative;
+    margin-bottom: $spacing-md;
+  }
+
+  &__search-icon {
+    position: absolute;
+    left: $spacing-md;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-light;
+    pointer-events: none;
+  }
+
+  &__search {
+    width: 100%;
+    padding: $spacing-sm $spacing-xxxl $spacing-sm calc(#{$spacing-md} + 16px + #{$spacing-sm});
+    height: 42px;
+    border: 1.5px solid $border-light;
+    border-radius: $border-radius-lg;
+    font-family: $font-primary;
+    font-size: $font-base;
+    color: $text-dark;
+    background: $off-white;
+    transition: $transition-border;
+    box-sizing: border-box;
+
+    &::placeholder { color: $text-light; }
+
+    &:focus {
+      outline: none;
+      border-color: $primary-gold;
+      background: $white;
+      box-shadow: 0 0 0 3px rgba(150, 113, 35, 0.1);
+    }
+  }
+
+  &__search-clear {
+    position: absolute;
+    right: $spacing-sm;
+    top: 50%;
+    transform: translateY(-50%);
+    background: $bg-light-gray;
+    border: none;
+    border-radius: $border-radius-full;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: $text-gray;
+    transition: $transition-bg;
+
+    &:hover { background: $border-gray; color: $text-dark; }
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-lg;
+    overflow: hidden;
+  }
+
+  &__empty {
+    padding: $spacing-xl;
+    text-align: center;
+    color: $text-light;
+    font-size: $font-sm;
+    font-family: $font-primary;
+  }
+
+  &__list-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-md $spacing-lg;
+    background: none;
+    border: none;
+    border-bottom: 1px solid $bg-light-gray;
+    cursor: pointer;
+    font-family: $font-primary;
+    text-align: left;
+    transition: background $duration-fast $ease-in-out;
+
+    &:last-child { border-bottom: none; }
+
+    &:hover {
+      background: $cream-bg-light;
+    }
+
+    &.active {
+      background: $cream-bg;
+    }
+  }
+
+  &__list-pin {
+    color: $text-light;
+    flex-shrink: 0;
+
+    .active & {
+      color: $primary-gold;
+    }
+  }
+
+  &__list-city {
+    flex: 1;
+    font-size: $font-base;
+    font-weight: $font-weight-medium;
+    color: $text-dark;
+
+    .active & {
+      color: $primary-gold;
+      font-weight: $font-weight-semibold;
+    }
+  }
+
+  &__list-country {
+    font-size: $font-sm;
+    color: $text-light;
+  }
+
+  &__list-check {
+    color: $primary-gold;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+}
+
+@keyframes loc-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes loc-modal-in {
+  from { opacity: 0; transform: scale(0.95) translateY(-8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes loc-modal-slide-up {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes loc-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}

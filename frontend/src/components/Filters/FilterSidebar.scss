@@ -1,0 +1,490 @@
+@use '../../styles/variables' as *;
+
+// ════════════════════════════════════════════════════════════════════
+// Filter Sidebar — Container
+// ════════════════════════════════════════════════════════════════════
+
+.filter-sidebar {
+  background: $white;
+  border: 1px solid $border-light;
+  border-radius: $border-radius-xl;
+  overflow: hidden;
+  font-family: $font-primary;
+
+  // ── Header ─────────────────────────────────────────────────────
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px $spacing-lg;
+    background: $cream-bg-light;
+    border-bottom: 1px solid $border-light;
+  }
+
+  &__heading {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: $font-base;
+    font-weight: $font-weight-semibold;
+    color: $text-dark;
+
+    svg {
+      width: 15px;
+      height: 15px;
+      color: $primary-gold;
+    }
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: $border-radius-full;
+    background: $primary-gold;
+    color: $white;
+    font-size: 11px;
+    font-weight: $font-weight-bold;
+    line-height: 1;
+  }
+
+  &__headbtns {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+  }
+
+  &__clrall {
+    background: none;
+    border: none;
+    font-size: $font-xs;
+    font-weight: $font-weight-medium;
+    color: $primary-gold;
+    cursor: pointer;
+    padding: 3px 8px;
+    border-radius: $border-radius-sm;
+    transition: background $duration-fast $ease-in-out;
+    line-height: 1.4;
+
+    &:hover { background: rgba($primary-gold, 0.08); }
+  }
+
+  // Hidden on desktop; shown inside mobile drawer
+  &__closebtn {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: $text-gray;
+    padding: 4px;
+    border-radius: $border-radius-sm;
+    line-height: 0;
+    transition: color $duration-fast $ease-in-out;
+
+    &:hover { color: $text-dark; }
+    svg { width: 18px; height: 18px; }
+  }
+
+  // ── Mobile sticky footer ────────────────────────────────────────
+  // Hidden on desktop; shown inside mobile drawer
+  &__footer {
+    display: none;
+    flex-direction: column;
+    gap: $spacing-sm;
+    padding: $spacing-lg;
+    border-top: 1px solid $border-light;
+    background: $white;
+    position: sticky;
+    bottom: 0;
+  }
+
+  &__apply {
+    width: 100%;
+    padding: 11px $spacing-xl;
+    background: $primary-gold;
+    color: $white;
+    border: none;
+    border-radius: $border-radius-full;
+    font-size: $font-base;
+    font-weight: $font-weight-semibold;
+    cursor: pointer;
+    transition: background $duration-fast $ease-in-out;
+    font-family: $font-primary;
+
+    &:hover { background: $primary-gold-hover; }
+  }
+
+  &__reset {
+    width: 100%;
+    padding: 9px $spacing-xl;
+    background: $white;
+    color: $text-gray;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-full;
+    font-size: $font-sm;
+    font-weight: $font-weight-medium;
+    cursor: pointer;
+    font-family: $font-primary;
+    transition: all $duration-fast $ease-in-out;
+
+    &:hover {
+      background: $bg-gray;
+      border-color: $border-gray;
+    }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// Accordion Section
+// ════════════════════════════════════════════════════════════════════
+
+.fs-section {
+  border-bottom: 1px solid $border-light;
+
+  &:last-of-type { border-bottom: none; }
+
+  &__hdr {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px $spacing-lg;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background $duration-fast $ease-in-out;
+
+    &:hover { background: $cream-bg-light; }
+  }
+
+  &__name {
+    font-size: $font-sm;
+    font-weight: $font-weight-semibold;
+    color: $text-dark;
+    letter-spacing: 0.1px;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-shrink: 0;
+  }
+
+  &__clear {
+    font-size: 10px;
+    font-weight: $font-weight-medium;
+    color: $primary-gold;
+    border: 1px solid $primary-gold;
+    border-radius: $border-radius-sm;
+    padding: 2px 7px;
+    cursor: pointer;
+    transition: all $duration-fast $ease-in-out;
+    line-height: 1.4;
+
+    &:hover {
+      background: $primary-gold;
+      color: $white;
+    }
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    color: $text-gray;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  &__body {
+    padding: 4px $spacing-lg 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    animation: fsSlide 0.18s ease-out;
+  }
+}
+
+@keyframes fsSlide {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// Custom Checkbox Row
+// ════════════════════════════════════════════════════════════════════
+
+.fs-check {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  cursor: pointer;
+  padding: 4px 0;
+  min-height: 30px;
+  border-radius: $border-radius-sm;
+
+  input[type='checkbox'] { display: none; }
+
+  &__box {
+    flex-shrink: 0;
+    width: 17px;
+    height: 17px;
+    border: 1.5px solid $border-gray;
+    border-radius: 4px;
+    background: $white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      border-color $duration-fast $ease-in-out,
+      background   $duration-fast $ease-in-out;
+
+    svg {
+      width: 10px;
+      height: 10px;
+      color: $white;
+      display: none;
+    }
+  }
+
+  &__label {
+    font-size: $font-sm;
+    color: $text-dark;
+    flex: 1;
+    line-height: 1.4;
+    user-select: none;
+    transition: color $duration-fast $ease-in-out;
+  }
+
+  &__count {
+    font-size: $font-xs;
+    color: $text-light;
+    flex-shrink: 0;
+  }
+
+  // Checked state via JS class
+  &--on &__box {
+    background: $primary-gold;
+    border-color: $primary-gold;
+
+    svg { display: flex; }
+  }
+
+  &:hover &__box     { border-color: $primary-gold; }
+  &:hover &__label   { color: $primary-gold-dark; }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// Category Tree (nested subcategories)
+// ════════════════════════════════════════════════════════════════════
+
+.fs-cat {
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+
+    .fs-check { flex: 1; }
+  }
+
+  &__toggle {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-sm;
+    cursor: pointer;
+    color: $text-gray;
+    transition: all $duration-fast $ease-in-out;
+
+    &:hover {
+      border-color: $primary-gold;
+      color: $primary-gold;
+      background: rgba($primary-gold, 0.04);
+    }
+
+    svg { width: 11px; height: 11px; }
+  }
+
+  &__subs {
+    margin-left: $spacing-xl;
+    margin-top: 2px;
+    padding-left: $spacing-sm;
+    border-left: 2px solid $primary-gold-light;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    animation: fsSlide 0.18s ease-out;
+
+    .fs-check__label {
+      font-size: $font-xs;
+      color: $text-gray;
+    }
+
+    .fs-check--on .fs-check__label {
+      color: $text-dark;
+    }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// Desktop wrapper — sticky sidebar column
+// ════════════════════════════════════════════════════════════════════
+
+.fsw-desktop {
+  width: 252px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 110px;      // clears sticky header + category tab bar
+  align-self: flex-start;
+  max-height: calc(100vh - 130px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: $border-gray transparent;
+
+  &::-webkit-scrollbar       { width: 3px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: $border-gray;
+    border-radius: 4px;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// Mobile wrapper — overlay + slide-in drawer
+// ════════════════════════════════════════════════════════════════════
+
+.fsw-mobile {
+  display: none;       // switched on below breakpoint-md
+  position: fixed;
+  inset: 0;
+  z-index: $z-modal;
+  pointer-events: none;
+
+  &--open { pointer-events: all; }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    transition: background $duration-slow $ease-in-out;
+
+    .fsw-mobile--open & { background: rgba(0, 0, 0, 0.48); }
+  }
+
+  &__drawer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: min(300px, 88vw);
+    background: $white;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform $duration-slow $ease-in-out;
+    box-shadow: $shadow-2xl;
+
+    .fsw-mobile--open & { transform: translateX(0); }
+
+    // Override sidebar card styles inside the drawer
+    .filter-sidebar {
+      border: none;
+      border-radius: 0;
+      min-height: 100%;
+
+      &__closebtn { display: flex; }
+      &__footer   { display: flex; }
+    }
+  }
+}
+
+// ── Responsive switch ─────────────────────────────────────────────────────────
+
+@media (max-width: $breakpoint-md) {
+  .fsw-desktop { display: none; }
+  .fsw-mobile  { display: block; }
+}
+
+// ── Brand search ──────────────────────────────────────────────────────────────
+
+.fs-brand-search {
+  position: relative;
+  margin-bottom: $spacing-md;
+
+  &__icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-light;
+    font-size: 13px;
+    pointer-events: none;
+  }
+
+  &__input {
+    width: 100%;
+    height: 32px;
+    padding: 0 28px 0 28px;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-md;
+    font-size: $font-xs;
+    color: $text-dark;
+    background: $bg-gray;
+    transition: $transition-border;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-gold;
+      background: $white;
+    }
+
+    &::placeholder { color: $text-light; }
+  }
+
+  &__clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: $text-light;
+    cursor: pointer;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+
+    &:hover { color: $text-dark; }
+  }
+}
+
+.fs-brand-list {
+  max-height: 220px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: $border-gray transparent;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: $border-gray; border-radius: 2px; }
+}
+
+.fs-brand-empty {
+  font-size: $font-xs;
+  color: $text-light;
+  padding: $spacing-sm 0;
+  text-align: center;
+}
+

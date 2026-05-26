@@ -1,0 +1,89 @@
+@use '../../styles/variables' as *;
+
+.product-row {
+  padding: $spacing-xxxl 0;
+  border-bottom: 1px solid $border-light;
+
+  &:last-child { border-bottom: none; }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-xl;
+  }
+
+  &__title {
+    font-size: $font-xl;
+    font-weight: $font-weight-semibold;
+    color: $text-dark;
+    font-family: $font-primary;
+    position: relative;
+
+  }
+  &__sub {
+    font-size: $font-sm;
+  color: $text-gray;
+  }
+
+  &__view-all {
+    font-size: $font-sm;
+    font-weight: $font-weight-semibold;
+    color: $primary-gold;
+    text-decoration: none;
+    transition: $transition-color;
+    white-space: nowrap;
+
+    &:hover { color: $primary-gold-hover; }
+  }
+
+  // Mobile: 2-column grid, no slider
+  &__mobile-grid {
+    display: none;
+
+    @media (max-width: #{$breakpoint-sm - 1px}) {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: $spacing-md;
+    }
+  }
+
+  // Swiper: hidden on mobile, visible on tablet+
+  &__swiper {
+    @media (max-width: #{$breakpoint-sm - 1px}) { display: none; }
+  }
+
+  // Override Swiper nav button styles to match Figma gold arrows
+  &__swiper {
+    .swiper-button-prev,
+    .swiper-button-next {
+      width: 36px;
+      height: 36px;
+      background: $white;
+      border: 1px solid $border-light;
+      border-radius: $border-radius-full;
+      box-shadow: $shadow-sm;
+      top: 40%; // align to image area
+
+      &::after {
+        font-size: $font-sm;
+        font-weight: $font-weight-bold;
+        color: $primary-gold;
+      }
+
+      &:hover {
+        background: $primary-gold;
+        border-color: $primary-gold;
+        &::after { color: $white; }
+      }
+      svg {
+      font-size: 18px;
+      width: 22px;
+      height: 22px;
+      color: $text-dark;
+    }
+    }
+
+    .swiper-button-disabled { opacity: 0.35; }
+  }
+}

@@ -1,0 +1,63 @@
+@use '../../styles/variables' as *;
+
+.product-grid {
+  display: grid;
+  gap: $spacing-lg;
+
+  &--cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+    @media (max-width: $breakpoint-lg) { grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: $breakpoint-md) { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: $breakpoint-sm) { grid-template-columns: repeat(2, 1fr); gap: $spacing-md; }
+  }
+
+  &--cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+    @media (max-width: $breakpoint-md) { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: $breakpoint-sm) { grid-template-columns: 1fr; }
+  }
+
+  &--cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+    @media (max-width: $breakpoint-sm) { grid-template-columns: 1fr; }
+  }
+
+  &__empty {
+    text-align: center;
+    padding: $spacing-6xl;
+    color: $text-light;
+    font-size: $font-lg;
+  }
+}
+
+// Skeleton loader
+.product-skeleton {
+  border: 1px solid $border-light;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  animation: shimmer 1.5s infinite linear;
+
+  &__image {
+    aspect-ratio: 1;
+    background: linear-gradient(90deg, $bg-gray 25%, $bg-light-gray 50%, $bg-gray 75%);
+    background-size: 200% 100%;
+  }
+
+  &__body { padding: $spacing-md; }
+
+  &__line {
+    height: 12px;
+    border-radius: $border-radius-sm;
+    background: linear-gradient(90deg, $bg-gray 25%, $bg-light-gray 50%, $bg-gray 75%);
+    background-size: 200% 100%;
+    margin-bottom: $spacing-sm;
+
+    &--short { width: 60%; }
+    &--price { width: 40%; height: 16px; }
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

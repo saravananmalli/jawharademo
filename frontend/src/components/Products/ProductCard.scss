@@ -1,0 +1,202 @@
+@use "../../styles/variables" as *;
+
+.product-card {
+  background: $white;
+  border: 1px solid $border-light;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  transition:
+    box-shadow $duration-base $ease-in-out,
+    transform $duration-base $ease-in-out;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+
+  &:hover {
+    box-shadow: $shadow-lg;
+    transform: translateY(-3px);
+
+    .product-card__img--primary {
+      opacity: 0;
+    }
+    .product-card__img--secondary {
+      opacity: 1;
+    }
+
+  }
+
+  // ── Image area ────────────────────────────────────────────────
+  &__image {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 1;
+    background: $cream-bg-light;
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: opacity $duration-slow $ease-in-out;
+
+    &--primary {
+      opacity: 1;
+      z-index: 1;
+    }
+
+    &--secondary {
+      opacity: 0;
+      z-index: 2;
+    }
+  }
+
+  // ── Best Seller pill (top-left, only for badge=bestseller) ────
+  &__best-seller {
+    position: absolute;
+    top: $spacing-sm;
+    left: $spacing-sm;
+    z-index: 3;
+    background: $primary-gold-dark;
+    color: $white;
+    font-size: $font-xs;
+    font-weight: $font-weight-semibold;
+    padding: 5px $spacing-md;
+    border-radius: $border-radius-full;
+    letter-spacing: $letter-spacing-wide;
+    white-space: nowrap;
+  }
+
+  // ── Regular badge (new / sale / limited) ─────────────────────
+  &__badge {
+    position: absolute;
+    top: $spacing-sm;
+    left: $spacing-sm;
+    z-index: 3;
+  }
+
+  // ── Wishlist icon (top-right) ─────────────────────────────────
+  &__wishlist {
+    position: absolute;
+    top: $spacing-sm;
+    right: $spacing-sm;
+    z-index: 3;
+    width: 32px;
+    height: 32px;
+    border-radius: $border-radius-full;
+    background: $white;
+    box-shadow: $shadow-sm;
+    border: none;
+    cursor: pointer;
+    font-size: $font-md;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: $transition-base;
+    color: $text-light;
+
+    &:hover {
+      color: $accent-red;
+      background: rgba(212, 30, 58, 0.06);
+    }
+    &.active {
+      color: $accent-red;
+      background: rgba(212, 30, 58, 0.08);
+    }
+  }
+
+  // ── Add to Cart icon (bottom-right, appears on hover) ────────
+  &__cart-btn {
+    position: absolute;
+    bottom: $spacing-sm;
+    right: $spacing-sm;
+    z-index: 3;
+    width: 32px;
+    height: 32px;
+    border-radius: $border-radius-full;
+    background: $white;
+    box-shadow: $shadow-sm;
+    border: none;
+    cursor: pointer;
+    font-size: $font-md;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: $transition-base;
+    color: $primary-gold;
+
+    &:hover {
+      background: $primary-gold;
+      color: $white;
+      box-shadow: $shadow-md;
+    }
+  }
+
+  // ── Body ──────────────────────────────────────────────────────
+  &__body {
+    padding: $spacing-md;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+  }
+
+  &__brand {
+    font-size: $font-xs;
+    font-weight: $font-weight-medium;
+    color: $primary-gold;
+    text-transform: uppercase;
+    letter-spacing: $letter-spacing-wide;
+  }
+
+  &__name {
+    font-size: $font-base;
+    font-weight: $font-weight-regular;
+    color: $text-dark;
+    line-height: $line-height-tight;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  // ── Meta row: rating + delivery badge ────────────────────────
+  &__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-xs;
+    flex-wrap: wrap;
+    margin-top: auto;
+    padding-top: $spacing-xs;
+  }
+
+  &__delivery {
+    font-size: $font-xs;
+    font-weight: $font-weight-medium;
+    font-style: italic;
+    background: linear-gradient(90deg, rgba(214, 163, 63, 1) 0%, rgba(120, 89, 31, 1) 100%);
+    color: $white;
+    white-space: nowrap;
+    letter-spacing: $letter-spacing-wide;
+    // push to right of the meta flex row
+    margin-left: auto;
+
+    // ── Desktop: flush-right ribbon — breaks out of __body padding ──
+    padding: 3px $spacing-md 3px $spacing-sm;
+    border-radius: $border-radius-2xl 0 0 $border-radius-2xl;
+    margin-right: -$spacing-md;
+
+    // ── Mobile: full pill, stays inside the card ─────────────────
+    @media (max-width: #{$breakpoint-sm - 1px}) {
+      padding: 3px $spacing-sm;
+      border-radius: $border-radius-full;
+      margin-right: 0;
+    }
+  }
+}

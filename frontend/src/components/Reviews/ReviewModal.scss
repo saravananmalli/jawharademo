@@ -1,0 +1,264 @@
+@use '../../styles/variables' as *;
+
+// ── Overlay ────────────────────────────────────────────────────────────────────
+.rv-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  backdrop-filter: blur(2px);
+}
+
+// ── Modal shell ────────────────────────────────────────────────────────────────
+.rv-modal {
+  position: relative;
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  padding: 2rem;
+
+  @media (max-width: 480px) {
+    padding: 1.5rem 1.25rem;
+    border-radius: 12px;
+  }
+}
+
+// ── Close button ───────────────────────────────────────────────────────────────
+.rv-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f3f4f6;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #374151;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: #e5e7eb;
+    color: #111;
+  }
+}
+
+// ── Header ─────────────────────────────────────────────────────────────────────
+.rv-header {
+  margin-bottom: 1.5rem;
+  padding-right: 2rem;
+}
+
+.rv-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 0.25rem;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.rv-product-name {
+  font-size: 0.875rem;
+  color: $primary-gold;
+  font-weight: 500;
+  margin: 0;
+}
+
+// ── Error ──────────────────────────────────────────────────────────────────────
+.rv-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  margin-bottom: 1.25rem;
+}
+
+// ── Form layout ────────────────────────────────────────────────────────────────
+.rv-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.rv-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rv-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.6rem 0.875rem;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #111;
+    font-family: inherit;
+    background: #fff;
+    transition: border-color 0.15s;
+    outline: none;
+
+    &:focus {
+      border-color: $primary-gold;
+    }
+
+    &::placeholder {
+      color: #9ca3af;
+    }
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 96px;
+  }
+
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.875rem center;
+    padding-right: 2.25rem;
+    cursor: pointer;
+  }
+}
+
+.rv-required {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+// ── Stars ──────────────────────────────────────────────────────────────────────
+.rv-group--stars label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.rv-stars {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.rv-star {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #d1d5db;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.1s, transform 0.1s;
+
+  &:hover,
+  &.rv-star--active {
+    color: #f59e0b;
+  }
+
+  &:hover {
+    transform: scale(1.15);
+  }
+}
+
+.rv-star-label {
+  font-size: 0.8125rem;
+  color: #f59e0b;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+// ── Verified checkbox ──────────────────────────────────────────────────────────
+.rv-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+
+  input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
+    accent-color: $primary-gold;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .rv-checkbox__checkmark {
+    display: none;
+  }
+}
+
+// ── Footer buttons ─────────────────────────────────────────────────────────────
+.rv-footer {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.rv-btn {
+  padding: 0.65rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s, background 0.15s;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &--cancel {
+    background: #f3f4f6;
+    color: #374151;
+
+    &:hover:not(:disabled) {
+      background: #e5e7eb;
+    }
+  }
+
+  &--submit {
+    background: $primary-gold;
+    color: #fff;
+
+    &:hover:not(:disabled) {
+      opacity: 0.88;
+    }
+  }
+}
