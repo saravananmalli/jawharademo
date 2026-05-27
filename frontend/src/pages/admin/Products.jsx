@@ -9,13 +9,14 @@ import {
   DialogContentText, DialogActions, Chip,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import AddIcon      from '@mui/icons-material/Add';
-import SearchIcon   from '@mui/icons-material/Search';
-import ClearIcon    from '@mui/icons-material/Clear';
-import EditIcon     from '@mui/icons-material/Edit';
-import DeleteIcon   from '@mui/icons-material/Delete';
-import StarIcon     from '@mui/icons-material/Star';
-import FilterListIcon from '@mui/icons-material/FilterList';
+import AddIcon         from '@mui/icons-material/Add';
+import SearchIcon      from '@mui/icons-material/Search';
+import ClearIcon       from '@mui/icons-material/Clear';
+import EditIcon        from '@mui/icons-material/Edit';
+import DeleteIcon      from '@mui/icons-material/Delete';
+import StarIcon        from '@mui/icons-material/Star';
+import FilterListIcon  from '@mui/icons-material/FilterList';
+import VisibilityIcon  from '@mui/icons-material/Visibility';
 import api from '../../services/api';
 import { getImageUrl } from '../../utils/imageUrl';
 import { BADGE_OPTIONS, CATEGORY_LIST } from '../../utils/filterConstants';
@@ -283,6 +284,18 @@ export default function AdminProducts() {
                     </TableCell>
                     <TableCell align="center">
                       <Stack direction="row" spacing={0.5} justifyContent="center">
+                        <Tooltip title="View on storefront">
+                          <IconButton
+                            size="small"
+                            color="default"
+                            component="a"
+                            href={`/product/${p._id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <VisibilityIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                         <Tooltip title="Edit">
                           <IconButton component={Link} to={`/admin/products/${p._id}/edit`} size="small" color="primary">
                             <EditIcon fontSize="small" />

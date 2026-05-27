@@ -9,11 +9,11 @@
   text-transform: uppercase;
   letter-spacing: $letter-spacing-wide;
   line-height: 1.6;
-  background: $primary-gold;
-  color: $white; 
+  background: $best-seller-bg;
+  color: $best-seller-text; 
 
-  &--new     { background: $sage-green;   color: $white; }
-  &--sale    { background: $primary-gold; color: $white; }
+  &--new     { background: $new-arrival-bg;  color: $new-arrival-text; }
+  &--sale    { background: $sale-bg; color: $sale-text; }
   &--limited { background: $accent-red;   color: $white; }
   &--hot     { background: $dark-maroon;  color: $white; }
   &--default { background: $bg-gray;      color: $text-gray; }

@@ -204,7 +204,7 @@ exports.adminCreateReview = async (req, res) => {
     text,
     verified: !!verified,
     featured: !!featured,
-    status: status || 'published',
+    status: 'pending',
   });
 
   await recalcProductRating(productId);

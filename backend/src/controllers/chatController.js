@@ -461,7 +461,15 @@ exports.chat = async (req, res) => {
     const intentConstraints = buildIntentConstraints(shoppingIntent);
 
     // ── Run product search BEFORE building AI prompt so the result informs the reply ──
-    const products = await findProducts(userMessage, intent, sessionContext);
+    // For cart/wishlist intents, use the items the frontend already sent — no DB query needed.
+    let products;
+    if (intent === 'wishlist') {
+      products = wishlistItems.length ? wishlistItems : [];
+    } else if (intent === 'cart') {
+      products = cartItems.length ? cartItems : [];
+    } else {
+      products = await findProducts(userMessage, intent, sessionContext);
+    }
 
     // Determine whether a budget filter was active for this search
     const { budgetMin: msgBudgetMin, budgetMax: msgBudgetMax } = shoppingIntent;
@@ -471,7 +479,15 @@ exports.chat = async (req, res) => {
 
     // Inject the real search result into the system prompt so the AI cannot hallucinate
     let searchResultNote = '';
-    if (mode === 'shopping') {
+    if (intent === 'wishlist') {
+      searchResultNote = products.length > 0
+        ? `\n\nWISHLIST: The customer's ${products.length} saved item(s) are displayed as visual cards below your text automatically. Do NOT list, name, or describe them in your text reply.`
+        : `\n\nWISHLIST: The customer's wishlist is empty. Empathize briefly and invite them to explore the collection.`;
+    } else if (intent === 'cart') {
+      searchResultNote = products.length > 0
+        ? `\n\nCART: The customer's ${products.length} cart item(s) are displayed as visual cards below your text automatically. Do NOT list, name, or describe them in your text reply.`
+        : `\n\nCART: The customer's cart is empty. Empathize briefly and invite them to explore the collection.`;
+    } else if (mode === 'shopping') {
       if (products.length === 0 && hasBudget) {
         const rangeLabel = effectiveBudgetMin != null && effectiveBudgetMax != null
           ? `AED ${effectiveBudgetMin}–${effectiveBudgetMax}`

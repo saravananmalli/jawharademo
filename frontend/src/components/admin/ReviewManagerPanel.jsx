@@ -22,12 +22,12 @@ const UAE_LOCATIONS = [
 
 const BLANK = {
   userName: '', location: '', rating: 5, title: '', text: '',
-  verified: false, featured: false, status: 'published', avatar: '',
+  verified: false, featured: false, status: 'pending', avatar: '',
 };
 
 const STATUS_COLOR = { published: 'success', pending: 'warning', hidden: 'default' };
 
-function ReviewForm({ value, onChange }) {
+function ReviewForm({ value, onChange, isEdit }) {
   const set = (k, v) => onChange({ ...value, [k]: v });
   return (
     <Stack spacing={2} sx={{ pt: 0.5 }}>
@@ -73,14 +73,24 @@ function ReviewForm({ value, onChange }) {
         placeholder="https://..." />
 
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" flexWrap="wrap">
-        <FormControl size="small" sx={{ minWidth: 150 }}>
-          <InputLabel>Status</InputLabel>
-          <Select label="Status" value={value.status} onChange={e => set('status', e.target.value)}>
-            <MenuItem value="published">Published</MenuItem>
-            <MenuItem value="pending">Pending</MenuItem>
-            <MenuItem value="hidden">Hidden</MenuItem>
-          </Select>
-        </FormControl>
+        {isEdit ? (
+          <FormControl size="small" sx={{ minWidth: 150 }}>
+            <InputLabel>Status</InputLabel>
+            <Select label="Status" value={value.status} onChange={e => set('status', e.target.value)}>
+              <MenuItem value="published">Published</MenuItem>
+              <MenuItem value="pending">Pending</MenuItem>
+              <MenuItem value="hidden">Hidden</MenuItem>
+            </Select>
+          </FormControl>
+        ) : (
+          <Chip
+            label="Status: Pending"
+            size="small"
+            color="warning"
+            variant="outlined"
+            sx={{ fontSize: '0.75rem', height: 28 }}
+          />
+        )}
         <FormControlLabel
           control={<Switch checked={value.verified} onChange={e => set('verified', e.target.checked)} size="small" />}
           label="Verified Purchase"
@@ -90,6 +100,12 @@ function ReviewForm({ value, onChange }) {
           label="Featured"
         />
       </Stack>
+
+      {!isEdit && (
+        <Typography variant="caption" color="text.secondary">
+          New reviews are saved as <strong>Pending</strong>. Approve them from the Reviews management page.
+        </Typography>
+      )}
     </Stack>
   );
 }
@@ -324,7 +340,7 @@ export default function ReviewManagerPanel({ productId }) {
           {editTarget ? 'Edit Review' : 'Add Review'}
         </DialogTitle>
         <DialogContent dividers>
-          <ReviewForm value={formData} onChange={setFormData} />
+          <ReviewForm value={formData} onChange={setFormData} isEdit={!!editTarget} />
         </DialogContent>
         <DialogActions sx={{ px: 3, py: 2 }}>
           <Button onClick={() => setDialogOpen(false)} sx={{ textTransform: 'none' }}>Cancel</Button>

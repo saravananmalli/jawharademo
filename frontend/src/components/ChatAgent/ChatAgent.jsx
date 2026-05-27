@@ -157,14 +157,15 @@ function OrderCard({ order, onNavigate, onQuickReply }) {
 }
 
 // ── Product Carousel ──────────────────────────────────────────────────────────
-function ProductCarousel({ products, onNavigate }) {
+function ProductCarousel({ products, onNavigate, intent }) {
   if (!products?.length) return null;
   const count = products.length;
+  const label = intent === 'wishlist' ? '♡ Your Wishlist' : intent === 'cart' ? '🛍 Your Cart' : '✨ Recommendations';
   return (
     <div className="chat-carousel">
       <div className="chat-carousel__header">
-        <span className="chat-carousel__label">✨ Recommendations</span>
-        <span className="chat-carousel__count">{count} piece{count !== 1 ? 's' : ''}</span>
+        <span className="chat-carousel__label">{label}</span>
+        <span className="chat-carousel__count">{count} {intent === 'cart' || intent === 'wishlist' ? `item${count !== 1 ? 's' : ''}` : `piece${count !== 1 ? 's' : ''}`}</span>
       </div>
       <div className="chat-carousel__track">
         {products.map((p) => (
@@ -232,7 +233,7 @@ function MessageBubble({ msg, isLast, onQuickReply, onNavigate }) {
           {/* SECTION 2b — Product recommendations */}
           {hasProducts && (
             <div className="chat-section chat-section--products chat-section--appear" style={{ animationDelay: '120ms' }}>
-              <ProductCarousel products={msg.products} onNavigate={onNavigate} />
+              <ProductCarousel products={msg.products} onNavigate={onNavigate} intent={msg.intent} />
             </div>
           )}
 
@@ -387,8 +388,8 @@ export default function ChatAgent() {
       const { data } = await api.post('/chat', {
         messages: history,
         sessionContext: session.current,
-        cartItems: cartItems.map(i => ({ name: i.name, price: i.price, quantity: i.quantity })),
-        wishlistItems: wishlistItems.map(i => ({ name: i.name, price: i.price, discount: i.discount })),
+        cartItems,
+        wishlistItems,
       });
 
       // Persist mode so next message knows the conversation context
