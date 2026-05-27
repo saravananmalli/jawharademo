@@ -811,7 +811,7 @@ export default function ProductDetail() {
             onClick={handleAddToCart}
             disabled={!product.inStock}
           >
-            {added ? 'Added!' : 'Add to Cart'}
+            {added ? 'Added!' : 'Add to Bag'}
           </button>
           <button
             className="pd__sticky-buy"

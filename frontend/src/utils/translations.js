@@ -14,7 +14,7 @@ export const translations = {
       wishlist: 'Wishlist',
       cart: 'Cart',
       signIn: 'Sign In',
-      topBanner: 'Free shipping on orders over ⃃ 500 | Certified Authentic Jewelry',
+      topBanner: 'Free shipping on orders over AED 500 | Certified Authentic Jewelry',
     },
     categories: {
       rings: 'Rings',
@@ -36,7 +36,7 @@ export const translations = {
       certified: '100% Certified',
       certifiedDesc: 'All jewelry is BIS hallmarked',
       freeShipping: 'Free Shipping',
-      freeShippingDesc: 'On orders above ⃃ 500',
+      freeShippingDesc: 'On orders above AED 500',
       easyReturns: 'Easy Returns',
       easyReturnsDesc: '15-day hassle-free returns',
       support: '24/7 Support',

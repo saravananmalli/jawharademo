@@ -11,6 +11,7 @@ import Footer from './components/Footer/Footer';
 import PageLoader from './components/Common/PageLoader';
 import ProtectedRoute from './components/Common/ProtectedRoute';
 import AdminGuard from './pages/admin/AdminGuard';
+import ChatAgent from './components/ChatAgent/ChatAgent';
 import './styles/main.scss';
 
 function ScrollToTop() {
@@ -63,6 +64,7 @@ function Layout({ children }) {
         </Suspense>
       </div>
       <Footer />
+      <ChatAgent />
     </>
   );
 }

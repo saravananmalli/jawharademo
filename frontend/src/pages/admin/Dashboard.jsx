@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { DirhamSymbol } from 'dirham/react';
 import DateRangeFilter, { computeDateRange } from './DateRangeFilter';
 import {
   Box, Grid, Card, CardContent, Typography, Table, TableBody,
@@ -200,7 +201,7 @@ export default function Dashboard() {
       {/* ── Metrics Row ── */}
       <Box sx={{ display: 'flex', gap: 2, mb: 2.5, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
         {[
-          { title: 'Total Revenue',    value: `⃃ ${derived.rev.toLocaleString()}`, sub: dateRange.label,       icon: AttachMoneyIcon, color: C.gold,   trend: derived.trend },
+          { title: 'Total Revenue',    value: <><DirhamSymbol size="0.82em" /> {derived.rev.toLocaleString()}</>, sub: dateRange.label,       icon: AttachMoneyIcon, color: C.gold,   trend: derived.trend },
           { title: 'Total Orders',     value: derived.orders.toLocaleString(),               sub: dateRange.label,       icon: ShoppingBagIcon, color: C.maroon, trend: derived.orderTrend },
           { title: 'Pending Orders',   value: derived.pending.toLocaleString(),              sub: 'Awaiting processing', icon: AccessTimeIcon,  color: C.orange },
           { title: 'Cancelled Orders', value: derived.cancelled.toLocaleString(),            sub: 'Refunded / void',     icon: CancelIcon,      color: '#dc2626' },
@@ -237,7 +238,7 @@ export default function Dashboard() {
                     <XAxis dataKey="month" tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
                     <Tooltip contentStyle={tooltipSx} labelStyle={labelSx}
-                      formatter={v => [`⃃ ${v.toLocaleString()}`, 'Revenue']} />
+                      formatter={v => [`AED ${v.toLocaleString()}`, 'Revenue']} />
                     <Area type="monotone" dataKey="revenue" stroke={C.gold} strokeWidth={2.5}
                       fill="url(#revGrad)" dot={{ r: 4, fill: C.gold, strokeWidth: 0 }} activeDot={{ r: 6 }} />
                   </AreaChart>
@@ -428,7 +429,7 @@ export default function Dashboard() {
                       <Typography variant="body2" fontWeight={600}>{o.user?.name || '—'}</Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography variant="body2" fontWeight={700}>{'⃃'} {o.totalAmount?.toLocaleString()}</Typography>
+                      <Typography variant="body2" fontWeight={700}><DirhamSymbol size="0.85em" /> {o.totalAmount?.toLocaleString()}</Typography>
                     </TableCell>
                     <TableCell><StatusChip status={o.status} /></TableCell>
                     <TableCell>

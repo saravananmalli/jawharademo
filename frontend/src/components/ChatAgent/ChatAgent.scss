@@ -1,0 +1,903 @@
+@use '../../styles/variables' as *;
+
+// ═══════════════════════════════════════════════════════════════
+// CHAT AGENT — WRAPPER & TOGGLE
+// ═══════════════════════════════════════════════════════════════
+
+.chat-agent {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: $spacing-sm;
+
+  @media (max-width: $breakpoint-md) {
+    bottom: 78px;
+    right: 12px;
+  }
+
+  // ── Toggle button ─────────────────────────────────────────────
+  &__toggle {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: 0 $spacing-md 0 $spacing-md;
+    height: 52px;
+    min-width: 52px;
+    border-radius: $border-radius-full;
+    background: $primary-gold;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(150, 113, 35, 0.45);
+    transition: all $duration-slow $ease-out;
+    color: $white;
+    font-family: $font-primary;
+  font-size: $font-sm;
+  font-weight: $font-weight-semibold;
+  letter-spacing: 0.8px;
+
+    &.open {
+      padding: 0;
+      width: 52px;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    &:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(150, 113, 35, 0.55); }
+  }
+
+  &__toggle-icon { font-size: 22px; }
+
+  &__toggle-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: $border-radius-full;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  &__toggle-label {
+    font-size: $font-sm;
+    font-weight: $font-weight-semibold;
+    font-family: $font-primary;
+    white-space: nowrap;
+  }
+
+  // ── Panel ─────────────────────────────────────────────────────
+  &__panel {
+    position: absolute;
+    bottom: 64px;
+    right: 0;
+    width: 390px;
+    height: 560px;
+    background: $white;
+    border-radius: 20px;
+    box-shadow: 0 8px 48px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: panel-in 0.25s $ease-out;
+
+    @media (max-width: $breakpoint-sm) {
+      width: calc(100vw - 24px);
+      right: -4px;
+      height: 500px;
+    }
+  }
+
+  // ── Header ────────────────────────────────────────────────────
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px $spacing-lg;
+    background: $primary-gold;
+    flex-shrink: 0;
+  }
+
+  &__header-left {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+
+  &__avatar-ring {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  &__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: $border-radius-full;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: $font-weight-bold;
+    font-size: $font-lg;
+    color: $white;
+    font-family: $font-primary;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__online-dot {
+    position: absolute;
+    bottom: 1px;
+    right: 1px;
+    width: 11px;
+    height: 11px;
+    border-radius: $border-radius-full;
+    background: $accent-green;
+    border: 2px solid $white;
+  }
+
+  &__name {
+    font-size: $font-sm;
+    font-weight: $font-weight-semibold;
+    color: $white;
+    font-family: $font-primary;
+    line-height: 1.3;
+  }
+
+  &__tagline {
+    font-size: $font-xs;
+    color: rgba(255,255,255,0.8);
+    font-family: $font-primary;
+  }
+
+  &__header-right {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-shrink: 0;
+  }
+
+  &__clear {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.65);
+    font-size: 11px;
+    font-family: $font-primary;
+    font-weight: $font-weight-medium;
+    cursor: pointer;
+    padding: 3px $spacing-sm;
+    border-radius: $border-radius-full;
+    transition: $transition-fast;
+    letter-spacing: 0.3px;
+
+    &:hover {
+      color: $white;
+      background: rgba(255,255,255,0.15);
+    }
+  }
+
+  &__close {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: $white;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border-radius: $border-radius-full;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: $transition-fast;
+    flex-shrink: 0;
+
+    &:hover { background: rgba(255,255,255,0.28); }
+  }
+
+  // ── Body (messages) ───────────────────────────────────────────
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: $spacing-lg;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    background: $cream-bg-light;
+    scroll-behavior: smooth;
+
+    &::-webkit-scrollbar { width: 3px; }
+    &::-webkit-scrollbar-thumb {
+      background: $primary-gold-light;
+      border-radius: $border-radius-full;
+    }
+  }
+
+  // ── Footer ────────────────────────────────────────────────────
+  &__footer {
+    position: relative;
+    padding: $spacing-sm $spacing-md;
+    border-top: 1px solid $border-light;
+    background: $white;
+    flex-shrink: 0;
+  }
+
+  &__form {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  &__input {
+    flex: 1;
+    height: 40px;
+    border: 1.5px solid $border-light;
+    border-radius: $border-radius-full;
+    padding: 0 $spacing-lg;
+    font-size: $font-sm;
+    font-family: $font-primary;
+    color: $text-dark;
+    outline: none;
+    transition: border-color $duration-base $ease-in-out, box-shadow $duration-base $ease-in-out;
+    background: $off-white;
+
+    &:focus {
+      border-color: $primary-gold;
+      background: $white;
+      box-shadow: 0 0 0 3px rgba(150, 113, 35, 0.1);
+    }
+
+    &::placeholder { color: $text-light; font-size: $font-xs; }
+    &:disabled { opacity: 0.55; }
+  }
+
+  &__send {
+    width: 40px;
+    height: 40px;
+    border-radius: $border-radius-full;
+    background: $gradient-gold;
+    border: none;
+    color: $white;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: $transition-fast;
+    box-shadow: $shadow-gold;
+
+    &:hover:not(:disabled) { transform: scale(1.08); }
+    &:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MESSAGE LAYOUT
+// ═══════════════════════════════════════════════════════════════
+
+.chat-msg {
+  display: flex;
+  gap: $spacing-sm;
+  align-items: flex-start;
+
+  &--user {
+    flex-direction: row-reverse;
+
+    .chat-bubble { background: $primary-gold; color: $white; border-bottom-right-radius: 4px; }
+  }
+
+  &--assistant {
+    .chat-bubble { background: $white; color: $text-dark; border: 1px solid $border-light; border-bottom-left-radius: 4px; box-shadow: $shadow-xs; }
+  }
+
+  &__avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: $border-radius-full;
+    background: $primary-gold;
+    color: $white;
+    font-size: $font-xs;
+    font-weight: $font-weight-bold;
+    font-family: $font-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+    overflow: hidden;
+
+    img {
+      width: 70%;
+      height: 70%;
+      object-fit: cover;
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: calc(100% - 42px);
+  }
+}
+
+.chat-bubble {
+  display: inline-block;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $border-radius-xl;
+  font-size: $font-sm;
+  line-height: $line-height-relaxed;
+  font-family: $font-primary;
+  word-break: break-word;
+
+  &--typing {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: $spacing-md $spacing-md;
+
+    span {
+      width: 7px;
+      height: 7px;
+      border-radius: $border-radius-full;
+      background: $primary-gold;
+      display: inline-block;
+      animation: dot-bounce 1.3s infinite;
+
+      &:nth-child(2) { animation-delay: 0.18s; }
+      &:nth-child(3) { animation-delay: 0.36s; }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ASSISTANT RESPONSE — STRUCTURED SECTION LAYOUT
+// ═══════════════════════════════════════════════════════════════
+
+.chat-response {
+  background: $white;
+  border: 1px solid $border-light;
+  border-radius: $border-radius-xl;
+  box-shadow: $shadow-xs;
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-response__body {
+  padding: 14px $spacing-md 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chat-response__para {
+  margin: 0;
+  font-size: $font-sm;
+  line-height: $line-height-relaxed;
+  color: $text-dark;
+  font-family: $font-primary;
+  word-break: break-word;
+}
+
+// ── Progressive section reveal animation ──────────────────────
+@keyframes section-appear {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Sections inside .chat-response ────────────────────────────
+.chat-section {
+  border-top: 1px solid $border-light;
+
+  &--appear {
+    animation: section-appear 0.28s ease-out both;
+  }
+
+  &--orders {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+    background: $cream-bg-light;
+  }
+
+  &--products {
+    padding: 14px $spacing-md $spacing-md;
+    background: rgba(246, 243, 238, 0.55); // very subtle warm tint
+  }
+
+  &--chips {
+    padding: 10px $spacing-md 12px;
+    background: $cream-bg-light;
+  }
+
+  // When chips follow products they act as a follow-up question
+  &--followup {
+    background: $white;
+    border-top: 1px solid $border-light;
+  }
+}
+
+// ── Follow-up label above chips ────────────────────────────────
+.chat-chips-label {
+  margin: 0 0 8px;
+  font-size: $font-xs;
+  font-weight: $font-weight-medium;
+  color: $text-gray;
+  font-family: $font-primary;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DISCOVER CARDS (initial state)
+// ═══════════════════════════════════════════════════════════════
+
+.chat-discover {
+  background: $white;
+  border: 1px solid $border-light;
+  border-radius: $border-radius-xl;
+  padding: $spacing-md;
+  box-shadow: $shadow-xs;
+
+  &__label {
+    font-size: $font-xs;
+    color: $text-gray;
+    font-family: $font-primary;
+    font-weight: $font-weight-medium;
+    margin-bottom: $spacing-sm;
+    text-transform: uppercase;
+    letter-spacing: $letter-spacing-wider;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-sm;
+  }
+
+  &__card {
+    background: $cream-bg-light;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-lg;
+    padding: $spacing-sm $spacing-xs;
+    font-size: $font-xs;
+    font-family: $font-primary;
+    font-weight: $font-weight-medium;
+    color: $text-dark;
+    cursor: pointer;
+    transition: $transition-fast;
+    text-align: center;
+    line-height: 1.4;
+
+    &:hover {
+      background: $primary-gold-light;
+      border-color: $primary-gold;
+      color: $primary-gold-dark;
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// QUICK REPLY CHIPS
+// ═══════════════════════════════════════════════════════════════
+
+.chat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chat-chip {
+  background: $white;
+  border: 1.5px solid $primary-gold;
+  color: $primary-gold-dark;
+  border-radius: $border-radius-full;
+  padding: 5px $spacing-md;
+  font-size: $font-xs;
+  font-family: $font-primary;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: $transition-fast;
+  white-space: nowrap;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  &:hover {
+    background: $primary-gold;
+    border-color: transparent;
+    color: $white;
+    transform: translateY(-1px);
+    box-shadow: $shadow-gold;
+  }
+
+  // WhatsApp variant
+  &--whatsapp {
+    border-color: #25D366;
+    color: #128C7E;
+
+    &:hover {
+      background: #25D366;
+      border-color: transparent;
+      color: $white;
+      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
+    }
+  }
+
+  &__wa-icon {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PRODUCT CAROUSEL — wraps the real ProductCard component
+// ═══════════════════════════════════════════════════════════════
+
+.chat-carousel {
+  width: 100%;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  &__label {
+    font-size: $font-xs;
+    color: $primary-gold-dark;
+    font-family: $font-primary;
+    font-weight: $font-weight-semibold;
+    letter-spacing: $letter-spacing-wide;
+    text-transform: uppercase;
+  }
+
+  &__count {
+    font-size: $font-xs;
+    color: $text-light;
+    font-family: $font-primary;
+    background: $cream-bg;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-full;
+    padding: 2px 8px;
+  }
+
+  &__track {
+    display: flex;
+    gap: $spacing-md;
+    overflow-x: auto;
+    padding-bottom: $spacing-sm;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar { height: 3px; }
+    &::-webkit-scrollbar-thumb {
+      background: $primary-gold-light;
+      border-radius: $border-radius-full;
+    }
+  }
+
+  // Each item is a fixed-width wrapper; ProductCard fills it naturally
+  &__item {
+    flex-shrink: 0;
+    width: 175px;
+    scroll-snap-align: start;
+
+    // Let the real ProductCard's font sizes scale down slightly for chat context
+    .product-card__name {
+      font-size: 12px;
+    }
+  }
+
+  &__hint {
+    font-size: $font-xs;
+    color: $text-light;
+    font-family: $font-primary;
+    text-align: right;
+    margin-top: 6px;
+    opacity: 0.65;
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// TYPING SUGGESTIONS DROPDOWN
+// ═══════════════════════════════════════════════════════════════
+
+.chat-suggestions {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: $spacing-md;
+  right: $spacing-md;
+  background: $white;
+  border: 1px solid $border-light;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-lg;
+  overflow: hidden;
+  z-index: 10;
+
+  &__item {
+    display: block;
+    width: 100%;
+    padding: $spacing-sm $spacing-md;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: $font-sm;
+    font-family: $font-primary;
+    color: $text-dark;
+    transition: background $duration-fast $ease-in-out;
+    border-bottom: 1px solid $border-light;
+
+    &:last-child { border-bottom: none; }
+    &:hover { background: $cream-bg-light; color: $primary-gold-dark; }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ANIMATIONS
+// ═══════════════════════════════════════════════════════════════
+
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+@keyframes dot-bounce {
+  0%, 60%, 100% { transform: translateY(0);    opacity: 0.4; }
+  30%           { transform: translateY(-5px); opacity: 1;   }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GOLD PRICE CARD — row list layout
+// ═══════════════════════════════════════════════════════════════
+
+.chat-section--gold {
+  background: $white;
+  padding: 0;
+}
+
+.gold-price-card {
+  padding: $spacing-xs 0 0;
+
+  &__footer {
+    padding: $spacing-sm $spacing-md;
+    font-size: $font-xs;
+    font-family: $font-primary;
+    font-weight: $font-weight-medium;
+    color: $text-light;
+    text-align: center;
+    letter-spacing: $letter-spacing-wide;
+    border-top: 1px solid rgba($primary-gold, 0.12);
+    margin-top: $spacing-xs;
+  }
+}
+
+.gold-price-row {
+  display: flex;
+  align-items: center;
+  padding: 8px $spacing-md;
+  border-bottom: 1px solid rgba($border-light, 0.7);
+
+  &:last-of-type { border-bottom: none; }
+
+  &__karat {
+    min-width: 34px;
+    font-size: $font-sm;
+    font-weight: $font-weight-bold;
+    font-family: $font-primary;
+    color: $primary-gold-dark;
+    letter-spacing: $letter-spacing-wide;
+  }
+
+  &__dot {
+    color: $primary-gold;
+    opacity: 0.45;
+    margin: 0 $spacing-sm;
+    font-size: $font-xs;
+  }
+
+  &__price {
+    margin-left: auto;
+    font-size: $font-sm;
+    font-weight: $font-weight-semibold;
+    font-family: $font-primary;
+    color: $text-dark;
+  }
+
+  &__unit {
+    font-size: $font-xs;
+    font-weight: $font-weight-regular;
+    color: $text-light;
+    margin-left: 1px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .chat-section--gold {
+    background: $white;
+  }
+
+  .gold-price-row {
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+
+    &__karat { color: $primary-gold; }
+    &__price { color: $text-dark; }
+    &__unit  { color: #8b8070; }
+  }
+
+  .gold-price-card__footer { color: #8b8070; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ORDER CARDS — inside chat messages
+// ═══════════════════════════════════════════════════════════════
+
+.chat-order-cards {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  width: 100%;
+}
+
+.chat-order-card {
+  background: $white;
+  border: 1px solid $border-light;
+  border-radius: $border-radius-xl;
+  overflow: hidden;
+  box-shadow: $shadow-sm;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-sm $spacing-md;
+    border-bottom: 1px solid $border-light;
+    background: $cream-bg-light;
+  }
+
+  &__number {
+    font-size: $font-xs;
+    font-weight: $font-weight-semibold;
+    color: $text-dark;
+    font-family: $font-primary;
+    letter-spacing: $letter-spacing-wide;
+  }
+
+  &__status {
+    font-size: $font-xs;
+    font-weight: $font-weight-medium;
+    font-family: $font-primary;
+    padding: 3px $spacing-sm;
+    border-radius: $border-radius-full;
+    white-space: nowrap;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+  }
+
+  &__img {
+    width: 52px;
+    height: 52px;
+    border-radius: $border-radius-lg;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid $border-light;
+  }
+
+  &__img-placeholder {
+    width: 52px;
+    height: 52px;
+    border-radius: $border-radius-lg;
+    background: $cream-bg;
+    border: 1px solid $border-light;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  &__item-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__item-name {
+    font-size: $font-xs;
+    font-weight: $font-weight-semibold;
+    color: $text-dark;
+    font-family: $font-primary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin: 0;
+  }
+
+  &__item-more {
+    font-size: $font-xs;
+    color: $text-gray;
+    font-family: $font-primary;
+    margin: 2px 0 0;
+  }
+
+  &__item-date {
+    font-size: $font-xs;
+    color: $text-light;
+    font-family: $font-primary;
+    margin: 2px 0 0;
+  }
+
+  &__amount {
+    font-size: $font-sm;
+    font-weight: $font-weight-semibold;
+    color: $primary-gold-dark;
+    font-family: $font-primary;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  &__ctas {
+    display: flex;
+    gap: $spacing-xs;
+    padding: $spacing-sm $spacing-md;
+    border-top: 1px solid $border-light;
+    background: $cream-bg-light;
+    flex-wrap: wrap;
+  }
+
+  &__cta {
+    flex: 1;
+    min-width: 0;
+    padding: 5px $spacing-sm;
+    border-radius: $border-radius-md;
+    font-size: $font-xs;
+    font-family: $font-primary;
+    font-weight: $font-weight-medium;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: $transition-fast;
+    white-space: nowrap;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    &--primary {
+      background: $gradient-gold;
+      color: $white;
+      &:hover { opacity: 0.88; transform: translateY(-1px); }
+    }
+
+    &--secondary {
+      background: $white;
+      color: $primary-gold-dark;
+      border: 1.5px solid $primary-gold;
+      &:hover { background: $primary-gold-light; }
+    }
+
+    &--ghost {
+      background: transparent;
+      color: $text-gray;
+      border: 1.5px solid $border-light;
+      &:hover { border-color: $primary-gold; color: $primary-gold-dark; }
+    }
+  }
+}

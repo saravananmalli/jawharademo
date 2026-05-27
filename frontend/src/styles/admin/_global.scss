@@ -7,6 +7,12 @@
 
 // ── Admin root wrapper ───────────────────────────────────────
 
+html[lang='ar'] .admin-root,
+html[dir='rtl'] .admin-root {
+  font-family: 'Noto Kufi Arabic', sans-serif;
+  letter-spacing: 0;
+}
+
 .admin-root {
   font-family: $admin-font;
   background: var(--admin-bg);

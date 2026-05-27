@@ -29,6 +29,8 @@ app.use('/api/orders', require('./routes/orders'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/admin',    require('./routes/admin'));
 app.use('/api/settings', require('./routes/settings'));
+app.use('/api/chat',       require('./routes/chat'));
+app.use('/api/gold-price', require('./routes/goldPrice'));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 

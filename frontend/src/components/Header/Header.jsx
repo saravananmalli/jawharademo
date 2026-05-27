@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useMatch, useLocation } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 import { useLanguage } from "../../context/LanguageContext";
@@ -67,6 +67,16 @@ const MOBILE_MENU = [
   },
 ];
 
+const MOBILE_CATEGORIES = [
+  { id: 'rings',          label: 'Rings',               icon: '/images/category/rings.png',          path: '/category/rings' },
+  { id: 'earrings',       label: 'Earrings',            icon: '/images/category/earrings.png',       path: '/category/earrings' },
+  { id: 'necklaces',      label: 'Necklaces & Pendants',icon: '/images/category/necklace.png',       path: '/category/necklaces' },
+  { id: 'bracelets',      label: 'Bracelets & Bangles', icon: '/images/category/bracelet.png',       path: '/category/bracelets' },
+  { id: 'wedding-rings',  label: 'Wedding Rings',       icon: '/images/category/wedding-rings.png',  path: '/category/wedding-rings' },
+  { id: 'kids-jewellery', label: "Kids' Jewellery",     icon: '/images/category/kids-jewellery.png', path: '/category/kids-jewellery' },
+  { id: 'all',            label: 'All Jewellery',       icon: '/images/category/all-products.png',   path: '/shop' },
+];
+
 const SIMPLE_LINKS = [
   { label: "Today's Deals", path: "/collection/today-deals"  },
   { label: "Gifting",       path: "/collection/gifting"      },
@@ -101,6 +111,10 @@ export default function Header() {
   const { totalItems: wishlistCount } = useWishlist();
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const isProductPage = useMatch("/product/:id");
+
+  const navActive = (paths) => paths.some(p => p === '/' ? pathname === '/' : pathname.startsWith(p));
 
   const { location, detecting, saveLocation, detect } = useDeliverySettings();
 
@@ -108,6 +122,7 @@ export default function Header() {
   const [activeSub, setActiveSub] = useState(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [locationModalOpen, setLocationModalOpen] = useState(false);
+  const [mobileCatOpen, setMobileCatOpen] = useState(false);
   const userMenuRef = useRef(null);
 
   // Close user dropdown when clicking outside
@@ -456,37 +471,59 @@ export default function Header() {
 
       {/* ── MOBILE BOTTOM NAVIGATION ── */}
       <nav className="mobile-bottom-nav" aria-label="Mobile Navigation">
-        <button className="mobile-bottom-nav__item" onClick={() => navigate("/")} aria-label="Home">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-            <polyline points="9 22 9 12 15 12 15 22" />
-          </svg>
-        </button>
-        <button className="mobile-bottom-nav__item" onClick={() => navigate("/account")} aria-label="Account">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
-        </button>
-        <button className="mobile-bottom-nav__item" onClick={() => navigate("/shop")} aria-label="Categories">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="7" height="7" rx="1" />
-            <rect x="14" y="3" width="7" height="7" rx="1" />
-            <rect x="3" y="14" width="7" height="7" rx="1" />
-            <rect x="14" y="14" width="7" height="7" rx="1" />
-          </svg>
-        </button>
-        <button className="mobile-bottom-nav__item" onClick={() => navigate("/cart")} aria-label="Cart">
+        <button className={`mobile-bottom-nav__item${navActive(['/']) ? ' mobile-bottom-nav__item--active' : ''}`} onClick={() => navigate("/")} aria-label="Home">
           <div className="header__icon-wrap">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <path d="M16 10a4 4 0 01-8 0" />
-            </svg>
+            <img src="/icons/home.png" alt="Home" style={{ width: '26px', height: '26px' }} />
+            <span className="label">Home</span>
+          </div>
+        </button>
+        <button className={`mobile-bottom-nav__item${navActive(['/shop', '/category']) || mobileCatOpen ? ' mobile-bottom-nav__item--active' : ''}`} onClick={() => setMobileCatOpen(v => !v)} aria-label="Categories">
+          <div className="header__icon-wrap">
+            <img src="/icons/category.png" alt="Categories" style={{ width: '26px', height: '26px' }} />
+            <span className="label">Categories</span>
+          </div>
+        </button>
+        <button className={`mobile-bottom-nav__item${navActive(['/account']) ? ' mobile-bottom-nav__item--active' : ''}`} onClick={() => navigate("/account")} aria-label="Account">
+          <div className="header__icon-wrap">
+            <img src="/icons/User.png" alt="Account" style={{ width: '26px', height: '26px' }} />
+            <span className="label">Account</span>
+          </div>
+        </button>
+        <button className={`mobile-bottom-nav__item${navActive(['/cart']) ? ' mobile-bottom-nav__item--active' : ''}`} onClick={() => navigate("/cart")} aria-label="Cart">
+          <div className="header__icon-wrap">
+            <img src="/icons/bag.png" alt="Cart" style={{ width: '26px', height: '26px' }} />
+            <span className="label">Cart</span>
             {cartCount > 0 && <span className="count-badge">{cartCount}</span>}
           </div>
         </button>
       </nav>
+
+      {/* ── MOBILE CATEGORY DRAWER ── */}
+      <div className={`mobile-cat-drawer${mobileCatOpen ? ' mobile-cat-drawer--open' : ''}`} onClick={() => setMobileCatOpen(false)} aria-hidden={!mobileCatOpen}>
+        <div className="mobile-cat-drawer__panel" onClick={e => e.stopPropagation()}>
+          <div className="mobile-cat-drawer__header">
+            <span className="mobile-cat-drawer__title">Shop by Category</span>
+            <button className="mobile-cat-drawer__close" onClick={() => setMobileCatOpen(false)} aria-label="Close">
+              <IconClose />
+            </button>
+          </div>
+          <div className="mobile-cat-drawer__grid">
+            {MOBILE_CATEGORIES.map(cat => (
+              <Link
+                key={cat.id}
+                to={cat.path}
+                className="mobile-cat-drawer__card"
+                onClick={() => setMobileCatOpen(false)}
+              >
+                <div className="mobile-cat-drawer__card-img">
+                  <img src={cat.icon} alt={cat.label} loading="lazy" />
+                </div>
+                <span className="mobile-cat-drawer__card-name">{cat.label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
     </>
   );
 }

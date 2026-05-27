@@ -707,6 +707,7 @@
   font-size: $font-sm;
   font-weight: $font-weight-semibold;
   letter-spacing: 0.8px;
+  text-transform: uppercase;
   transition: $transition-base;
   display: flex;
   align-items: center;
@@ -1304,10 +1305,11 @@
   justify-content: space-between;
   gap: $spacing-md;
 
-  // Safe area for devices with home bar
-  padding-bottom: max(#{$spacing-md}, env(safe-area-inset-bottom));
-
-  @media (max-width: $breakpoint-md) { display: flex; }
+  @media (max-width: $breakpoint-md) {
+    display: flex;
+    bottom: calc(60px + env(safe-area-inset-bottom));
+    padding-bottom: $spacing-md;
+  }
 }
 
 .pd__sticky-price {
@@ -1345,8 +1347,11 @@
   font-family: $font-primary;
   font-size: $font-sm;
   font-weight: $font-weight-semibold;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
   cursor: pointer;
   transition: $transition-base;
+  text-transform: uppercase;
 
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
@@ -1360,8 +1365,9 @@
 }
 
 .pd__sticky-buy {
-  background: $dark-maroon;
-  color: $white;
+  background: $cream-bg;
+  border: 1px solid $primary-gold;
+  color: $text-dark;
 
   &:not(:disabled):hover { background: $dark-maroon-light; }
 }

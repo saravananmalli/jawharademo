@@ -23,6 +23,7 @@
   font-weight: $font-weight-semibold;
   text-decoration: none;
   transition: $transition-bg;
+  text-transform: uppercase;
 
   &:hover { background: $primary-gold-hover; }
 }

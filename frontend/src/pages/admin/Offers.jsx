@@ -501,7 +501,7 @@ export default function Offers() {
           <Autocomplete
             freeSolo
             options={productOptions}
-            getOptionLabel={p => typeof p === 'string' ? p : `${p.name} — ⃃ ${p.price}`}
+            getOptionLabel={p => typeof p === 'string' ? p : `${p.name} — AED ${p.price}`}
             inputValue={prodSearch}
             onInputChange={(_, v) => setProdSearch(v)}
             onChange={(_, v) => { if (v && typeof v !== 'string') addProduct(v); }}

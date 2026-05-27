@@ -20,11 +20,11 @@ export const STONE_OPTIONS = [
 
 // Price buckets — slug → label → range — used in admin + auto price-range logic
 export const PRICE_BUCKET_MAP = [
-  { slug: 'under-1k',  label: 'Under ⃃ 1,000',    min: 0,     max: 1000 },
-  { slug: '1k-2.5k',   label: '⃃ 1,000 – 2,500',  min: 1000,  max: 2500 },
-  { slug: '2.5k-5k',   label: '⃃ 2,500 – 5,000',  min: 2500,  max: 5000 },
-  { slug: '5k-10k',    label: '⃃ 5,000 – 10,000', min: 5000,  max: 10000 },
-  { slug: '10k+',      label: 'Above ⃃ 10,000',        min: 10000, max: Infinity },
+  { slug: 'under-1k',  label: 'Under AED 1,000',    min: 0,     max: 1000 },
+  { slug: '1k-2.5k',   label: 'AED 1,000 – 2,500',  min: 1000,  max: 2500 },
+  { slug: '2.5k-5k',   label: 'AED 2,500 – 5,000',  min: 2500,  max: 5000 },
+  { slug: '5k-10k',    label: 'AED 5,000 – 10,000', min: 5000,  max: 10000 },
+  { slug: '10k+',      label: 'Above AED 10,000',    min: 10000, max: Infinity },
 ];
 
 // ── Per-category filter maps ──────────────────────────────────────────────────

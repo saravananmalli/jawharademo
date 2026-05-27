@@ -10,7 +10,7 @@ const TRUST_ITEMS = [
   {
     image: '/icons/shipping.png',
     title: 'Complementary Free Shipping',
-    desc: 'On all orders above ⃃ 500',
+    desc: 'On all orders above AED 500',
   },
   {
     image: '/icons/payment.png',

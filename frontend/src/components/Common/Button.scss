@@ -9,7 +9,10 @@
   border: 2px solid transparent;
   border-radius: $border-radius-md;
   font-family: $font-primary;
+  font-size: $font-sm;
   font-weight: $font-weight-semibold;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
   cursor: pointer;
   transition: $transition-base;
   white-space: nowrap;
@@ -20,9 +23,9 @@
   &--full { width: 100%; }
 
   // Sizes
-  &--sm { padding: 6px $spacing-md; font-size: $font-sm; height: 32px; }
-  &--md { padding: $spacing-md $spacing-xxl; font-size: $font-base; height: 42px; }
-  &--lg { padding: $spacing-lg $spacing-xxxl; font-size: $font-md; height: 52px; }
+  &--sm { padding: 6px $spacing-md; height: 32px; }
+  &--md { padding: $spacing-md $spacing-xxl; height: 42px; }
+  &--lg { padding: $spacing-lg $spacing-xxxl; height: 52px; }
 
   // Variants
   &--primary {

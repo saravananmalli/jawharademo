@@ -5,7 +5,7 @@ import {
   Box, Card, CardContent, Typography, Button, Grid, TextField, Select,
   MenuItem, FormControl, InputLabel, FormControlLabel, Switch, Chip,
   IconButton, Alert, CircularProgress, Stack, Tooltip, Avatar,
-  InputAdornment, alpha, Autocomplete, Rating,
+  InputAdornment, alpha, Autocomplete, Rating, FormHelperText,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
@@ -193,6 +193,7 @@ export default function ProductForm() {
   const [form,        setForm]        = useState(EMPTY);
   const [saving,      setSaving]      = useState(false);
   const [error,       setError]       = useState('');
+  const [formErrors,  setFormErrors]  = useState({});
   // productLoaded gates the ImageUploader so it mounts exactly once with the
   // correct initial images (either immediately for new, or after API fetch for edit)
   const [productLoaded, setProductLoaded] = useState(!isEdit);
@@ -229,7 +230,12 @@ export default function ProductForm() {
     });
   }, [id]);
 
-  const set = useCallback((field, value) => setForm(f => ({ ...f, [field]: value })), []);
+  const set = useCallback((field, value) => {
+    setForm(f => ({ ...f, [field]: value }));
+    setFormErrors(prev => { const e = { ...prev }; delete e[field]; return e; });
+  }, []);
+
+  const clearError = useCallback((key) => setFormErrors(prev => { const e = { ...prev }; delete e[key]; return e; }), []);
 
   function calcDiscount(price, orig) {
     const p = Number(price), o = Number(orig);
@@ -263,6 +269,7 @@ export default function ProductForm() {
       featured:    f.featured.filter(v => map.featured.includes(v)),
       styles:      f.styles.filter(v => map.styles.includes(v)),
     }));
+    clearError('category');
   };
 
   const setName = (val) => {
@@ -272,6 +279,7 @@ export default function ProductForm() {
       seoTitle: f.seoTitle === f.name || !f.seoTitle ? val : f.seoTitle,
       slug:     f.slug === slugify(f.name) || !f.slug ? slugify(val) : f.slug,
     }));
+    clearError('name');
   };
 
   const toggleSize  = (s) => set('sizes', form.sizes.includes(s) ? form.sizes.filter(x => x !== s) : [...form.sizes, s]);
@@ -287,10 +295,41 @@ export default function ProductForm() {
     [form.metals, form.stones, form.metalKt, form.category],
   );
 
+  function validate(currentForm) {
+    const catMap = CATEGORY_FILTER_MAP[currentForm.category] || { featured: [], styles: [] };
+    const errors = {};
+    if (!currentForm.name.trim())       errors.name        = 'Product name is required';
+    if (!currentForm.designCode.trim()) errors.designCode  = 'SKU / Design Code is required';
+    if (!currentForm.category)          errors.category    = 'Category is required';
+    if (!currentForm.brand)             errors.brand       = 'Brand is required';
+    if (!currentForm.arrivesBy)         errors.arrivesBy   = 'Delivery time is required';
+    if (!(currentForm.description || '').trim()) errors.description = 'Product description is required';
+    if (!currentForm.price || Number(currentForm.price) <= 0) errors.price = 'Sale price is required';
+    if (!currentForm.images.filter(Boolean).length) errors.images = 'At least one product image is required';
+    if (!currentForm.metals.length)     errors.metals      = 'At least one metal type is required';
+    if (!currentForm.metalKt)           errors.metalKt     = 'Metal karat is required';
+    if (!currentForm.stones.length)     errors.stones      = 'At least one stone / gemstone is required';
+    if (!currentForm.flags.length)      errors.flags       = 'At least one product flag is required';
+    if (catMap.featured.length > 0 && !currentForm.featured.length)
+      errors.featured = 'Select at least one Featured In option';
+    if (catMap.styles.length > 0 && !currentForm.styles.length)
+      errors.styles   = 'Select at least one By Style option';
+    if (!currentForm.forWho.length)     errors.forWho      = 'Target audience is required';
+    return errors;
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSaving(true);
+    const validationErrors = validate(form);
+    if (Object.keys(validationErrors).length > 0) {
+      setFormErrors(validationErrors);
+      setError('Please fill in all required fields highlighted below.');
+      setSaving(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     const hasDiamond = form.stones.includes('Diamond');
     const payload = {
       ...form,
@@ -330,7 +369,7 @@ export default function ProductForm() {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ pb: 6 }}>
+    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ pb: 6 }}>
 
       {/* ── Sticky page header ─────────────────────────────────────────────── */}
       <Box sx={{
@@ -394,15 +433,18 @@ export default function ProductForm() {
                 subtitle="Product name and unique SKU / design code" />
               <Grid container spacing={2.25}>
                 <Grid item xs={12} sm={8}>
-                  <TextField fullWidth required label="Product Name"
+                  <TextField fullWidth label="Product Name *"
                     value={form.name} onChange={e => setName(e.target.value)}
                     placeholder="e.g. 18K Gold Diamond Solitaire Ring"
-                    helperText="A clear, descriptive name (also pre-fills SEO title and URL slug)" />
+                    error={!!formErrors.name}
+                    helperText={formErrors.name || 'A clear, descriptive name (also pre-fills SEO title and URL slug)'} />
                 </Grid>
                 <Grid item xs={12} sm={4}>
-                  <TextField fullWidth label="SKU / Design Code"
+                  <TextField fullWidth label="SKU / Design Code *"
                     value={form.designCode} onChange={e => set('designCode', e.target.value)}
-                    placeholder="e.g. RNG-001" helperText="Unique product identifier" />
+                    placeholder="e.g. RNG-001"
+                    error={!!formErrors.designCode}
+                    helperText={formErrors.designCode || 'Unique product identifier'} />
                 </Grid>
               </Grid>
             </CardContent>
@@ -420,7 +462,8 @@ export default function ProductForm() {
                 value={form.description}
                 onChange={e => set('description', e.target.value)}
                 inputProps={{ maxLength: 2000 }}
-                helperText={`${(form.description || '').length} / 2000`}
+                error={!!formErrors.description}
+                helperText={formErrors.description || `${(form.description || '').length} / 2000`}
               />
             </CardContent>
           </Card>
@@ -433,11 +476,12 @@ export default function ProductForm() {
                 accent="#16a34a" />
               <Grid container spacing={2.25}>
                 <Grid item xs={12} sm={4}>
-                  <TextField fullWidth required label="Sale Price" type="number"
-                    value={form.price} onChange={e => setPrice(e.target.value)}
+                  <TextField fullWidth label="Sale Price *" type="number"
+                    value={form.price} onChange={e => { setPrice(e.target.value); clearError('price'); }}
                     inputProps={{ min: 0, step: 0.01 }}
                     InputProps={{ startAdornment: <InputAdornment position="start"><DirhamSymbol size="0.9em" /></InputAdornment> }}
-                    helperText="Current selling price" />
+                    error={!!formErrors.price}
+                    helperText={formErrors.price || 'Current selling price'} />
                 </Grid>
                 <Grid item xs={12} sm={4}>
                   <TextField fullWidth label="Original Price" type="number"
@@ -492,10 +536,13 @@ export default function ProductForm() {
               {productLoaded && (
                 <ImageUploader
                   images={form.images}
-                  onChange={urls => set('images', urls)}
+                  onChange={urls => { set('images', urls); clearError('images'); }}
                   maxImages={10}
                   category="products"
                 />
+              )}
+              {formErrors.images && (
+                <FormHelperText error sx={{ mt: 1, fontSize: '0.82rem' }}>{formErrors.images}</FormHelperText>
               )}
             </CardContent>
           </Card>
@@ -541,22 +588,37 @@ export default function ProductForm() {
                 accent="#9c6fda" />
               <Stack spacing={2.5}>
                 <Box>
-                  <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>Metal Type</Typography>
+                  <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
+                    Metal Type <Box component="span" sx={{ color: 'error.main' }}>*</Box>
+                  </Typography>
                   <ChipToggleGroup options={METAL_OPTIONS} selected={form.metals}
-                    onChange={val => set('metals', val)} color="primary" />
+                    onChange={val => { set('metals', val); clearError('metals'); }} color="primary" />
+                  {formErrors.metals && (
+                    <FormHelperText error sx={{ mt: 0.5 }}>{formErrors.metals}</FormHelperText>
+                  )}
                 </Box>
                 <Box>
-                  <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>Metal Karat</Typography>
+                  <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
+                    Metal Karat <Box component="span" sx={{ color: 'error.main' }}>*</Box>
+                  </Typography>
                   <ChipToggleGroup
                     options={KARAT_OPTIONS}
                     selected={form.metalKt ? [form.metalKt] : []}
-                    onChange={val => set('metalKt', val[val.length - 1] || '')}
+                    onChange={val => { set('metalKt', val[val.length - 1] || ''); clearError('metalKt'); }}
                     color="secondary" />
+                  {formErrors.metalKt && (
+                    <FormHelperText error sx={{ mt: 0.5 }}>{formErrors.metalKt}</FormHelperText>
+                  )}
                 </Box>
                 <Box>
-                  <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>Stone / Gemstone</Typography>
+                  <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
+                    Stone / Gemstone <Box component="span" sx={{ color: 'error.main' }}>*</Box>
+                  </Typography>
                   <ChipToggleGroup options={STONE_OPTIONS} selected={form.stones}
-                    onChange={val => set('stones', val)} color="info" />
+                    onChange={val => { set('stones', val); clearError('stones'); }} color="info" />
+                  {formErrors.stones && (
+                    <FormHelperText error sx={{ mt: 0.5 }}>{formErrors.stones}</FormHelperText>
+                  )}
                 </Box>
 
                 {/* ── Diamond-specific attributes (shown only when Diamond is selected) ── */}
@@ -671,6 +733,9 @@ export default function ProductForm() {
                     <Typography variant="caption" color="text.secondary" sx={{ mt: 0.75, display: 'block' }}>
                       Controls which "Featured" column items this product appears under in the mega-nav
                     </Typography>
+                    {formErrors.featured && (
+                      <FormHelperText error sx={{ mt: 0.5 }}>{formErrors.featured}</FormHelperText>
+                    )}
                   </Box>
 
                   <Box>
@@ -687,6 +752,9 @@ export default function ProductForm() {
                     <Typography variant="caption" color="text.secondary" sx={{ mt: 0.75, display: 'block' }}>
                       Controls "By Style" filter column in the mega-nav
                     </Typography>
+                    {formErrors.styles && (
+                      <FormHelperText error sx={{ mt: 0.5 }}>{formErrors.styles}</FormHelperText>
+                    )}
                   </Box>
                 </Stack>
               )}
@@ -714,9 +782,14 @@ export default function ProductForm() {
                     )} />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <Typography variant="body2" fontWeight={600} sx={{ mb: 0.75 }}>Target Audience</Typography>
+                  <Typography variant="body2" fontWeight={600} sx={{ mb: 0.75 }}>
+                    Target Audience <Box component="span" sx={{ color: 'error.main' }}>*</Box>
+                  </Typography>
                   <ChipToggleGroup options={FORWHO_OPTIONS} selected={form.forWho}
-                    onChange={val => set('forWho', val)} color="success" />
+                    onChange={val => { set('forWho', val); clearError('forWho'); }} color="success" />
+                  {formErrors.forWho && (
+                    <FormHelperText error sx={{ mt: 0.5 }}>{formErrors.forWho}</FormHelperText>
+                  )}
                 </Grid>
               </Grid>
             </CardContent>
@@ -838,7 +911,7 @@ export default function ProductForm() {
           </SidebarCard>
 
           {/* Product Flags ──────────────────────────────────────────────── */}
-          <SidebarCard title="Product Flags" icon={NewReleasesIcon} accent="#f59e0b">
+          <SidebarCard title="Product Flags *" icon={NewReleasesIcon} accent="#f59e0b">
             <Typography variant="caption" color="text.secondary" sx={{ mb: 1.25, display: 'block' }}>
               Each flag creates a dedicated collection page (e.g. <code>/collection/new-arrivals</code>).
               Products appear on that page automatically once flagged.
@@ -883,17 +956,21 @@ export default function ProductForm() {
                 );
               })}
             </Box>
+            {formErrors.flags && (
+              <FormHelperText error sx={{ mt: 0.75 }}>{formErrors.flags}</FormHelperText>
+            )}
           </SidebarCard>
 
           {/* Category ───────────────────────────────────────────────────── */}
           <SidebarCard title="Category" icon={CategoryIcon}>
             <Stack spacing={1.5}>
-              <FormControl fullWidth size="small" required>
+              <FormControl fullWidth size="small" error={!!formErrors.category}>
                 <InputLabel>Category *</InputLabel>
                 <Select label="Category *" value={form.category} onChange={e => setCategory(e.target.value)}>
                   <MenuItem value=""><em>Select category</em></MenuItem>
                   {CATEGORY_LIST.map(c => <MenuItem key={c} value={c}>{c}</MenuItem>)}
                 </Select>
+                {formErrors.category && <FormHelperText>{formErrors.category}</FormHelperText>}
               </FormControl>
 
               {subcategoryOpts.length > 0 ? (
@@ -915,12 +992,13 @@ export default function ProductForm() {
 
           {/* Brand ──────────────────────────────────────────────────────── */}
           <SidebarCard title="Brand" icon={DiamondIcon} accent="#967123">
-            <FormControl fullWidth size="small">
-              <InputLabel>Brand</InputLabel>
-              <Select label="Brand" value={form.brand} onChange={e => set('brand', e.target.value)}>
+            <FormControl fullWidth size="small" error={!!formErrors.brand}>
+              <InputLabel>Brand *</InputLabel>
+              <Select label="Brand *" value={form.brand} onChange={e => set('brand', e.target.value)}>
                 <MenuItem value=""><em>Select brand</em></MenuItem>
                 {brandsList.map(b => <MenuItem key={b} value={b}>{b}</MenuItem>)}
               </Select>
+              {formErrors.brand && <FormHelperText>{formErrors.brand}</FormHelperText>}
             </FormControl>
           </SidebarCard>
 
@@ -930,13 +1008,14 @@ export default function ProductForm() {
               <TextField fullWidth size="small" label="Fulfilled By"
                 value={form.fulfilledBy} onChange={e => set('fulfilledBy', e.target.value)}
                 placeholder="e.g. Jawhara" helperText="Who ships this product" />
-              <FormControl fullWidth size="small">
-                <InputLabel>Delivery Time</InputLabel>
-                <Select label="Delivery Time" value={form.arrivesBy}
+              <FormControl fullWidth size="small" error={!!formErrors.arrivesBy}>
+                <InputLabel>Delivery Time *</InputLabel>
+                <Select label="Delivery Time *" value={form.arrivesBy}
                   onChange={e => set('arrivesBy', e.target.value)}>
                   <MenuItem value=""><em>Select delivery time</em></MenuItem>
                   {DELIVERY_OPTIONS.map(o => <MenuItem key={o} value={o}>{o}</MenuItem>)}
                 </Select>
+                {formErrors.arrivesBy && <FormHelperText>{formErrors.arrivesBy}</FormHelperText>}
               </FormControl>
             </Stack>
           </SidebarCard>

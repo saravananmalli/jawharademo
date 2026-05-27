@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { DirhamSymbol } from 'dirham/react';
 import DateRangeFilter, { computeDateRange } from './DateRangeFilter';
 import {
   Box, Card, CardContent, Typography, Skeleton, Chip,
@@ -314,9 +315,9 @@ export default function Analytics() {
       <StatBar
         loading={loading}
         items={[
-          { label: `Revenue · ${periodLabel}`, value: `⃃ ${derived.rev.toLocaleString()}`, color: C.gold,   icon: AttachMoneyIcon },
-          { label: `Orders · ${periodLabel}`,  value: derived.orders.toLocaleString(),         color: C.maroon, icon: BarChartIcon },
-          { label: 'Avg Order Value',           value: `⃃ ${derived.avgOV.toLocaleString()}`, color: C.green,  icon: ShowChartIcon },
+          { label: `Revenue · ${periodLabel}`, value: <><DirhamSymbol size="0.82em" /> {derived.rev.toLocaleString()}</>,   color: C.gold,   icon: AttachMoneyIcon },
+          { label: `Orders · ${periodLabel}`,  value: derived.orders.toLocaleString(),                                          color: C.maroon, icon: BarChartIcon },
+          { label: 'Avg Order Value',           value: <><DirhamSymbol size="0.82em" /> {derived.avgOV.toLocaleString()}</>,   color: C.green,  icon: ShowChartIcon },
           { label: 'Conv. Rate',                value: `${derived.convRate}%`,                  color: C.blue,   icon: TrendingUpIcon },
         ]}
       />
@@ -360,7 +361,7 @@ export default function Analytics() {
                       <YAxis yAxisId="rev" tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
                       <YAxis yAxisId="ord" orientation="right" tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
                       <Tooltip contentStyle={tt} labelStyle={labelSx}
-                        formatter={(v, n) => n === 'revenue' ? [`⃃ ${v.toLocaleString()}`, 'Revenue'] : [v, 'Orders']} />
+                        formatter={(v, n) => n === 'revenue' ? [`AED ${v.toLocaleString()}`, 'Revenue'] : [v, 'Orders']} />
                       <Legend wrapperStyle={{ fontSize: '0.8rem', color: axisColor }} />
                       <Area yAxisId="rev" type="monotone" dataKey="revenue" name="revenue" stroke={C.gold}
                         strokeWidth={2.5} fill="url(#salesAreaGrad)"
@@ -396,7 +397,7 @@ export default function Analytics() {
               <SectionCard
                 icon={<BarChartIcon sx={{ fontSize: '1.2rem', color: C.gold }} />}
                 title="Revenue Growth"
-                subtitle={`⃃ revenue — ${periodLabel}`}
+                subtitle={`AED revenue — ${periodLabel}`}
                 minH={260}
               >
                 {sales.length > 0 ? (
@@ -406,7 +407,7 @@ export default function Analytics() {
                       <XAxis dataKey="month" tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
                       <YAxis tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
                       <Tooltip contentStyle={tt} labelStyle={labelSx}
-                        formatter={v => [`⃃ ${v.toLocaleString()}`, 'Revenue']} />
+                        formatter={v => [`AED ${v.toLocaleString()}`, 'Revenue']} />
                       <Bar dataKey="revenue" fill={C.gold} radius={[5, 5, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -519,11 +520,11 @@ export default function Analytics() {
                       margin={{ top: 0, right: 30, left: 0, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke={gridColor} horizontal={false} />
                       <XAxis type="number" tick={{ fontSize: 10, fill: axisColor }} axisLine={false} tickLine={false}
-                        tickFormatter={v => `⃃ ${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`} />
+                        tickFormatter={v => `AED ${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`} />
                       <YAxis type="category" dataKey="name" width={90}
                         tick={{ fontSize: 10, fill: axisColor }} axisLine={false} tickLine={false} />
                       <Tooltip contentStyle={tt} labelStyle={labelSx}
-                        formatter={v => [`⃃ ${v.toLocaleString()}`, 'Revenue']} />
+                        formatter={v => [`AED ${v.toLocaleString()}`, 'Revenue']} />
                       <Bar dataKey="value" radius={[0, 5, 5, 0]}>
                         {derived.topCategories.map((_, i) => (
                           <Cell key={i} fill={PIE_PALETTE[i % PIE_PALETTE.length]} />
@@ -614,7 +615,7 @@ export default function Analytics() {
                       <XAxis dataKey="period" tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
                       <YAxis tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
                       <Tooltip contentStyle={tt} labelStyle={labelSx}
-                        formatter={v => [`⃃ ${v.toLocaleString()}`, 'Revenue']} />
+                        formatter={v => [`AED ${v.toLocaleString()}`, 'Revenue']} />
                       <Bar dataKey="revenue" radius={[5, 5, 0, 0]}>
                         {derived.monthlyCompare.map((_, i) => (
                           <Cell key={i} fill={i === 0 ? C.orange : C.gold} />
