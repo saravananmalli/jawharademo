@@ -1,7 +1,7 @@
 const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('crypto');
 
 const UPLOADS_BASE = path.join(__dirname, '../../uploads');
 
@@ -14,7 +14,7 @@ function ensureDir(dirPath) {
 async function processImage(buffer, category) {
   if (!VALID_CATEGORIES.includes(category)) throw new Error('Invalid image category');
 
-  const filename = uuidv4();
+  const filename = randomUUID();
   const categoryPath = path.join(UPLOADS_BASE, category);
 
   ensureDir(path.join(categoryPath, 'original'));
