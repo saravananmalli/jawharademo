@@ -9,7 +9,10 @@ const app = express();
 
 connectDB();
 
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:3000'], credentials: true }));
+const corsOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',')
+  : ['http://localhost:5173', 'http://localhost:3000'];
+app.use(cors({ origin: corsOrigins, credentials: true }));
 app.use(express.json());
 
 // Serve uploaded images as static files
@@ -36,5 +39,8 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const PORT = process.env.PORT || 5001;
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+module.exports = app;
