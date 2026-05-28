@@ -10,12 +10,6 @@ import PriceDisplay from '../Common/PriceDisplay';
 import { getImageUrl } from '../../utils/imageUrl';
 import './ProductCard.scss';
 
-// Swap webp path to thumbnail variant for fast listing load
-function toThumb(url) {
-  if (!url) return url;
-  return url.includes('/webp/') ? url.replace('/webp/', '/thumbnails/') : url;
-}
-
 function ProductCard({ product }) {
   const { addItem } = useCart();
   const { toggle, isWishlisted } = useWishlist();
@@ -34,9 +28,9 @@ function ProductCard({ product }) {
     toggle(product);
   }, [toggle, product]);
 
-  const primaryImage = getImageUrl(toThumb(product.images?.[0])) ||
+  const primaryImage = getImageUrl(product.images?.[0]) ||
     `https://placehold.co/400x400/F5EFE6/C4A960?text=${encodeURIComponent(product.name)}`;
-  const secondaryImage = getImageUrl(toThumb(product.images?.[1]));
+  const secondaryImage = getImageUrl(product.images?.[1]);
 
   return (
     <Link to={`/product/${product._id}`} className="product-card">
