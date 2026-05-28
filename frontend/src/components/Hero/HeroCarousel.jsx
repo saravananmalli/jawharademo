@@ -6,6 +6,7 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import { cachedGet } from '../../services/api';
+import { getImageUrl } from '../../utils/imageUrl';
 import './HeroCarousel.scss';
 
 const FALLBACK_SLIDES = [
@@ -54,7 +55,7 @@ export default function HeroCarousel() {
                 aria-label={slide.title || 'View collection'}
               >
                 <img
-                  src={slide.imageUrl}
+                  src={getImageUrl(slide.imageUrl)}
                   alt={slide.title || 'Banner'}
                   className="hero__bg"
                   // First slide: load immediately with high priority (LCP image)

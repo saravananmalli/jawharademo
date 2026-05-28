@@ -1,6 +1,7 @@
 import { useState, useEffect, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { cachedGet } from '../../services/api';
+import { getImageUrl } from '../../utils/imageUrl';
 import './OfferBannerSection.scss';
 
 function OfferBannerSection() {
@@ -30,7 +31,7 @@ function OfferBannerSection() {
       <div className="offer-banner__inner container">
         <Link to={href} className="offer-banner__card" aria-label={banner.title}>
           <img
-            src={banner.imageUrl}
+            src={getImageUrl(banner.imageUrl)}
             alt={banner.title}
             className="offer-banner__img"
             loading="lazy"
