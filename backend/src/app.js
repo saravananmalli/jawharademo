@@ -31,7 +31,10 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Serve uploaded images as static files
+// On Vercel new uploads go to /tmp (writable); committed images stay in ../uploads
+if (process.env.VERCEL) {
+  app.use('/uploads', express.static('/tmp/uploads'));
+}
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use('/api/upload', require('./routes/upload'));
