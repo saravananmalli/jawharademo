@@ -1,24 +1,22 @@
 const mongoose = require('mongoose');
 
-// Cache connection across serverless warm invocations
-let cached = global._mongooseCache;
-if (!cached) cached = global._mongooseCache = { conn: null, promise: null };
+let cached = global._mongoose;
+if (!cached) cached = global._mongoose = { conn: null, promise: null };
 
 const connectDB = async () => {
-  if (cached.conn) return cached.conn;
+  if (cached.conn && mongoose.connection.readyState === 1) return cached.conn;
 
   if (!cached.promise) {
     cached.promise = mongoose.connect(process.env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 45000,
-      maxPoolSize: 10,
-      bufferCommands: false,
+      serverSelectionTimeoutMS: 8000,
+      socketTimeoutMS: 30000,
     }).then(m => {
-      console.log(`MongoDB Connected: ${m.connection.host}`);
+      console.log('MongoDB Connected:', m.connection.host);
       return m;
     }).catch(err => {
-      cached.promise = null; // allow retry on next request
-      console.error('MongoDB connection error:', err.message);
+      console.error('MongoDB Error:', err.message);
+      cached.promise = null;
+      cached.conn = null;
       throw err;
     });
   }
