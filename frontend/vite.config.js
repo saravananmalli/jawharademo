@@ -25,13 +25,13 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        // Split large vendor libs into separate cacheable chunks
-        manualChunks: {
-          'vendor-react':  ['react', 'react-dom', 'react-router-dom'],
-          'vendor-mui':    ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
-          'vendor-mui-x':  ['@mui/x-charts', '@mui/x-data-grid'],
-          'vendor-swiper': ['swiper'],
-          'vendor-charts': ['recharts'],
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return;
+          if (id.includes('react-router-dom') || id.includes('react-dom') || id.includes('/react/')) return 'vendor-react';
+          if (id.includes('@mui/x-charts') || id.includes('@mui/x-data-grid')) return 'vendor-mui-x';
+          if (id.includes('@mui/') || id.includes('@emotion/')) return 'vendor-mui';
+          if (id.includes('swiper')) return 'vendor-swiper';
+          if (id.includes('recharts')) return 'vendor-charts';
         },
       },
     },
