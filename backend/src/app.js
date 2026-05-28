@@ -9,10 +9,22 @@ const app = express();
 
 connectDB();
 
-const corsOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(',')
-  : ['http://localhost:5173', 'http://localhost:3000'];
-app.use(cors({ origin: corsOrigins, credentials: true }));
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+  : [];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true); // server-to-server / curl
+    if (
+      allowedOrigins.includes(origin) ||
+      /^https?:\/\/localhost(:\d+)?$/.test(origin) ||
+      /\.vercel\.app$/.test(origin)
+    ) return callback(null, true);
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+}));
 app.use(express.json());
 
 // Serve uploaded images as static files
