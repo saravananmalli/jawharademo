@@ -76,14 +76,8 @@ function ReviewForm({ value, onChange }) {
         </Typography>
         <Rating value={value.rating} onChange={(_, v) => set('rating', v || 1)} precision={0.5} size="large" />
       </Box>
-      <TextField fullWidth size="small" label="Review Title"
-        value={value.title} onChange={e => set('title', e.target.value)}
-        placeholder="e.g. Absolutely stunning!" />
       <TextField fullWidth multiline rows={3} size="small" label="Review Text *"
         value={value.text} onChange={e => set('text', e.target.value)} />
-      <TextField fullWidth size="small" label="Customer Avatar URL (optional)"
-        value={value.avatar} onChange={e => set('avatar', e.target.value)}
-        placeholder="https://..." />
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" flexWrap="wrap">
         <FormControl size="small" sx={{ minWidth: 150 }}>
           <InputLabel>Status</InputLabel>
@@ -345,7 +339,7 @@ export default function Reviews() {
     <Box>
       {/* ── Page header ── */}
       <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between"
-        alignItems={{ sm: 'center' }} mb={3} gap={2}>
+        alignItems={{ sm: 'center' }} mb={3} gap={2} >
         <Box>
           <Typography variant="h5" fontWeight={800}>Reviews</Typography>
           <Typography variant="body2" color="text.secondary">
@@ -353,14 +347,6 @@ export default function Reviews() {
           </Typography>
         </Box>
         <Stack direction="row" spacing={1} alignItems="center">
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={openAddDialog}
-            sx={{ textTransform: 'none', borderRadius: '8px' }}
-          >
-            Add Review
-          </Button>
           <Tooltip title="Refresh">
             <IconButton onClick={loadReviews} disabled={loading}>
               <RefreshIcon />

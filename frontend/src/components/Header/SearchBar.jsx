@@ -18,6 +18,30 @@ const PLACEHOLDER_KEYWORDS = [
   'Diamond Ring', 'Gold Necklace', 'Wedding Ring', 'Kids Jewellery',
 ];
 
+// Build left-side text suggestions from the query + product results
+function buildSearchSuggestions(query, results) {
+  const q = query.trim();
+  const ql = q.toLowerCase();
+  const seen = new Set();
+  const out = [];
+
+  const add = (text) => {
+    const tl = text.toLowerCase().trim();
+    if (tl && !seen.has(tl) && out.length < 6) { seen.add(tl); out.push(text.trim()); }
+  };
+
+  add(q);                                                          // exact query
+  [...new Set(results.map(r => r.category).filter(Boolean))]      // category names from results
+    .forEach(c => add(c));
+  if (!ql.endsWith('s')) add(q + 's');                            // plural variant
+  else if (ql.length > 2) add(q.slice(0, -1));                    // singular variant
+  ['Diamond', 'Gold', 'White Gold', 'Rose Gold', 'Pearl'].forEach(m => {
+    if (!ql.includes(m.toLowerCase())) add(`${m} ${q}`);          // material combos
+  });
+
+  return out;
+}
+
 function HighlightMatch({ text, query }) {
   if (!query.trim()) return <>{text}</>;
   const lowerText = text.toLowerCase();
@@ -46,6 +70,52 @@ const IconClose = ({ size = 20 }) => (
     <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 );
+
+const IconArrow = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12 5 19 12 12 19" />
+  </svg>
+);
+
+function ProductRow({ product, isActive, query, onSelect, onEnter, onLeave }) {
+  return (
+    <div
+      className={`search-overlay__suggestion${isActive ? ' active' : ''}`}
+      role="option"
+      aria-selected={isActive}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+      onMouseDown={(e) => { e.preventDefault(); onSelect(product); }}
+    >
+      <div className="search-overlay__suggestion-img">
+        <img
+          src={getImageUrl(product.images?.[0]) || ''}
+          alt={product.name}
+          onError={(e) => { e.currentTarget.src = '/icons/search.png'; }}
+        />
+      </div>
+      <div className="search-overlay__suggestion-info">
+        <span className="search-overlay__suggestion-name">
+          <HighlightMatch text={product.name} query={query} />
+        </span>
+        <span className="search-overlay__suggestion-meta">
+          <span className="search-overlay__suggestion-category">{product.category}</span>
+          <span className="search-overlay__suggestion-dot">·</span>
+          <span className="search-overlay__suggestion-price">AED {formatPrice(product.price)}</span>
+          {(product.deliveryDate || product.arrivesBy) && (
+            <>
+              <span className="search-overlay__suggestion-dot">·</span>
+              <span className="search-overlay__suggestion-delivery">
+                Arrives {product.deliveryDate || product.arrivesBy}
+              </span>
+            </>
+          )}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export default function SearchBar() {
   const navigate = useNavigate();
@@ -79,20 +149,16 @@ export default function SearchBar() {
   const fetchSearch = useCallback((q) => {
     if (!q.trim()) { setSearchResults([]); setLoading(false); return; }
     setLoading(true);
-    api.get('/products/search', { params: { q: q.trim(), limit: 8 } })
+    api.get('/products/search', { params: { q: q.trim(), limit: 5 } })
       .then(({ data }) => setSearchResults(data.data || []))
       .catch(() => setSearchResults([]))
       .finally(() => setLoading(false));
   }, []);
 
-  // Load trending when overlay opens or active category changes
   useEffect(() => {
-    if (open && !trendingCache[activeCategory]) {
-      fetchTrending(activeCategory);
-    }
+    if (open && !trendingCache[activeCategory]) fetchTrending(activeCategory);
   }, [open, activeCategory, trendingCache, fetchTrending]);
 
-  // Debounced live search
   useEffect(() => {
     clearTimeout(debounceRef.current);
     if (hasQuery) {
@@ -104,7 +170,7 @@ export default function SearchBar() {
     return () => clearTimeout(debounceRef.current);
   }, [query, hasQuery, fetchSearch]);
 
-  const currentSuggestions = hasQuery ? searchResults : (trendingCache[activeCategory] || []);
+  const trendingProducts = trendingCache[activeCategory] || [];
 
   const openOverlay = () => {
     setOpen(true);
@@ -148,13 +214,13 @@ export default function SearchBar() {
   const handleKeyDown = (e) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setActiveIndex(i => Math.min(i + 1, currentSuggestions.length - 1));
+      setActiveIndex(i => Math.min(i + 1, searchResults.length - 1));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       setActiveIndex(i => Math.max(i - 1, -1));
     } else if (e.key === 'Enter') {
-      if (activeIndex >= 0 && currentSuggestions[activeIndex]) {
-        handleSelect(currentSuggestions[activeIndex]);
+      if (hasQuery && activeIndex >= 0 && searchResults[activeIndex]) {
+        handleSelect(searchResults[activeIndex]);
       } else {
         handleSearch();
       }
@@ -252,10 +318,53 @@ export default function SearchBar() {
               </button>
             </div>
 
-            {/* Content: categories + suggestions */}
+            {/* ── Content area ── */}
             <div className="search-overlay__content">
-              {/* Left – trending categories (hidden while typing) */}
-              {!hasQuery && (
+
+              {hasQuery ? (
+                /* ── QUERY STATE: suggestions left + products right ── */
+                <>
+                  {/* Left – text keyword suggestions */}
+                  <div className="search-overlay__results-left">
+                    <p className="search-overlay__col-label">Suggestions</p>
+                    {buildSearchSuggestions(query, searchResults).map((sugg, i) => (
+                      <button
+                        key={i}
+                        className="search-overlay__text-sugg"
+                        onMouseDown={(e) => { e.preventDefault(); handleSearch(sugg); }}
+                      >
+                        <span className="search-overlay__text-sugg-icon"><IconSearch /></span>
+                        <HighlightMatch text={sugg} query={query} />
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="search-overlay__divider" />
+
+                  {/* Right – product results */}
+                  <div className="search-overlay__results-right">
+                    <p className="search-overlay__col-label">Products</p>
+                    <div className="search-overlay__suggestions" role="listbox">
+                      {loading && <p className="search-overlay__loading">Searching…</p>}
+                      {!loading && searchResults.length > 0 && searchResults.map((product, i) => (
+                        <ProductRow
+                          key={product._id}
+                          product={product}
+                          isActive={activeIndex === i}
+                          query={query}
+                          onSelect={handleSelect}
+                          onEnter={() => setActiveIndex(i)}
+                          onLeave={() => setActiveIndex(-1)}
+                        />
+                      ))}
+                      {!loading && searchResults.length === 0 && (
+                        <p className="search-overlay__no-results">No results found for &ldquo;{query}&rdquo;</p>
+                      )}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* ── DEFAULT STATE: trending categories left + products right ── */
                 <>
                   <div className="search-overlay__categories">
                     <p className="search-overlay__trending-label">Trending:</p>
@@ -270,58 +379,38 @@ export default function SearchBar() {
                     ))}
                   </div>
                   <div className="search-overlay__divider" />
+                  <div className="search-overlay__suggestions" role="listbox">
+                    {loading && <p className="search-overlay__loading">Searching…</p>}
+                    {!loading && trendingProducts.length > 0 && trendingProducts.map((product, i) => (
+                      <ProductRow
+                        key={product._id}
+                        product={product}
+                        isActive={activeIndex === i}
+                        query={query}
+                        onSelect={handleSelect}
+                        onEnter={() => setActiveIndex(i)}
+                        onLeave={() => setActiveIndex(-1)}
+                      />
+                    ))}
+                    {!loading && trendingProducts.length === 0 && (
+                      <p className="search-overlay__no-results">No products available</p>
+                    )}
+                  </div>
                 </>
               )}
 
-              {/* Right – live suggestions */}
-              <div className="search-overlay__suggestions" role="listbox">
-                {loading && (
-                  <p className="search-overlay__loading">Searching…</p>
-                )}
-                {!loading && currentSuggestions.length > 0 && currentSuggestions.map((product, i) => (
-                  <div
-                    key={product._id}
-                    className={`search-overlay__suggestion${activeIndex === i ? ' active' : ''}`}
-                    role="option"
-                    aria-selected={activeIndex === i}
-                    onMouseEnter={() => setActiveIndex(i)}
-                    onMouseLeave={() => setActiveIndex(-1)}
-                    onMouseDown={(e) => { e.preventDefault(); handleSelect(product); }}
-                  >
-                    <div className="search-overlay__suggestion-img">
-                      <img
-                        src={getImageUrl(product.images?.[0]) || ''}
-                        alt={product.name}
-                        onError={(e) => { e.currentTarget.src = '/icons/search.png'; }}
-                      />
-                    </div>
-                    <div className="search-overlay__suggestion-info">
-                      <span className="search-overlay__suggestion-name">
-                        <HighlightMatch text={product.name} query={query} />
-                      </span>
-                      <span className="search-overlay__suggestion-meta">
-                        <span className="search-overlay__suggestion-category">{product.category}</span>
-                        <span className="search-overlay__suggestion-dot">·</span>
-                        <span className="search-overlay__suggestion-price">AED {formatPrice(product.price)}</span>
-                        {(product.deliveryDate || product.arrivesBy) && (
-                          <>
-                            <span className="search-overlay__suggestion-dot">·</span>
-                            <span className="search-overlay__suggestion-delivery">
-                              Arrives {product.deliveryDate || product.arrivesBy}
-                            </span>
-                          </>
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-                {!loading && currentSuggestions.length === 0 && (
-                  hasQuery
-                    ? <p className="search-overlay__no-results">No results found for &ldquo;{query}&rdquo;</p>
-                    : <p className="search-overlay__no-results">No products available</p>
-                )}
-              </div>
             </div>
+
+            {/* ── Bottom search footer (query state only) ── */}
+            {hasQuery && (
+              <button
+                className="search-overlay__search-footer"
+                onMouseDown={(e) => { e.preventDefault(); handleSearch(); }}
+              >
+                <span>Search for &ldquo;{query}&rdquo;</span>
+                <span className="search-overlay__search-footer-arrow"><IconArrow /></span>
+              </button>
+            )}
           </div>
         </div>
       )}

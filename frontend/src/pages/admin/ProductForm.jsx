@@ -47,8 +47,29 @@ import {
 const RING_SIZES = ['5', '6', '7', '8', '9', '10', '11', '12'];
 
 const DELIVERY_OPTIONS = [
-  'Same Day', 'Next Day', '2–3 Days', '3–5 Days',
+  'Same Day', 'Next Day', '1–3 Days', '3–5 Days',
   '5–7 Days', '7–14 Days', '2–3 Weeks',
+];
+
+// Predefined collection options — must mirror the COLLECTION_MAP regexes in chatController.js
+// so the AI chatbot can find and prioritize products in each collection.
+const AI_COLLECTION_OPTIONS = [
+  "Valentine's Day Collection",
+  "Mother's Day Collection",
+  'New Arrivals',
+  'Best Sellers',
+  'Bridal Collection',
+  'Wedding Collection',
+  'Anniversary Collection',
+  "Kids' Collection",
+  "Men's Collection",
+  'Sale Collection',
+  'Eid Collection',
+  'Ramadan Collection',
+  'Christmas Collection',
+  'Graduation Collection',
+  'Engagement Collection',
+  'Festive Collection',
 ];
 
 const EMPTY = {
@@ -59,7 +80,7 @@ const EMPTY = {
   metals: [], metalKt: '', stones: [],
   weight: '',
   diamondClarity: '', diamondColor: '', diamondCt: '',
-  brand: '', collection: '', fulfilledBy: '', arrivesBy: '',
+  brand: '', collection: [], fulfilledBy: '', arrivesBy: '',
   tags: [], forWho: [],
   priceRange: '',
   featured: [], styles: [],
@@ -210,8 +231,9 @@ export default function ProductForm() {
       const p = data.data;
       setForm({
         ...EMPTY, ...p,
-        tags:   Array.isArray(p.tags)   ? p.tags   : (p.tags   ? p.tags.split(',').map(t => t.trim()).filter(Boolean)   : []),
-        forWho: Array.isArray(p.forWho) ? p.forWho : (p.forWho ? p.forWho.split(',').map(t => t.trim()).filter(Boolean) : []),
+        tags:       Array.isArray(p.tags)       ? p.tags       : (p.tags       ? p.tags.split(',').map(t => t.trim()).filter(Boolean)       : []),
+        forWho:     Array.isArray(p.forWho)     ? p.forWho     : (p.forWho     ? p.forWho.split(',').map(t => t.trim()).filter(Boolean)     : []),
+        collection: Array.isArray(p.collection) ? p.collection : (p.collection ? [p.collection]                                            : []),
         metals:   p.metals?.length ? p.metals : (p.metal  && p.metal  !== 'None' ? [p.metal]  : []),
         stones:   p.stones?.length ? p.stones : (p.stone  && p.stone  !== 'None' ? [p.stone]  : []),
         featured: p.featured || [],
@@ -432,7 +454,7 @@ export default function ProductForm() {
               <SectionHeader icon={DiamondIcon} title="Product Information"
                 subtitle="Product name and unique SKU / design code" />
               <Grid container spacing={2.25}>
-                <Grid item xs={12} sm={8}>
+                <Grid item xs={12}>
                   <TextField fullWidth label="Product Name *"
                     value={form.name} onChange={e => setName(e.target.value)}
                     placeholder="e.g. 18K Gold Diamond Solitaire Ring"
@@ -492,10 +514,11 @@ export default function ProductForm() {
                 </Grid>
                 <Grid item xs={12} sm={4}>
                   <TextField fullWidth label="Discount %" type="number"
-                    value={form.discount} onChange={e => set('discount', e.target.value)}
-                    inputProps={{ min: 0, max: 100 }}
+                    value={form.discount}
+                    inputProps={{ min: 0, max: 100, readOnly: true }}
                     InputProps={{ endAdornment: <InputAdornment position="end">%</InputAdornment> }}
-                    helperText="Auto-calculated from sale & original price" />
+                    helperText="Auto-calculated from sale & original price"
+                    sx={{ '& .MuiInputBase-input': { bgcolor: 'action.hover', cursor: 'default' } }} />
                 </Grid>
 
                 {autoDiscount !== null && (
@@ -515,7 +538,8 @@ export default function ProductForm() {
                   <FormControl fullWidth size="small">
                     <InputLabel>Price Range Bucket</InputLabel>
                     <Select label="Price Range Bucket" value={form.priceRange}
-                      onChange={e => set('priceRange', e.target.value)}>
+                      inputProps={{ readOnly: true }}
+                      sx={{ bgcolor: 'action.hover', pointerEvents: 'none' }}>
                       <MenuItem value="">None</MenuItem>
                       {PRICE_BUCKET_MAP.map(b => (
                         <MenuItem key={b.slug} value={b.slug}>{b.label}</MenuItem>
@@ -676,11 +700,6 @@ export default function ProductForm() {
                       inputProps={{ min: 0, step: 0.01 }}
                       placeholder="e.g. 4.20" />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField fullWidth size="small" label="Collection"
-                      value={form.collection} onChange={e => set('collection', e.target.value)}
-                      placeholder="e.g. Bridal, Classic, Summer 2025" />
-                  </Grid>
                 </Grid>
 
                 {matchedNavMS.length > 0 && (
@@ -790,6 +809,37 @@ export default function ProductForm() {
                   {formErrors.forWho && (
                     <FormHelperText error sx={{ mt: 0.5 }}>{formErrors.forWho}</FormHelperText>
                   )}
+                </Grid>
+
+                {/* Collection Tags — optional, drives AI chatbot priority recommendations */}
+                <Grid item xs={12}>
+                  <Autocomplete
+                    multiple
+                    freeSolo
+                    options={AI_COLLECTION_OPTIONS}
+                    value={form.collection}
+                    onChange={(_, val) => set('collection', val)}
+                    renderTags={(tags, getTagProps) => tags.map((tag, i) => (
+                      <Chip
+                        {...getTagProps({ index: i })}
+                        key={tag}
+                        label={tag}
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                        sx={{ fontSize: '0.72rem', height: 24 }}
+                      />
+                    ))}
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        size="small"
+                        label="Collection Tags (optional)"
+                        placeholder={form.collection.length ? '' : "e.g. Valentine's Day Collection"}
+                        helperText="The AI chatbot will prioritize this product for each tagged collection. Pick from the list or type a custom name and press Enter."
+                      />
+                    )}
+                  />
                 </Grid>
               </Grid>
             </CardContent>

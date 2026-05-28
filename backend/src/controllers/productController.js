@@ -31,7 +31,7 @@ exports.searchProducts = async (req, res) => {
 };
 
 exports.getProducts = async (req, res) => {
-  const { q, category, metal, stone, brand, minPrice, maxPrice, sort, page = 1, limit = 20, inStock, badge, flag, minRating } = req.query;
+  const { q, category, metal, stone, brand, minPrice, maxPrice, sort, page = 1, limit = 20, inStock, badge, flag, minRating, forWho } = req.query;
 
   const filter = {};
   if (q) {
@@ -70,6 +70,7 @@ exports.getProducts = async (req, res) => {
   if (inStock === 'true') filter.inStock = true;
   if (badge) filter.badge = new RegExp(badge, 'i');
   if (flag) filter.flags = flag;
+  if (forWho) filter.forWho = new RegExp(forWho, 'i');
   if (minRating) filter.rating = { $gte: Number(minRating) };
 
   const sortMap = {

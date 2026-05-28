@@ -5,6 +5,7 @@ import { useWishlist } from "../../context/WishlistContext";
 import { useLanguage } from "../../context/LanguageContext";
 import { useAuth } from "../../context/AuthContext";
 import { useDeliverySettings } from "../../context/DeliverySettingsContext";
+import { cachedGet } from "../../services/api";
 import SearchBar from "./SearchBar";
 import LocationPickerModal from "./LocationPickerModal";
 import "./Header.scss";
@@ -78,7 +79,6 @@ const MOBILE_CATEGORIES = [
 ];
 
 const SIMPLE_LINKS = [
-  { label: "Today's Deals", path: "/collection/today-deals"  },
   { label: "Gifting",       path: "/collection/gifting"      },
   { label: "New Arrivals",  path: "/collection/new-arrivals" },
   { label: "Best Sellers",  path: "/collection/best-seller"  },
@@ -123,7 +123,15 @@ export default function Header() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [locationModalOpen, setLocationModalOpen] = useState(false);
   const [mobileCatOpen, setMobileCatOpen] = useState(false);
+  const [brands, setBrands] = useState([]);
   const userMenuRef = useRef(null);
+
+  // Fetch active brands once for the Collections sub-panel
+  useEffect(() => {
+    cachedGet('/brands', { params: { active: 'true' }, ttl: 300_000 })
+      .then(res => setBrands(res.data.data || []))
+      .catch(() => {});
+  }, []);
 
   // Close user dropdown when clicking outside
   useEffect(() => {
@@ -370,7 +378,7 @@ export default function Header() {
 
           {/* ── Root panel ── */}
           <div className="mobile-drawer__panel">
-            <p className="mobile-drawer__section-label">Collections</p>
+            <p className="mobile-drawer__section-label">Shop</p>
             {MOBILE_MENU.map((item) => (
               <button
                 key={item.id}
@@ -381,6 +389,20 @@ export default function Header() {
                 <IconChevronRight />
               </button>
             ))}
+            {brands.length > 0 && (
+              <button
+                className="mobile-drawer__item mobile-drawer__item--parent"
+                onClick={() => openSub({
+                  id: 'collections',
+                  label: 'Collections',
+                  path: '/category/all',
+                  children: brands.map(b => ({ label: b.name, path: `/brand/${b.slug}` })),
+                })}
+              >
+                <span>Collections</span>
+                <IconChevronRight />
+              </button>
+            )}
 
             <div className="mobile-drawer__divider" />
 

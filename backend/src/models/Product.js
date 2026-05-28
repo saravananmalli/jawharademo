@@ -26,7 +26,7 @@ const productSchema = new mongoose.Schema({
   diamondColor:   String,
   diamondCt:      Number,
   brand: { type: String, default: '' },
-  collection: String,
+  collection: [String],
   fulfilledBy: String,
   arrivesBy: String,
   tags: [String],

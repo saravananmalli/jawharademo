@@ -51,14 +51,44 @@ function buildPriceParams(filter) {
   return {};
 }
 
-// Material slugs that represent metal/stone, not a product category.
-// For these, the backend must receive ?metal= or ?stone= instead of ?category=.
+// Slugs that are not stored as a category in the DB — each maps to the correct
+// backend query param (metal, stone, forWho, etc.) instead of ?category=.
 const MATERIAL_SLUG_PARAMS = {
   gold:    { metal: 'gold' },
   diamond: { stone: 'diamond' },
   pearl:   { stone: 'pearl' },
   silver:  { metal: 'silver' },
+  kids:    { forWho: 'Kids' },
 };
+
+// Extract ?stone= or ?metal= backend params from a ?filter= string so the
+// backend regex does the heavy lifting instead of relying solely on client-side matching.
+function buildMaterialParams(filter) {
+  const f = (filter || '').trim();
+  if (!f) return {};
+  const fl = f.toLowerCase();
+  // Stones
+  if (/^diamond$/i.test(f))        return { stone: 'diamond' };
+  if (/^pearl$/i.test(f))          return { stone: 'pearl' };
+  if (/^ruby$/i.test(f))           return { stone: 'ruby' };
+  if (/^emerald$/i.test(f))        return { stone: 'emerald' };
+  if (/^sapphire$/i.test(f))       return { stone: 'sapphire' };
+  if (/^amethyst$/i.test(f))       return { stone: 'amethyst' };
+  if (/^topaz$/i.test(f))          return { stone: 'topaz' };
+  if (/^opal$/i.test(f))           return { stone: 'opal' };
+  if (/^cubic\s+zirconia$/i.test(f)) return { stone: 'cubic zirconia' };
+  if (/^mixed\s+gemstones$/i.test(f)) return { stone: 'mixed gemstones' };
+  // Metals
+  if (/^white\s+gold$/i.test(f))   return { metal: 'white gold' };
+  if (/^rose\s+gold$/i.test(f))    return { metal: 'rose gold' };
+  if (/^yellow\s+gold$/i.test(f))  return { metal: 'yellow gold' };
+  if (/^gold\s+18k$/i.test(f))     return { metal: 'gold' };  // metalKt refined client-side
+  if (/^gold\s+22k$/i.test(f))     return { metal: 'gold' };  // metalKt refined client-side
+  if (/^gold$/i.test(f))           return { metal: 'gold' };
+  if (/^silver$/i.test(f))         return { metal: 'silver' };
+  if (/^platinum$/i.test(f))       return { metal: 'platinum' };
+  return {};
+}
 
 const CATEGORY_WORDS = new Set([
   'rings', 'ring', 'earrings', 'earring',
@@ -100,10 +130,10 @@ function matchesFilter(product, filter) {
   const stonesArr = (product.stones || []).map(s => s.toLowerCase());
 
   if (/^diamond$/i.test(f))  return stone.includes('diamond')  || stonesArr.some(s => s.includes('diamond'));
-  if (/^pearl$/i.test(f))    return stone === 'pearl'           || stonesArr.some(s => s === 'pearl');
-  if (/^emerald$/i.test(f))  return stone === 'emerald'         || stonesArr.some(s => s === 'emerald');
+  if (/^pearl$/i.test(f))    return stone.includes('pearl')     || stonesArr.some(s => s.includes('pearl'));
+  if (/^emerald$/i.test(f))  return stone.includes('emerald')   || stonesArr.some(s => s.includes('emerald'));
   if (/^ruby$/i.test(f))     return stone.includes('ruby')      || stonesArr.some(s => s.includes('ruby'));
-  if (/^sapphire$/i.test(f)) return stone === 'sapphire'        || stonesArr.some(s => s === 'sapphire');
+  if (/^sapphire$/i.test(f)) return stone.includes('sapphire')  || stonesArr.some(s => s.includes('sapphire'));
 
   const productText = [
     product.name,
@@ -140,6 +170,7 @@ function matchesSlug(product, slug) {
   const tags    = (product.tags     || []).map(t => t.toLowerCase());
   const metalsArr = (product.metals || []).map(m => m.toLowerCase());
   const stonesArr = (product.stones || []).map(s => s.toLowerCase());
+  const forWho  = (product.forWho   || []).map(f => f.toLowerCase());
 
   switch (s) {
     case 'rings':     return cat === 'rings';
@@ -152,7 +183,7 @@ function matchesSlug(product, slug) {
     case 'pearl':     return stone === 'pearl'            || stonesArr.some(s => s === 'pearl');
     case 'silver':    return metal === 'silver'           || metalsArr.some(m => m === 'silver');
     case 'wedding':   return tags.includes('wedding');
-    case 'kids':      return tags.includes('kids');
+    case 'kids':      return forWho.includes('kids') || tags.includes('kids');
     default:          return cat.includes(s.replace(/-/g, ' '));
   }
 }
@@ -195,6 +226,8 @@ export default function Category() {
       const qs = new URLSearchParams({ limit: 200 });
       if (priceP.minPrice != null) qs.set('minPrice', priceP.minPrice);
       if (priceP.maxPrice != null) qs.set('maxPrice', priceP.maxPrice);
+      const matP = buildMaterialParams(filter);
+      Object.entries(matP).forEach(([k, v]) => qs.set(k, v));
       Promise.all([
         api.get(`/products?category=Necklace&${qs}`),
         api.get(`/products?category=Pendant&${qs}`),
@@ -222,6 +255,7 @@ export default function Category() {
       const qs = new URLSearchParams({ category: 'Pendant', limit: 200 });
       if (priceP.minPrice != null) qs.set('minPrice', priceP.minPrice);
       if (priceP.maxPrice != null) qs.set('maxPrice', priceP.maxPrice);
+      Object.entries(buildMaterialParams(filter)).forEach(([k, v]) => qs.set(k, v));
       api.get(`/products?${qs}`)
         .then(({ data }) => {
           setBaseProducts(
@@ -241,6 +275,9 @@ export default function Category() {
       Object.entries(materialParams).forEach(([k, v]) => params.set(k, v));
     } else if (activeSlug && activeSlug !== 'all') {
       params.set('category', activeSlug);
+      // Also push stone/metal from the ?filter= param so the backend regex
+      // matches partial values (e.g. "Natural Emerald" for filter="Emerald").
+      Object.entries(buildMaterialParams(filter)).forEach(([k, v]) => params.set(k, v));
     }
     if (priceP.minPrice != null) params.set('minPrice', priceP.minPrice);
     if (priceP.maxPrice != null) params.set('maxPrice', priceP.maxPrice);

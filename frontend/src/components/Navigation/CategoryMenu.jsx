@@ -1,8 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FiMenu, FiChevronDown } from "react-icons/fi";
 import { DirhamSymbol } from "dirham/react";
 import { useLanguage } from "../../context/LanguageContext";
+import { cachedGet } from "../../services/api";
 import "./CategoryMenu.scss";
 
 // Price range objects used by all "By Price" mega-menu columns.
@@ -90,7 +91,6 @@ const NAV_CATEGORIES = [
 ];
 
 const SIMPLE_LINKS = [
-  { label: "Today's Deals", path: "/collection/today-deals"  },
   { label: "Gifting",       path: "/collection/gifting"      },
   { label: "New Arrivals",  path: "/collection/new-arrivals" },
   { label: "Best Sellers",  path: "/collection/best-seller"  },
@@ -122,7 +122,7 @@ function materialToUrl(label) {
 // ─────────────────────────────────────────────────────────────────────
 // Hover helpers — delayed close so mouse can travel from trigger → panel
 // ─────────────────────────────────────────────────────────────────────
-function useDelayedHover(delay = 120) {
+function useDelayedHover(delay = 200) {
   const [open, setOpen] = useState(false);
   const timer = useRef(null);
 
@@ -140,12 +140,21 @@ export default function CategoryMenu() {
   // "All Category" panel
   const [allCatOpen, allCatEnter, allCatLeave] = useDelayedHover();
 
-  // Mega nav — track which cat.id is open
+  // Mega nav — track which cat.id is open ('collections' is a valid id here too)
   const [openMega, setOpenMega] = useState(null);
   const megaTimer = useRef(null);
 
-  const megaEnter = (id) => { clearTimeout(megaTimer.current); setOpenMega(id); };
-  const megaLeave = () => { megaTimer.current = setTimeout(() => setOpenMega(null), 120); };
+  const cancelClose = () => clearTimeout(megaTimer.current);
+  const megaEnter = (id) => { cancelClose(); setOpenMega(id); };
+  const megaLeave = () => { megaTimer.current = setTimeout(() => setOpenMega(null), 300); };
+
+  // Collections: dynamic brands fetched once on mount
+  const [brands, setBrands] = useState([]);
+  useEffect(() => {
+    cachedGet('/brands', { params: { active: 'true' }, ttl: 300_000 })
+      .then(res => setBrands(res.data.data || []))
+      .catch(() => {});
+  }, []);
 
   return (
     <nav className="category-nav">
@@ -184,13 +193,15 @@ export default function CategoryMenu() {
         <span className="nav-sep" aria-hidden="true" />
 
         {/* ── 2. Mega nav ── */}
-        <nav className="mega-nav">
+        {/* onMouseLeave lives on the container — individual items don't close
+            on leave because the fixed-position dropdown sits outside the item's
+            layout box and browsers can fire spurious mouseleave events. */}
+        <nav className="mega-nav" onMouseLeave={megaLeave}>
           {NAV_CATEGORIES.map((cat) => (
             <div
               key={cat.id}
               className={`mega-nav__item${openMega === cat.id ? " mega-nav__item--open" : ""}`}
               onMouseEnter={() => megaEnter(cat.id)}
-              onMouseLeave={megaLeave}
             >
               <Link
                 to={cat.path}
@@ -204,6 +215,7 @@ export default function CategoryMenu() {
               <div
                 className={`mega-dropdown${openMega === cat.id ? " mega-dropdown--open" : ""}`}
                 onMouseEnter={() => megaEnter(cat.id)}
+                onPointerMove={cancelClose}
                 onMouseLeave={megaLeave}
               >
                 <div className="mega-dropdown__inner">
@@ -232,9 +244,6 @@ export default function CategoryMenu() {
                               let to;
                               if (isPriceRange) {
                                 to = `${cat.path}?priceMin=${item.min}${item.max != null ? `&priceMax=${item.max}` : ''}`;
-                              } else if (title === 'By Metal & Stone') {
-                                // Route material/stone links to cross-category collection pages
-                                to = materialToUrl(item) ?? `${cat.path}?filter=${encodeURIComponent(item)}`;
                               } else {
                                 to = `${cat.path}?filter=${encodeURIComponent(item)}`;
                               }
@@ -279,13 +288,56 @@ export default function CategoryMenu() {
             </div>
           ))}
 
-          <span className="mega-nav__sep" aria-hidden="true" />
+          {/* ── Collections (dynamic brands) ── */}
+          <div
+            className={`mega-nav__item${openMega === 'collections' ? " mega-nav__item--open" : ""}`}
+            onMouseEnter={() => megaEnter('collections')}
+          >
+            <span
+              className={`mega-nav__link${openMega === 'collections' ? ' mega-nav__link--active' : ''}`}
+              role="button"
+              tabIndex={0}
+              onKeyDown={e => e.key === 'Enter' && megaEnter('collections')}
+            >
+              Collections
+              <FiChevronDown className="chevron" />
+            </span>
+
+            <div
+              className={`mega-dropdown${openMega === 'collections' ? " mega-dropdown--open" : ""}`}
+              onMouseEnter={() => megaEnter('collections')}
+              onPointerMove={cancelClose}
+              onMouseLeave={megaLeave}
+            >
+              <div className="mega-dropdown__inner">
+                {brands.length === 0 ? (
+                  <p className="mega-collections__empty">No collections available.</p>
+                ) : (
+                  <div className="mega-collections__grid">
+                    {brands.map(brand => (
+                      <Link
+                        key={brand._id}
+                        to={`/brand/${brand.slug}`}
+                        className="mega-collection__item"
+                        onClick={() => setOpenMega(null)}
+                      >
+                        <span className="mega-collection__name">{brand.name}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <span className="mega-nav__sep" aria-hidden="true" onMouseEnter={() => setOpenMega(null)} />
 
           {SIMPLE_LINKS.map((link) => (
             <Link
               key={link.label}
               to={link.path}
               className="mega-nav__link mega-nav__link--plain"
+              onMouseEnter={() => setOpenMega(null)}
             >
               {link.label}
             </Link>

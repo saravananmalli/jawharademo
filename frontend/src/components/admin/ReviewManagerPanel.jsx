@@ -61,16 +61,8 @@ function ReviewForm({ value, onChange, isEdit }) {
         />
       </Box>
 
-      <TextField fullWidth size="small" label="Review Title"
-        value={value.title} onChange={e => set('title', e.target.value)}
-        placeholder="e.g. Absolutely stunning!" />
-
       <TextField fullWidth multiline rows={3} size="small" label="Review Text *"
         value={value.text} onChange={e => set('text', e.target.value)} />
-
-      <TextField fullWidth size="small" label="Customer Avatar URL (optional)"
-        value={value.avatar} onChange={e => set('avatar', e.target.value)}
-        placeholder="https://..." />
 
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" flexWrap="wrap">
         {isEdit ? (

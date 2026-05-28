@@ -38,8 +38,50 @@ const DISCOVER_AUTH = [
 const WHATSAPP_URL = 'https://api.whatsapp.com/send/?phone=%2B971565071902&text&type=phone_number&app_absent=0';
 const WHATSAPP_CHIP = 'Chat on WhatsApp';
 
+// Maps chip labels → natural-language queries so the AI gets meaningful context
+const CHIP_QUERY_MAP = {
+  // Return / refund / exchange
+  'Initiate Return':    'I would like to initiate a return for my order. What is the process?',
+  'Refund Status':      'What is the current status of my refund? Has it been processed?',
+  'Exchange Item':      'I would like to exchange an item from my order. How do I do that?',
+  // Order support
+  'Track Order':        'Where is my order? Can you track it for me?',
+  'Track Package':      'Where is my package? Can you provide tracking details?',
+  'Recent Orders':      'Show me my recent orders',
+  'View Orders':        'Show me my order history',
+  'Return Item':        'I want to return an item from my order',
+  'Download Invoice':   'How can I download the invoice for my order?',
+  'Delivery Status':    'What is the status of my delivery?',
+  'Delivery Support':   'I need help with my delivery',
+  'Change Address':     'I need to change my delivery address',
+  'Update Address':     'I want to update my account address',
+  'Payment Methods':    'How can I manage my saved payment methods?',
+  // Account / navigation
+  'My Orders':          'Show me my orders',
+  'My Cart':            'What is in my cart?',
+  'My Wishlist':        'Show my wishlist',
+  'Shop Again':         'I would like to shop again — show me recommendations',
+  'Contact Support':    'I need to speak with customer support',
+  // Shopping
+  'Gold Jewellery':     'Show me gold jewellery',
+  'Diamond Jewellery':  'Show me diamond jewellery',
+  'Best Value':         'Show me best value jewelry pieces',
+  // Customer service
+  'Installment Plans':  'Do you offer installment or payment plan options?',
+  'Customization':      'Can I customize or personalize a jewelry piece?',
+  'Warranty & Care':    'Do you offer warranty and aftercare services for your jewelry?',
+};
+
 const QUICK_REPLIES_GUEST = ["Today's Gold Price", 'Engagement Ring', 'Gold Necklace', 'I need a gift', WHATSAPP_CHIP];
 const QUICK_REPLIES_AUTH  = ["Today's Gold Price", 'Track My Order', 'My Orders', 'My Cart', WHATSAPP_CHIP];
+
+const NON_ENGLISH_LANGUAGE_MSG =
+  'Currently, our chatbot supports English only. We are actively working on adding support for additional languages, which will be available soon. Please use English for now. Thank you for your patience.';
+
+// Detects non-Latin scripts: Arabic, CJK, Japanese, Korean, Cyrillic, Indic, Thai, etc.
+function isNonEnglish(text) {
+  return /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF\u0590-\u05FF]|[\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF]|[\u3040-\u309F\u30A0-\u30FF]|[\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F]|[\u0400-\u04FF\u0500-\u052F]|[\u0900-\u097F\u0980-\u09FF\u0A00-\u0A7F\u0A80-\u0AFF\u0B00-\u0B7F\u0B80-\u0BFF\u0C00-\u0C7F\u0C80-\u0CFF\u0D00-\u0D7F]|[\u0E00-\u0E7F\u0E80-\u0EFF\u1000-\u109F]/.test(text);
+}
 
 // ── Order status style map ────────────────────────────────────────────────────
 const STATUS_CONFIG = {
@@ -367,10 +409,28 @@ export default function ChatAgent() {
   }
 
   const sendMessage = useCallback(async (text) => {
-    const trimmed = (typeof text === 'string' ? text : input).trim();
-    if (!trimmed || loading) return;
+    const raw = (typeof text === 'string' ? text : input).trim();
+    if (!raw || loading) return;
+    const trimmed = CHIP_QUERY_MAP[raw] ?? raw;
 
     setSuggestions([]);
+
+    if (isNonEnglish(trimmed)) {
+      setInput('');
+      setMessages(prev => [
+        ...prev,
+        { role: 'user', content: raw },
+        {
+          role: 'assistant',
+          content: NON_ENGLISH_LANGUAGE_MSG,
+          products: [],
+          orderCards: [],
+          quickReplies: isAuthenticated ? QUICK_REPLIES_AUTH : QUICK_REPLIES_GUEST,
+        },
+      ]);
+      return;
+    }
+
     updateSession(trimmed);
 
     const userMsg = { role: 'user', content: trimmed };
