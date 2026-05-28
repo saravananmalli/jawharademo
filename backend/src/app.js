@@ -48,7 +48,20 @@ app.use('/api/chat',       require('./routes/chat'));
 app.use('/api/gold-price', require('./routes/goldPrice'));
 
 app.get('/', (req, res) => res.json({ name: 'Jawhara Jewelry API', status: 'ok', version: '1.0.0' }));
-app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/api/health', (req, res) => {
+  const mongoose = require('mongoose');
+  const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+  const dbState = states[mongoose.connection.readyState] || 'unknown';
+  res.json({
+    status: 'ok',
+    db: dbState,
+    dbHost: mongoose.connection.host || null,
+    env: {
+      hasMongoUri: !!process.env.MONGODB_URI,
+      nodeEnv: process.env.NODE_ENV,
+    },
+  });
+});
 
 app.use(errorHandler);
 
