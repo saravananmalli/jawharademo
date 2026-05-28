@@ -35,6 +35,7 @@ app.use('/api/settings', require('./routes/settings'));
 app.use('/api/chat',       require('./routes/chat'));
 app.use('/api/gold-price', require('./routes/goldPrice'));
 
+app.get('/', (req, res) => res.json({ name: 'Jawhara Jewelry API', status: 'ok', version: '1.0.0' }));
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
 app.use(errorHandler);
