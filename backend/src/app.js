@@ -7,7 +7,11 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
-connectDB();
+// Ensure DB is connected before every request (serverless safe)
+app.use(async (req, res, next) => {
+  try { await connectDB(); next(); }
+  catch (err) { res.status(503).json({ error: 'Database unavailable', detail: err.message }); }
+});
 
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
