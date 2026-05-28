@@ -6,6 +6,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import ProductCard from "../Products/ProductCard";
 import { cachedGet } from "../../services/api";
+import { getImageUrl } from "../../utils/imageUrl";
 import "./OccasionOfferSection.scss";
 
 // ── Countdown helpers ──────────────────────────────────────────────────────────
@@ -113,7 +114,7 @@ function OccasionOfferSection() {
               aria-label={offer.bannerTitle}
             >
               <img
-                src={offer.bannerImage}
+                src={getImageUrl(offer.bannerImage)}
                 alt={offer.bannerTitle}
                 loading="lazy"
               />
