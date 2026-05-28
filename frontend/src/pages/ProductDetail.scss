@@ -1,4 +1,5 @@
 @use '../styles/variables' as *;
+@use 'sass:color';
 
 // ============================================================
 // LOADING STATE
@@ -488,7 +489,7 @@
   gap: $spacing-sm;
   padding: $spacing-sm $spacing-lg;
   border-radius: $border-radius-lg;
-  background: linear-gradient(90deg, $primary-gold 0%, darken($primary-gold, 18%) 100%);
+  background: linear-gradient(90deg, $primary-gold 0%, color.adjust($primary-gold, $lightness: -18%) 100%);
   width: fit-content;
 }
 
@@ -736,7 +737,7 @@
 
     &.added {
       background: $sage-green;
-      &:not(:disabled):hover { background: darken($sage-green, 5%); }
+      &:not(:disabled):hover { background: color.adjust($sage-green, $lightness: -5%); }
     }
   }
 
@@ -944,7 +945,7 @@
   height: 36px;
   padding: 0 $spacing-lg;
   background: rgba($sage-green, 0.12);
-  color: darken($sage-green, 10%);
+  color: color.adjust($sage-green, $lightness: -10%);
   border: 1.5px solid rgba($sage-green, 0.35);
   border-radius: $border-radius-lg;
   font-family: $font-primary;
@@ -1234,7 +1235,7 @@
 
 .pd__rating-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, $star-gold, darken($star-gold, 8%));
+  background: linear-gradient(90deg, $star-gold, color.adjust($star-gold, $lightness: -8%));
   border-radius: $border-radius-full;
   transition: width 1.2s $ease-out;
 }
