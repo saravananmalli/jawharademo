@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
+import { getImageUrl } from '../../utils/imageUrl';
 import './ReviewCard.scss';
 
 function formatDate(dateStr) {
@@ -20,7 +21,7 @@ function ReviewCard({ review }) {
   });
 
   const productId = product?._id || product?.id;
-  const productImage = product?.images?.[0] || product?.image;
+  const productImage = getImageUrl(product?.images?.[0] || product?.image);
   const dateDisplay = timeAgo || formatDate(createdAt);
 
   return (
