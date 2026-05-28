@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { FiPackage, FiSliders, FiChevronRight } from 'react-icons/fi';
+import { useParams, useNavigate } from 'react-router-dom';
+import { FiPackage, FiSliders } from 'react-icons/fi';
 import ProductGrid from '../components/Products/ProductGrid';
 import FilterSidebar, { EMPTY_FILTERS, applyFilters } from '../components/Filters/FilterSidebar';
 import api from '../services/api';
@@ -115,39 +115,12 @@ export default function BrandPage() {
             {brand?.description && (
               <p className="brand-page__description">{brand.description}</p>
             )}
+            <p className="brand-page__count">
+              {loading
+                ? 'Loading products…'
+                : `${displayProducts.length} product${displayProducts.length !== 1 ? 's' : ''} found`}
+            </p>
           </div>
-        </div>
-      </div>
-
-      {/* ── Breadcrumbs ─────────────────────────────────────────────── */}
-      <div className="brand-page__breadcrumbs">
-        <div className="container">
-          <nav aria-label="Breadcrumb">
-            <ol className="breadcrumb">
-              <li className="breadcrumb__item">
-                <Link to="/">Home</Link>
-              </li>
-              <li className="breadcrumb__sep"><FiChevronRight /></li>
-              <li className="breadcrumb__item">
-                <Link to="/category/all">All Products</Link>
-              </li>
-              <li className="breadcrumb__sep"><FiChevronRight /></li>
-              <li className="breadcrumb__item breadcrumb__item--active" aria-current="page">
-                {brand?.name || slug}
-              </li>
-            </ol>
-          </nav>
-        </div>
-      </div>
-
-      {/* ── Product count header ────────────────────────────────────── */}
-      <div className="brand-page__subheader">
-        <div className="container">
-          <p className="brand-page__count">
-            {loading
-              ? 'Loading products…'
-              : `${displayProducts.length} product${displayProducts.length !== 1 ? 's' : ''} found`}
-          </p>
         </div>
       </div>
 

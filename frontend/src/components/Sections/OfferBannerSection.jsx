@@ -18,10 +18,11 @@ function OfferBannerSection() {
   if (!banner) return null;
 
   const href = (() => {
+    if (banner.redirectUrl) return banner.redirectUrl;
     if (banner.bannerType === 'category'   && banner.linkedCategory)   return `/category/${banner.linkedCategory}`;
-    if (banner.bannerType === 'collection' && banner.linkedCollection)  return `/search?collection=${banner.linkedCollection}`;
-    if (banner.bannerType === 'brand'      && banner.linkedBrand)       return `/search?brand=${banner.linkedBrand}`;
-    return banner.redirectUrl || '/';
+    if (banner.bannerType === 'collection' && banner.linkedCollection)  return `/collection/${banner.linkedCollection}`;
+    if (banner.bannerType === 'brand'      && banner.linkedBrand)       return `/search?brand=${encodeURIComponent(banner.linkedBrand)}`;
+    return '/';
   })();
 
   return (

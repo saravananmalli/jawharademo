@@ -81,9 +81,10 @@ exports.getProducts = async (req, res) => {
   };
   const sortOption = sortMap[sort] || { createdAt: -1 };
 
-  const skip = (Number(page) - 1) * Number(limit);
+  const safeLimit = Math.min(Number(limit) || 20, 500);
+  const skip = (Number(page) - 1) * safeLimit;
   const [products, total] = await Promise.all([
-    Product.find(filter).sort(sortOption).skip(skip).limit(Number(limit)),
+    Product.find(filter).sort(sortOption).skip(skip).limit(safeLimit).lean(),
     Product.countDocuments(filter),
   ]);
 

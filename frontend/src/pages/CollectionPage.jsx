@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { FiPackage, FiSliders, FiTag, FiGift, FiStar, FiTrendingUp, FiSunrise, FiShoppingBag } from 'react-icons/fi';
 import ProductGrid from '../components/Products/ProductGrid';
@@ -57,17 +57,20 @@ export default function CollectionPage() {
   const meta      = isAllCollection ? {} : (COLLECTION_META[slug] || {});
   const IconComp  = meta.icon || FiShoppingBag;
 
+  const PAGE_SIZE = 24;
   const [baseProducts,     setBaseProducts]    = useState([]);
   const [sidebarFilters,   setSidebarFilters]  = useState(EMPTY_FILTERS);
   const [loading,          setLoading]         = useState(true);
   const [sort,             setSort]            = useState('default');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [visibleCount,     setVisibleCount]    = useState(PAGE_SIZE);
 
   const isValidSlug = isAllCollection ? Boolean(materialKey) : Boolean(flagName);
 
   useEffect(() => {
     if (!isValidSlug) { setLoading(false); return; }
 
+    const controller = new AbortController();
     document.title = `${pageLabel} | Jawhara Jewelry`;
     setLoading(true);
 
@@ -81,12 +84,12 @@ export default function CollectionPage() {
       apiUrl = `/products?flag=${encodeURIComponent(flagName)}&limit=300`;
     }
 
-    api.get(apiUrl)
+    api.get(apiUrl, { signal: controller.signal })
       .then(({ data }) => setBaseProducts(data.data || []))
-      .catch(() => setBaseProducts([]))
+      .catch((err) => { if (err.code !== 'ERR_CANCELED') setBaseProducts([]); })
       .finally(() => setLoading(false));
 
-    return () => { document.title = 'Jawhara Jewelry'; };
+    return () => { controller.abort(); document.title = 'Jawhara Jewelry'; };
   }, [slug, metalParam, stoneParam, isAllCollection, flagName, materialKey, pageLabel, isValidSlug]);
 
   useEffect(() => {
@@ -104,6 +107,11 @@ export default function CollectionPage() {
 
     return result;
   }, [baseProducts, sidebarFilters, sort]);
+
+  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [displayProducts]);
+
+  const loadMore = useCallback(() => setVisibleCount(c => c + PAGE_SIZE), []);
+  const visibleProducts = displayProducts.slice(0, visibleCount);
 
   if (!isValidSlug) {
     return (
@@ -220,7 +228,16 @@ export default function CollectionPage() {
                 </button>
               </div>
             ) : (
-              <ProductGrid products={displayProducts} loading={loading} cols={4} />
+              <>
+                <ProductGrid products={visibleProducts} loading={loading} cols={4} />
+                {!loading && visibleCount < displayProducts.length && (
+                  <div className="collection-page__load-more">
+                    <button className="collection-page__load-more-btn" onClick={loadMore}>
+                      Load More ({displayProducts.length - visibleCount} remaining)
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

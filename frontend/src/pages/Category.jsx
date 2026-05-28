@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { FiPackage, FiSliders } from 'react-icons/fi';
 import ProductGrid from '../components/Products/ProductGrid';
@@ -190,6 +190,8 @@ function matchesSlug(product, slug) {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
+const PAGE_SIZE = 24;
+
 export default function Category() {
   const { slug }       = useParams();
   const [searchParams] = useSearchParams();
@@ -200,6 +202,7 @@ export default function Category() {
   const [loading,         setLoading]         = useState(true);
   const [sort,            setSort]            = useState('default');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [visibleCount,    setVisibleCount]    = useState(PAGE_SIZE);
 
   const activeSlug = slug || 'all';
   const filter     = searchParams.get('filter') || '';
@@ -213,6 +216,8 @@ export default function Category() {
 
   // Load base products by slug + URL ?filter= param
   useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
     setLoading(true);
 
     // Prefer direct ?priceMin/priceMax URL params (from mega menu); fall back to
@@ -229,12 +234,10 @@ export default function Category() {
       const matP = buildMaterialParams(filter);
       Object.entries(matP).forEach(([k, v]) => qs.set(k, v));
       Promise.all([
-        api.get(`/products?category=Necklace&${qs}`),
-        api.get(`/products?category=Pendant&${qs}`),
+        api.get(`/products?category=Necklace&${qs}`, { signal }),
+        api.get(`/products?category=Pendant&${qs}`, { signal }),
       ])
         .then(([neckRes, pendRes]) => {
-          // Deduplicate by _id — a product whose category matches both regexes
-          // (e.g. "Necklaces & Pendants") would otherwise appear twice.
           const seen = new Set();
           const all = [...(neckRes.data.data || []), ...(pendRes.data.data || [])]
             .filter(p => {
@@ -244,9 +247,9 @@ export default function Category() {
             });
           setBaseProducts(all);
         })
-        .catch(() => setBaseProducts([]))
+        .catch((err) => { if (err.code !== 'ERR_CANCELED') setBaseProducts([]); })
         .finally(() => setLoading(false));
-      return;
+      return () => controller.abort();
     }
 
     // Pendants page: use singular "Pendant" so the backend regex /Pendant/i
@@ -256,38 +259,36 @@ export default function Category() {
       if (priceP.minPrice != null) qs.set('minPrice', priceP.minPrice);
       if (priceP.maxPrice != null) qs.set('maxPrice', priceP.maxPrice);
       Object.entries(buildMaterialParams(filter)).forEach(([k, v]) => qs.set(k, v));
-      api.get(`/products?${qs}`)
+      api.get(`/products?${qs}`, { signal })
         .then(({ data }) => {
           setBaseProducts(
             (data.data || []).filter(p => matchesSlug(p, 'pendants') && matchesFilter(p, filter))
           );
         })
-        .catch(() => setBaseProducts([]))
+        .catch((err) => { if (err.code !== 'ERR_CANCELED') setBaseProducts([]); })
         .finally(() => setLoading(false));
-      return;
+      return () => controller.abort();
     }
 
     const params = new URLSearchParams({ limit: 200 });
     const materialParams = MATERIAL_SLUG_PARAMS[activeSlug];
     if (materialParams) {
-      // gold/diamond/pearl/silver are metal or stone attributes, not categories.
-      // Use the correct API param so the backend regex hits the right field.
       Object.entries(materialParams).forEach(([k, v]) => params.set(k, v));
     } else if (activeSlug && activeSlug !== 'all') {
       params.set('category', activeSlug);
-      // Also push stone/metal from the ?filter= param so the backend regex
-      // matches partial values (e.g. "Natural Emerald" for filter="Emerald").
       Object.entries(buildMaterialParams(filter)).forEach(([k, v]) => params.set(k, v));
     }
     if (priceP.minPrice != null) params.set('minPrice', priceP.minPrice);
     if (priceP.maxPrice != null) params.set('maxPrice', priceP.maxPrice);
-    api.get(`/products?${params}`)
+    api.get(`/products?${params}`, { signal })
       .then(({ data }) => {
         const all = (data.data || []).filter(p => matchesSlug(p, activeSlug) && matchesFilter(p, filter));
         setBaseProducts(all);
       })
-      .catch(() => setBaseProducts([]))
+      .catch((err) => { if (err.code !== 'ERR_CANCELED') setBaseProducts([]); })
       .finally(() => setLoading(false));
+
+    return () => controller.abort();
   }, [activeSlug, filter, priceMin, priceMax]);
 
   // Reset sidebar filters and sort when the category/URL filter changes
@@ -310,6 +311,12 @@ export default function Category() {
 
     return result;
   }, [baseProducts, sidebarFilters, sort, filter]);
+
+  // Reset visible count whenever the displayed set changes (new data, filter, or sort)
+  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [displayProducts]);
+
+  const loadMore = useCallback(() => setVisibleCount(c => c + PAGE_SIZE), []);
+  const visibleProducts = displayProducts.slice(0, visibleCount);
 
   return (
     <main className="category-page">
@@ -424,7 +431,16 @@ export default function Category() {
                 </button>
               </div>
             ) : (
-              <ProductGrid products={displayProducts} loading={loading} cols={4} />
+              <>
+                <ProductGrid products={visibleProducts} loading={loading} cols={4} />
+                {!loading && visibleCount < displayProducts.length && (
+                  <div className="category-page__load-more">
+                    <button className="category-page__load-more-btn" onClick={loadMore}>
+                      Load More ({displayProducts.length - visibleCount} remaining)
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

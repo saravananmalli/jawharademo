@@ -50,5 +50,11 @@ productSchema.index({ category: 1 });
 productSchema.index({ brand: 1 });
 productSchema.index({ price: 1 });
 productSchema.index({ rating: -1 });
+productSchema.index({ flags: 1 });
+productSchema.index({ forWho: 1 });
+productSchema.index({ metals: 1 });
+productSchema.index({ stones: 1 });
+productSchema.index({ inStock: 1 });
+productSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('Product', productSchema);

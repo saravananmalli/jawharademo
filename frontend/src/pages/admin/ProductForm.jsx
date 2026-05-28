@@ -330,7 +330,6 @@ export default function ProductForm() {
     if (!currentForm.images.filter(Boolean).length) errors.images = 'At least one product image is required';
     if (!currentForm.metals.length)     errors.metals      = 'At least one metal type is required';
     if (!currentForm.metalKt)           errors.metalKt     = 'Metal karat is required';
-    if (!currentForm.stones.length)     errors.stones      = 'At least one stone / gemstone is required';
     if (!currentForm.flags.length)      errors.flags       = 'At least one product flag is required';
     if (catMap.featured.length > 0 && !currentForm.featured.length)
       errors.featured = 'Select at least one Featured In option';
@@ -635,14 +634,17 @@ export default function ProductForm() {
                   )}
                 </Box>
                 <Box>
-                  <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
-                    Stone / Gemstone <Box component="span" sx={{ color: 'error.main' }}>*</Box>
+                  <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
+                    Stone / Gemstone
+                    <Box component="span" sx={{ fontWeight: 400, color: 'text.secondary', ml: 0.75 }}>
+                      (optional)
+                    </Box>
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+                    Leave empty for plain metal products (e.g. gold chains, plain bangles)
                   </Typography>
                   <ChipToggleGroup options={STONE_OPTIONS} selected={form.stones}
-                    onChange={val => { set('stones', val); clearError('stones'); }} color="info" />
-                  {formErrors.stones && (
-                    <FormHelperText error sx={{ mt: 0.5 }}>{formErrors.stones}</FormHelperText>
-                  )}
+                    onChange={val => set('stones', val)} color="info" />
                 </Box>
 
                 {/* ── Diamond-specific attributes (shown only when Diamond is selected) ── */}

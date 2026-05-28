@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { FiPackage, FiSliders } from 'react-icons/fi';
 import ProductGrid from '../components/Products/ProductGrid';
@@ -20,21 +20,25 @@ export default function SearchResults() {
   const navigate        = useNavigate();
   const query           = searchParams.get('q') || '';
 
+  const PAGE_SIZE = 24;
   const [baseProducts,     setBaseProducts]     = useState([]);
   const [sidebarFilters,   setSidebarFilters]   = useState(EMPTY_FILTERS);
   const [loading,          setLoading]          = useState(true);
   const [sort,             setSort]             = useState('default');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [visibleCount,     setVisibleCount]     = useState(PAGE_SIZE);
 
   useEffect(() => {
+    const controller = new AbortController();
     setSidebarFilters(EMPTY_FILTERS);
     setSort('default');
     if (!query) { setBaseProducts([]); setLoading(false); return; }
     setLoading(true);
-    api.get(`/products?q=${encodeURIComponent(query)}&limit=200`)
+    api.get(`/products?q=${encodeURIComponent(query)}&limit=200`, { signal: controller.signal })
       .then(({ data }) => setBaseProducts(data.data || []))
-      .catch(() => setBaseProducts([]))
+      .catch((err) => { if (err.code !== 'ERR_CANCELED') setBaseProducts([]); })
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, [query]);
 
   const displayProducts = useMemo(() => {
@@ -45,6 +49,11 @@ export default function SearchResults() {
     else if (sort === 'newest')     result = [...result].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     return result;
   }, [baseProducts, sidebarFilters, sort]);
+
+  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [displayProducts]);
+
+  const loadMore = useCallback(() => setVisibleCount(c => c + PAGE_SIZE), []);
+  const visibleProducts = displayProducts.slice(0, visibleCount);
 
   return (
     <main className="category-page">
@@ -118,7 +127,16 @@ export default function SearchResults() {
                 </button>
               </div>
             ) : (
-              <ProductGrid products={displayProducts} loading={loading} cols={4} />
+              <>
+                <ProductGrid products={visibleProducts} loading={loading} cols={4} />
+                {!loading && visibleCount < displayProducts.length && (
+                  <div className="category-page__load-more">
+                    <button className="category-page__load-more-btn" onClick={loadMore}>
+                      Load More ({displayProducts.length - visibleCount} remaining)
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

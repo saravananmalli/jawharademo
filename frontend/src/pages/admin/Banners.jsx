@@ -3,7 +3,7 @@ import {
   Box, Card, CardContent, Typography, Button, TextField, Grid,
   IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions,
   Alert, Switch, FormControlLabel, CardMedia, Select, MenuItem,
-  InputLabel, FormControl, Chip, CircularProgress, Tooltip,
+  InputLabel, FormControl, Chip, CircularProgress, Tooltip, InputAdornment,
 } from '@mui/material';
 import AddIcon        from '@mui/icons-material/Add';
 import EditIcon       from '@mui/icons-material/Edit';
@@ -14,18 +14,12 @@ import LinkIcon       from '@mui/icons-material/Link';
 import { StatusChip } from './adminUtils';
 import ImageUploader  from '../../components/admin/ImageUploader';
 import api            from '../../services/api';
+import { FLAG_COLLECTIONS } from '../../utils/filterConstants';
 
 const CAMPAIGNS = [
   '', 'Christmas', 'Valentines', 'Eid', 'Mothers Day',
   'Wedding Season', 'National Day', 'Ramadan', 'New Year',
   'Limited Time Offer', 'Other',
-];
-
-const BANNER_TYPES = [
-  { value: 'category',   label: 'Category Page' },
-  { value: 'collection', label: 'Collection Page' },
-  { value: 'brand',      label: 'Brand Page' },
-  { value: 'custom',     label: 'Custom URL' },
 ];
 
 const PLACEMENTS = [
@@ -99,6 +93,13 @@ export default function Banners() {
 
   const openEdit = (b) => {
     setEditTarget(b);
+    // Back-fill redirectUrl from structured fields for banners saved before this feature
+    let effectiveUrl = b.redirectUrl || '';
+    if (!effectiveUrl) {
+      if (b.bannerType === 'category'   && b.linkedCategory) effectiveUrl = `/category/${b.linkedCategory}`;
+      else if (b.bannerType === 'brand' && b.linkedBrand)    effectiveUrl = `/search?brand=${encodeURIComponent(b.linkedBrand)}`;
+      // collection type: leave empty — old DB collection slugs weren't valid routes
+    }
     setForm({
       title:            b.title,
       description:      b.description || '',
@@ -109,7 +110,7 @@ export default function Banners() {
       linkedCategory:   b.linkedCategory || '',
       linkedCollection: b.linkedCollection || '',
       linkedBrand:      b.linkedBrand || '',
-      redirectUrl:      b.redirectUrl || '',
+      redirectUrl:      effectiveUrl,
       startDate:        toDateInput(b.startDate),
       endDate:          toDateInput(b.endDate),
       active:           b.active,
@@ -163,12 +164,11 @@ export default function Banners() {
     }
   };
 
-  // Build a human-readable redirect summary
   const linkSummary = (b) => {
-    if (b.bannerType === 'category'   && b.linkedCategory)   return `/category/${b.linkedCategory}`;
-    if (b.bannerType === 'collection' && b.linkedCollection)  return `/search?collection=${b.linkedCollection}`;
-    if (b.bannerType === 'brand'      && b.linkedBrand)       return `/search?brand=${b.linkedBrand}`;
-    return b.redirectUrl || '—';
+    if (b.redirectUrl) return b.redirectUrl;
+    if (b.bannerType === 'category' && b.linkedCategory) return `/category/${b.linkedCategory}`;
+    if (b.bannerType === 'brand'    && b.linkedBrand)    return `/search?brand=${b.linkedBrand}`;
+    return '—';
   };
 
   return (
@@ -327,58 +327,110 @@ export default function Banners() {
               <TextField fullWidth type="number" label="Display Order" value={form.order} onChange={e => setF('order', Number(e.target.value))} inputProps={{ min: 1 }} />
             </Grid>
 
-            {/* Banner Type */}
+            {/* ── Banner Link (always visible) ── */}
             <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel>Banner Type (Redirect Target)</InputLabel>
-                <Select value={form.bannerType} label="Banner Type (Redirect Target)" onChange={e => setF('bannerType', e.target.value)}>
-                  {BANNER_TYPES.map(t => (
-                    <MenuItem key={t.value} value={t.value}>{t.label}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <TextField
+                fullWidth
+                label="Banner Link"
+                value={form.redirectUrl}
+                onChange={e => setF('redirectUrl', e.target.value)}
+                placeholder="/category/rings  ·  /collection/today-deals  ·  https://..."
+                helperText="Where users go when they click this banner. Type any URL or use a shortcut below."
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LinkIcon sx={{ fontSize: 18, color: 'text.disabled' }} />
+                    </InputAdornment>
+                  ),
+                }}
+              />
             </Grid>
 
-            {/* Conditional linking fields */}
-            {form.bannerType === 'category' && (
-              <Grid item xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel>Linked Category</InputLabel>
-                  <Select value={form.linkedCategory} label="Linked Category" onChange={e => setF('linkedCategory', e.target.value)}>
-                    <MenuItem value="">— Select —</MenuItem>
-                    {categories.map(c => (
-                      <MenuItem key={c._id} value={c.slug}>{c.name}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            )}
+            {/* ── Quick Link Shortcuts ── */}
+            <Grid item xs={12}>
+              <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 1.5, bgcolor: 'action.hover' }}>
+                <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ display: 'block', mb: 1.5 }}>
+                  Quick Link Shortcuts — selecting one auto-fills the link above
+                </Typography>
+                <Grid container spacing={1.5}>
+                  {/* Category shortcut */}
+                  <Grid item xs={12} sm={4}>
+                    <FormControl fullWidth size="small">
+                      <InputLabel>Category Page</InputLabel>
+                      <Select
+                        value={form.bannerType === 'category' ? form.linkedCategory : ''}
+                        label="Category Page"
+                        onChange={e => {
+                          const slug = e.target.value;
+                          setForm(f => ({
+                            ...f,
+                            bannerType: slug ? 'category' : 'custom',
+                            linkedCategory: slug,
+                            linkedCollection: '',
+                            linkedBrand: '',
+                            redirectUrl: slug ? `/category/${slug}` : '',
+                          }));
+                        }}
+                      >
+                        <MenuItem value="">— None —</MenuItem>
+                        {categories.map(c => (
+                          <MenuItem key={c._id} value={c.slug}>{c.name}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
 
-            {form.bannerType === 'collection' && (
-              <Grid item xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel>Linked Collection</InputLabel>
-                  <Select value={form.linkedCollection} label="Linked Collection" onChange={e => setF('linkedCollection', e.target.value)}>
-                    <MenuItem value="">— Select —</MenuItem>
-                    {collections.map(c => (
-                      <MenuItem key={c._id} value={c.name}>{c.name}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            )}
+                  {/* Collection shortcut */}
+                  <Grid item xs={12} sm={4}>
+                    <FormControl fullWidth size="small">
+                      <InputLabel>Collection Page</InputLabel>
+                      <Select
+                        value={form.bannerType === 'collection' ? form.linkedCollection : ''}
+                        label="Collection Page"
+                        onChange={e => {
+                          const slug = e.target.value;
+                          setForm(f => ({
+                            ...f,
+                            bannerType: slug ? 'collection' : 'custom',
+                            linkedCollection: slug,
+                            linkedCategory: '',
+                            linkedBrand: '',
+                            redirectUrl: slug ? `/collection/${slug}` : '',
+                          }));
+                        }}
+                      >
+                        <MenuItem value="">— None —</MenuItem>
+                        {FLAG_COLLECTIONS.map(c => (
+                          <MenuItem key={c.slug} value={c.slug}>{c.label}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
 
-            {form.bannerType === 'brand' && (
-              <Grid item xs={12}>
-                <TextField fullWidth label="Brand Name" value={form.linkedBrand} onChange={e => setF('linkedBrand', e.target.value)} placeholder="e.g. Tiffany" />
-              </Grid>
-            )}
-
-            {form.bannerType === 'custom' && (
-              <Grid item xs={12}>
-                <TextField fullWidth label="Redirect URL" value={form.redirectUrl} onChange={e => setF('redirectUrl', e.target.value)} placeholder="/category/rings or https://..." />
-              </Grid>
-            )}
+                  {/* Brand shortcut */}
+                  <Grid item xs={12} sm={4}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="Brand Page"
+                      value={form.bannerType === 'brand' ? form.linkedBrand : ''}
+                      onChange={e => {
+                        const brand = e.target.value;
+                        setForm(f => ({
+                          ...f,
+                          bannerType: brand ? 'brand' : 'custom',
+                          linkedBrand: brand,
+                          linkedCategory: '',
+                          linkedCollection: '',
+                          redirectUrl: brand ? `/search?brand=${encodeURIComponent(brand)}` : '',
+                        }));
+                      }}
+                      placeholder="e.g. Tiffany"
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+            </Grid>
 
             {/* Scheduling */}
             <Grid item xs={12}>

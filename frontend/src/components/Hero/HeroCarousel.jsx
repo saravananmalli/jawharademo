@@ -15,10 +15,11 @@ const FALLBACK_SLIDES = [
 ];
 
 function getRedirectUrl(banner) {
+  if (banner.redirectUrl) return banner.redirectUrl;
   if (banner.bannerType === 'category'   && banner.linkedCategory)   return `/category/${banner.linkedCategory}`;
-  if (banner.bannerType === 'collection' && banner.linkedCollection)  return `/search?collection=${encodeURIComponent(banner.linkedCollection)}`;
+  if (banner.bannerType === 'collection' && banner.linkedCollection)  return `/collection/${banner.linkedCollection}`;
   if (banner.bannerType === 'brand'      && banner.linkedBrand)       return `/search?brand=${encodeURIComponent(banner.linkedBrand)}`;
-  return banner.redirectUrl || '/';
+  return '/';
 }
 
 export default function HeroCarousel() {

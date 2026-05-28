@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useEffect } from 'react';
+import { createContext, useContext, useReducer, useEffect, useMemo, useCallback } from 'react';
 
 const CartContext = createContext(null);
 
@@ -45,16 +45,20 @@ export function CartProvider({ children }) {
     localStorage.setItem('jawhara-cart', JSON.stringify(state));
   }, [state]);
 
-  const addItem = (product) => dispatch({ type: 'ADD_ITEM', payload: product });
-  const removeItem = (id) => dispatch({ type: 'REMOVE_ITEM', payload: id });
-  const updateQuantity = (id, quantity) => dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } });
-  const clearCart = () => dispatch({ type: 'CLEAR_CART' });
+  const addItem = useCallback((product) => dispatch({ type: 'ADD_ITEM', payload: product }), []);
+  const removeItem = useCallback((id) => dispatch({ type: 'REMOVE_ITEM', payload: id }), []);
+  const updateQuantity = useCallback((id, quantity) => dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } }), []);
+  const clearCart = useCallback(() => dispatch({ type: 'CLEAR_CART' }), []);
 
   const totalItems = state.items.reduce((sum, i) => sum + i.quantity, 0);
   const subtotal = state.items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
+  const contextValue = useMemo(() => ({
+    items: state.items, addItem, removeItem, updateQuantity, clearCart, totalItems, subtotal,
+  }), [state.items, addItem, removeItem, updateQuantity, clearCart, totalItems, subtotal]);
+
   return (
-    <CartContext.Provider value={{ items: state.items, addItem, removeItem, updateQuantity, clearCart, totalItems, subtotal }}>
+    <CartContext.Provider value={contextValue}>
       {children}
     </CartContext.Provider>
   );

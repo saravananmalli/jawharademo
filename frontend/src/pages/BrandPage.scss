@@ -16,9 +16,9 @@
 
   // ── Hero ───────────────────────────────────────────────────────────────────
   &__hero {
-    background: $white;
-    border-bottom: 1px solid $border-light;
-    padding: $spacing-xl 0;
+    background: $cream-bg;
+    padding: $spacing-xxl $spacing-lg;
+    margin-bottom: $spacing-xxxl;
   }
 
   &__hero-inner {
@@ -49,14 +49,11 @@
   }
 
   &__name {
-    font-size: 2rem;
-    font-weight: $font-weight-bold;
+    font-size: $font-3xl;
+    font-weight: $font-weight-semibold;
     color: $text-dark;
+    font-family: $font-primary;
     margin: 0 0 $spacing-sm;
-
-    @media (max-width: $breakpoint-sm) {
-      font-size: 1.5rem;
-    }
   }
 
   &__description {
@@ -85,22 +82,10 @@
     100% { background-position: -200% 0; }
   }
 
-  // ── Breadcrumbs ────────────────────────────────────────────────────────────
-  &__breadcrumbs {
-    background: $cream-bg;
-    border-bottom: 1px solid $border-light;
-    padding: $spacing-sm 0;
-  }
-
-  // ── Subheader ──────────────────────────────────────────────────────────────
-  &__subheader {
-    padding: $spacing-md 0 0;
-  }
-
   &__count {
     font-size: $font-sm;
-    color: $text-gray;
-    margin: 0;
+    color: $text-dark;
+    margin-top: $spacing-xs;
   }
 
   // ── Layout ─────────────────────────────────────────────────────────────────
@@ -244,38 +229,3 @@
   }
 }
 
-// ── Breadcrumb component ───────────────────────────────────────────────────────
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  font-size: $font-sm;
-
-  &__item {
-    color: $text-gray;
-
-    a {
-      color: $text-gray;
-      text-decoration: none;
-
-      &:hover {
-        color: $primary-gold;
-      }
-    }
-
-    &--active {
-      color: $text-dark;
-      font-weight: $font-weight-medium;
-    }
-  }
-
-  &__sep {
-    color: $border-light;
-    display: flex;
-    align-items: center;
-    font-size: 0.7rem;
-  }
-}
