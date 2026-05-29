@@ -75,7 +75,7 @@ const MOBILE_CATEGORIES = [
   { id: 'bracelets',      label: 'Bracelets & Bangles', icon: '/images/category/bracelet.png',       path: '/category/bracelets' },
   { id: 'wedding-rings',  label: 'Wedding Rings',       icon: '/images/category/wedding-rings.png',  path: '/category/wedding-rings' },
   { id: 'kids-jewellery', label: "Kids' Jewellery",     icon: '/images/category/kids-jewellery.png', path: '/category/kids-jewellery' },
-  { id: 'all',            label: 'All Jewellery',       icon: '/images/category/all-products.png',   path: '/shop' },
+  { id: 'all',            label: 'All Jewellery',       icon: '/images/category/all-products.png',   path: '/category/all' },
 ];
 
 const SIMPLE_LINKS = [

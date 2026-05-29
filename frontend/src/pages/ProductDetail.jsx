@@ -270,16 +270,7 @@ export default function ProductDetail() {
     <main className="pd">
       <div className="container">
 
-        {/* ── Breadcrumb ── */}
-        <nav className="pd__breadcrumb" aria-label="Breadcrumb">
-          <Link to="/">Home</Link>
-          <span className="pd__breadcrumb-sep">/</span>
-          <Link to={`/category/${categorySlug}`}>{product.category}</Link>
-          <span className="pd__breadcrumb-sep">/</span>
-          <span className="pd__breadcrumb-current">{product.name}</span>
-        </nav>
-
-        {/* ── Main Two-Column Layout ── */}
+{/* ── Main Two-Column Layout ── */}
         <div className="pd__layout">
 
           {/* Gallery Column */}

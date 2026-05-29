@@ -126,6 +126,7 @@
     background: $cream-bg;
     padding: $spacing-xxl $spacing-lg;
     margin-bottom: $spacing-xxxl;
+     @media (max-width: $breakpoint-sm) { padding: $spacing-lg $spacing-md;margin-bottom: $spacing-sm; }
   }
 
   &__title {
@@ -133,6 +134,8 @@
     font-weight: $font-weight-semibold;
     color: $text-dark;
     font-family: $font-primary;
+
+    @media (max-width: $breakpoint-sm) { font-size: 20px; }
   }
 
   &__count {

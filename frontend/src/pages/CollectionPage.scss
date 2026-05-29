@@ -6,6 +6,7 @@
     background: $cream-bg;
     padding: $spacing-xxl $spacing-lg;
     margin-bottom: $spacing-xxxl;
+     @media (max-width: $breakpoint-sm) { padding: $spacing-lg $spacing-md; margin-bottom: $spacing-sm; }
   }
 
   // Icon-on-left layout used by flag collection pages (Today's Deals, Gifting…)
@@ -46,6 +47,8 @@
     color: $text-dark;
     font-family: $font-primary;
     margin: 0;
+
+    @media (max-width: $breakpoint-sm) { font-size: 20px; }
   }
 
   &__subtitle {

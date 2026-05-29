@@ -1,7 +1,7 @@
 @use "../../styles/variables" as *;
 
 .hero-section {
-  padding: $spacing-xxl $spacing-xxl;
+  padding: $spacing-xl $spacing-xl;
 
   @media (max-width: $breakpoint-md) {
     padding: $spacing-lg $spacing-lg;
@@ -35,7 +35,7 @@
     height: auto;
 
     @media (min-width: $breakpoint-lg) {
-      height: 460px;
+      height: 520px;
       object-fit: cover;
       object-position: center;
     }
