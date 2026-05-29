@@ -1,6 +1,6 @@
 export const formatPrice = (price) => {
   return new Intl.NumberFormat('en-AE', {
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(price);
 };

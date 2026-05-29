@@ -404,11 +404,21 @@
   margin-bottom: $spacing-md;
 }
 
+.pd__price-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: $font-md;
+  font-weight: $font-weight-semibold;
+  color: $accent-green;
+  svg { stroke-width: 2.5; }
+}
+
 .pd__price-current {
   font-family: $font-primary;
   font-size: $font-2xl;
   font-weight: $font-weight-semibold;
-  color: $primary-gold;
+  color: $text-dark;
   line-height: 1;
 
   @media (max-width: $breakpoint-md) { font-size: $font-2xl; }
@@ -418,16 +428,6 @@
   font-size: $font-2xl;
   color: $text-light;
   text-decoration: line-through;
-}
-
-.pd__price-badge {
-  font-size: $font-sm;
-  font-weight: $font-weight-regular;
-  color: $white;
-  background: $accent-green;
-  padding: 4px $spacing-md;
-  border-radius: $border-radius-sm;
-  letter-spacing: 0.3px;
 }
 
 .pd__price-per-unit {
@@ -1323,14 +1323,18 @@
 .pd__sticky-current {
   font-size: $font-md;
   font-weight: $font-weight-bold;
-  color: $primary-gold;
+  color: $text-dark;
   font-family: $font-serif;
 }
 
 .pd__sticky-off {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
   font-size: $font-xs;
-  color: $accent-red;
+  color: $accent-green;
   font-weight: $font-weight-semibold;
+  svg { stroke-width: 2.5; }
 }
 
 .pd__sticky-actions {

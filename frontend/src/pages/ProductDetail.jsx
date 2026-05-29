@@ -6,7 +6,7 @@ import {
   FaShippingFast, FaAward, FaCreditCard, FaHeadset,
   FaGem, FaInfoCircle, FaVideo,
 } from 'react-icons/fa';
-import { FiHeart, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiHeart, FiChevronLeft, FiChevronRight, FiArrowDown } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
@@ -390,12 +390,12 @@ export default function ProductDetail() {
 
             {/* Price */}
             <div className="pd__price-block">
+              {product.discount > 0 && (
+                <span className="pd__price-badge"><FiArrowDown />{product.discount}%</span>
+              )}
               <span className="pd__price-current"><DirhamSymbol size="0.75em" weight="bold" /> {formatPrice(product.price * quantity)}</span>
               {product.originalPrice && (
                 <span className="pd__price-original"><DirhamSymbol size="0.75em" weight="regular" /> {formatPrice(product.originalPrice * quantity)}</span>
-              )}
-              {product.discount > 0 && (
-                <span className="pd__price-badge">{product.discount}%</span>
               )}
               {quantity > 1 && (
                 <span className="pd__price-per-unit"><DirhamSymbol size="0.7em" /> {formatPrice(product.price)} each</span>
@@ -802,7 +802,7 @@ export default function ProductDetail() {
         <div className="pd__sticky-price">
           <span className="pd__sticky-current"><DirhamSymbol size="0.75em" weight="bold" /> {formatPrice(product.price * quantity)}</span>
           {product.discount > 0 && (
-            <span className="pd__sticky-off">{product.discount}% OFF</span>
+            <span className="pd__sticky-off"><FiArrowDown />{product.discount}%</span>
           )}
         </div>
         <div className="pd__sticky-actions">

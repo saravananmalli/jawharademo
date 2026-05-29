@@ -123,7 +123,7 @@ function GoldPriceCard({ prices, updatedAt }) {
           <span className="gold-price-row__karat">{karat}</span>
           <span className="gold-price-row__dot">•</span>
           <span className="gold-price-row__price">
-            AED {price.toFixed(2)}
+            AED {price % 1 === 0 ? price : price.toFixed(2)}
             <span className="gold-price-row__unit">/g</span>
           </span>
         </div>
