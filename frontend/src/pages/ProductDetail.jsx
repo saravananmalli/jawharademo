@@ -451,7 +451,7 @@ export default function ProductDetail() {
                   <div className="pd__delivery-badge">
                     <FaTruck className="pd__delivery-icon" />
                     <span className="pd__delivery-text">
-                      <><span>FREE DELIVERY</span> <strong>{product.arrivesBy || product.deliveryDate}</strong></>
+                      <><span>Delivered </span> <strong>{product.arrivesBy || product.deliveryDate}</strong></>
                     </span>
                   </div>
                 )}

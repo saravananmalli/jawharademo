@@ -160,7 +160,7 @@
   }
 
   &__name {
-    font-size: $font-base;
+    font-size: $font-sm;
     font-weight: $font-weight-regular;
     color: $text-dark;
     line-height: $line-height-tight;
@@ -185,7 +185,7 @@
     font-size: $font-xs;
     font-weight: $font-weight-medium;
     font-style: italic;
-    background: linear-gradient(90deg, rgba(214, 163, 63, 1) 0%, rgba(120, 89, 31, 1) 100%);
+    background: $gradient-gold;
     color: $white;
     white-space: nowrap;
     letter-spacing: $letter-spacing-wide;

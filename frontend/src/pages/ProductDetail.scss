@@ -398,7 +398,7 @@
 // Price block
 .pd__price-block {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: $spacing-md;
   flex-wrap: wrap;
   margin-bottom: $spacing-md;
@@ -408,7 +408,7 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  font-size: $font-md;
+  font-size: $font-2xl;
   font-weight: $font-weight-semibold;
   color: $discount-text;
   svg { stroke-width: 2.5; }
@@ -424,10 +424,21 @@
   @media (max-width: $breakpoint-md) { font-size: $font-2xl; }
 }
 
+.pd__price-current svg {
+  font-size: $font-3xl;
+  color: $text-dark;
+}
+
+
 .pd__price-original {
   font-size: $font-2xl;
   color: $text-light;
   text-decoration: line-through;
+}
+
+.pd__price-original svg {
+  font-size: $font-3xl;
+  color: $text-light;
 }
 
 .pd__price-per-unit {
@@ -489,7 +500,7 @@
   gap: $spacing-sm;
   padding: $spacing-sm $spacing-lg;
   border-radius: $border-radius-lg;
-  background: linear-gradient(90deg, $primary-gold 0%, color.adjust($primary-gold, $lightness: -18%) 100%);
+  background: $gradient-gold;
   width: fit-content;
 }
 
