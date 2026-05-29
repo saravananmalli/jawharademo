@@ -130,6 +130,7 @@
   flex-direction: column;
   gap: $spacing-lg;
   min-width: 0;
+  @media (max-width: $breakpoint-sm) { gap: $spacing-sm; }
 
   &__header {
     display: flex;
@@ -144,6 +145,7 @@
     justify-content: space-between;
     gap: $spacing-lg;
     flex-wrap: wrap;
+    @media (max-width: $breakpoint-sm) { gap: $spacing-sm; }
   }
 
   // Title and timer sit side-by-side, vertically centred
@@ -153,6 +155,8 @@
     gap: $spacing-xl;
     flex-wrap: wrap;
     min-width: 0;
+
+    @media (max-width: $breakpoint-sm) { gap: $spacing-sm; }
   }
 
   // Title style matches occ-left__title (Christmas Gifts card)
