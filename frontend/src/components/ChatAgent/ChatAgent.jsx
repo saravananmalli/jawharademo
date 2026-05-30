@@ -97,8 +97,8 @@ function makeGreeting(isAuthenticated, userName) {
   return {
     role: 'assistant',
     content: isAuthenticated && userName
-      ? `Welcome back, ${userName.split(' ')[0]} ✨ I'm Layla, your jewelry concierge. I can track your orders, help you find the perfect piece, or anything else — just ask!`
-      : "Welcome to Jawhara Jewelry ✨ I'm Layla, your personal jewelry consultant. Whether you're shopping for yourself or someone special, I'm here to help.",
+      ? `Welcome back, ${userName.split(' ')[0]} ✨ I'm Layla, your jewellery concierge. I can track your orders, help you find the perfect piece, or anything else — just ask!`
+      : "Welcome to Jawhara Jewellery ✨ I'm Layla, your personal jewellery consultant. Whether you're shopping for yourself or someone special, I'm here to help.",
     products: [],
     orderCards: [],
     quickReplies: isAuthenticated ? QUICK_REPLIES_AUTH : QUICK_REPLIES_GUEST,
@@ -519,8 +519,8 @@ export default function ChatAgent() {
                 <div className="chat-agent__online-dot" />
               </div>
               <div>
-                <div className="chat-agent__name">Layla — Jewelry Consultant</div>
-                <div className="chat-agent__tagline">Jawhara Jewelry ✦ UAE</div>
+                <div className="chat-agent__name">Layla — Jewellery Consultant</div>
+                <div className="chat-agent__tagline">Jawhara Jewellery ✦ UAE</div>
               </div>
             </div>
             <div className="chat-agent__header-right">
