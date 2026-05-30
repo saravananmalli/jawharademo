@@ -608,7 +608,7 @@ export default function ChatAgent() {
         {open ? '✕' : (
           <>
             <img src="/bot.png" alt="Layla" className="chat-agent__toggle-avatar" />
-            <span className="chat-agent__toggle-label">Ask Layla</span>
+            <span className="chat-agent__toggle-label">Ask Layla AI Expert</span>
           </>
         )}
       </button>
