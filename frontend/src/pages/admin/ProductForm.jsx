@@ -603,10 +603,10 @@ export default function ProductForm() {
             </Card>
           )}
 
-          {/* 6 ─ Jewelry Specifications ───────────────────────────────── */}
+          {/* 6 ─ Jewellery Specifications ───────────────────────────────── */}
           <Card sx={cardSx}>
             <CardContent sx={{ p: { xs: 2.5, sm: 3 } }}>
-              <SectionHeader icon={AutoAwesomeIcon} title="Jewelry Specifications"
+              <SectionHeader icon={AutoAwesomeIcon} title="Jewellery Specifications"
                 subtitle="Metal, karat, stone — multiple selections allowed"
                 accent="#9c6fda" />
               <Stack spacing={2.5}>

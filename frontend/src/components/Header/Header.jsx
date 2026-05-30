@@ -180,7 +180,7 @@ export default function Header() {
 
           <div className="header__left">
             <Link to="/" className="header__logo">
-              <img src="/jawhara-logo.png" alt="Jawhara Jewelry" />
+              <img src="/jawhara-logo.png" alt="Jawhara Jewellery" />
             </Link>
             <button
               className="header__delivery"
@@ -293,7 +293,7 @@ export default function Header() {
             </button>
 
             <Link to="/" className="header__mobile-logo">
-              <img src="/jawhara-logo.png" alt="Jawhara Jewelry" />
+              <img src="/jawhara-logo.png" alt="Jawhara Jewellery" />
             </Link>
 
             <div className="header__mobile-icons">
@@ -366,7 +366,7 @@ export default function Header() {
         {/* Drawer header — always visible */}
         <div className="mobile-drawer__header">
           <Link to="/" className="mobile-drawer__logo" onClick={closeMenu}>
-            <img src="/jawhara-logo.png" alt="Jawhara Jewelry" />
+            <img src="/jawhara-logo.png" alt="Jawhara Jewellery" />
           </Link>
           <button className="mobile-drawer__close" onClick={closeMenu} aria-label="Close Menu">
             <IconClose />

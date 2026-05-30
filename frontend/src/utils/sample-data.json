@@ -2164,7 +2164,7 @@
       "_id": "col_002",
       "name": "Royal & Classic",
       "image": "https://via.placeholder.com/300x300?text=Royal",
-      "description": "Timeless classic jewelry pieces",
+      "description": "Timeless classic jewellery pieces",
       "featured": true,
       "discount": 0
     },
@@ -2180,7 +2180,7 @@
       "_id": "col_004",
       "name": "Danna Tassel",
       "image": "https://via.placeholder.com/300x300?text=Danna",
-      "description": "Elegant tassel jewelry",
+      "description": "Elegant tassel jewellery",
       "featured": false,
       "discount": 25
     },
@@ -3328,6 +3328,6 @@
     "sapphire pendant",
     "gold bracelet",
     "gemstone ring",
-    "luxury jewelry"
+    "luxury jewellery"
   ]
 }

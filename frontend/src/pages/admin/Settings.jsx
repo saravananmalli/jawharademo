@@ -97,7 +97,7 @@ export default function Settings() {
   };
 
   const [store, setStore] = useState({
-    name: 'Jawhara Jewelry',
+    name: 'Jawhara Jewellery',
     email: 'admin@jawhara.ae',
     phone: '+971 4 123 4567',
     address: 'Dubai, UAE',

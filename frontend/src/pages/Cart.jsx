@@ -33,7 +33,7 @@ export default function Cart() {
           <EmptyState
             icon={<FiShoppingBag />}
             title={t.cart.emptyCart}
-            description="Add some beautiful jewelry to get started."
+            description="Add some beautiful jewellery to get started."
             cta={{ label: t.cart.continueShopping, onClick: () => navigate('/') }}
           />
         </div>

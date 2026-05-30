@@ -71,7 +71,7 @@ export default function CollectionPage() {
     if (!isValidSlug) { setLoading(false); return; }
 
     const controller = new AbortController();
-    document.title = `${pageLabel} | Jawhara Jewelry`;
+    document.title = `${pageLabel} | Jawhara Jewellery`;
     setLoading(true);
 
     let apiUrl;
@@ -89,7 +89,7 @@ export default function CollectionPage() {
       .catch((err) => { if (err.code !== 'ERR_CANCELED') setBaseProducts([]); })
       .finally(() => setLoading(false));
 
-    return () => { controller.abort(); document.title = 'Jawhara Jewelry'; };
+    return () => { controller.abort(); document.title = 'Jawhara Jewellery'; };
   }, [slug, metalParam, stoneParam, isAllCollection, flagName, materialKey, pageLabel, isValidSlug]);
 
   useEffect(() => {

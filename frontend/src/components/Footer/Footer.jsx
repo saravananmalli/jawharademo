@@ -29,7 +29,7 @@ export default function Footer() {
           <div className="footer__brand">
             <Link to="/" className="footer__logo">Jawhara</Link>
             <p className="footer__tagline">
-              Crafting timeless jewelry for over 30 years. Every piece tells a story of elegance and artistry.
+              Crafting timeless jewellery for over 30 years. Every piece tells a story of elegance and artistry.
             </p>
             <div className="footer__social">
               <a href="https://facebook.com" aria-label="Facebook" target="_blank" rel="noopener noreferrer"><FaFacebook /></a>
@@ -90,7 +90,7 @@ export default function Footer() {
 
       <div className="footer__bottom">
         <div className="footer__bottom-inner">
-          <p>&copy; {new Date().getFullYear()} Jawhara Jewelry. {t.footer.allRightsReserved}</p>
+          <p>&copy; {new Date().getFullYear()} Jawhara Jewellery. {t.footer.allRightsReserved}</p>
           <div className="footer__payments">
             <span>Visa</span>
             <span>Mastercard</span>

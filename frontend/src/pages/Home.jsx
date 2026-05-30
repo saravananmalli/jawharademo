@@ -39,7 +39,7 @@ function Home() {
         <div className="home__rows container">
           <ProductRow
             title="New Arrivals"
-            description="Discover the latest additions to our collection, featuring the freshest styles and hottest trends in jewelry."
+            description="Discover the latest additions to our collection, featuring the freshest styles and hottest trends in jewellery."
             products={newArrivals}
             viewAllLink="/collection/new-arrivals"
           />

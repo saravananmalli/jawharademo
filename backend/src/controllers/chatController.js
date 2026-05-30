@@ -354,7 +354,7 @@ async function findProducts(userMessage, intent, sessionContext) {
   const collectionMatch = detectCollectionIntent(userMessage);
 
   // When a named collection is detected, don't force the occasion-implied category (e.g. valentine→ring)
-  // because the collection may contain varied jewelry types. An explicit primaryCategory still wins.
+  // because the collection may contain varied jewellery types. An explicit primaryCategory still wins.
   const effectiveCategory = collectionMatch ? primaryCategory : (primaryCategory || impliedCategory);
 
   const effectiveBudgetMin = budgetMin ?? sessionContext?.budgetMin ?? null;
@@ -365,7 +365,7 @@ async function findProducts(userMessage, intent, sessionContext) {
   const hasShoppingSignal =
     hasBudget || metal || metalKt || stone || effectiveCategory || audience || requestedSize ||
     !!collectionMatch ||  // collection keywords always trigger a product search
-    /ring|necklace|bracelet|earring|pendant|gold|silver|diamond|pearl|emerald|ruby|sapphire|amethyst|jewelry|jewel|jewellery|gift|buy|purchase|show|find|looking|want|need|for her|for him|recommend|suggest|kids|children/i.test(msg);
+    /ring|necklace|bracelet|earring|pendant|gold|silver|diamond|pearl|emerald|ruby|sapphire|amethyst|jewellery|jewel|jewellery|gift|buy|purchase|show|find|looking|want|need|for her|for him|recommend|suggest|kids|children/i.test(msg);
 
   if (!hasShoppingSignal) return { products: [], collectionName: null };
 
@@ -601,7 +601,7 @@ function buildIntentConstraints(shoppingIntent) {
   else if (metalKt)     lines.push(`• Karat requested: ${metalKt} — show ONLY ${metalKt} products`);
   else if (metal)       lines.push(`• Metal preference: ${metal}`);
   if (requestedSize)    lines.push(`• Size requested: ${requestedSize} — ONLY reference products confirmed in size ${requestedSize}`);
-  if (audience === 'kids')   lines.push('• Audience: KIDS — show ONLY jewelry designed for children');
+  if (audience === 'kids')   lines.push('• Audience: KIDS — show ONLY jewellery designed for children');
   if (audience === 'female') lines.push('• Buying for: female — prefer elegant, romantic, gifting-focused styles');
   if (audience === 'male')   lines.push('• Buying for: male — prefer masculine, bold, or classic styles');
   if (hasBudget) {
@@ -618,14 +618,14 @@ function buildIntentConstraints(shoppingIntent) {
   lines.push('STRICT RULES:');
 
   if (primaryCategory) {
-    lines.push(`• Category lock: show ONLY ${primaryCategory}s. Do NOT show other jewelry types first.`);
+    lines.push(`• Category lock: show ONLY ${primaryCategory}s. Do NOT show other jewellery types first.`);
   }
   if (stone) {
     lines.push(`• Stone lock: ONLY reference products that feature ${stone}. If the search result note says the stone is unavailable, be honest — do NOT invent ${stone} products.`);
   }
   if (audience === 'kids') {
-    lines.push("• Kids lock: ONLY reference jewelry from the kids' collection. Do NOT recommend adult jewelry.");
-    lines.push("• If no kids jewelry is found, say so honestly and suggest the customer contact us for special orders.");
+    lines.push("• Kids lock: ONLY reference jewellery from the kids' collection. Do NOT recommend adult jewellery.");
+    lines.push("• If no kids jewellery is found, say so honestly and suggest the customer contact us for special orders.");
   }
   if (requestedSize) {
     lines.push(`• Size lock: NEVER confirm or recommend a product unless the search result note says size ${requestedSize} is confirmed.`);
@@ -763,9 +763,9 @@ exports.chat = async (req, res) => {
           `Suggest they explore ${suggestion} instead. ` +
           `NEVER fabricate, invent, or imply any product exists in this range.`;
       } else if (products.length === 0 && queryAudience === 'kids') {
-        searchResultNote = `\n\nSEARCH RESULT: 0 kids' jewelry products found. ` +
+        searchResultNote = `\n\nSEARCH RESULT: 0 kids' jewellery products found. ` +
           `MANDATORY: Tell the customer honestly that our kids' collection is currently very limited or unavailable online, ` +
-          `and invite them to WhatsApp us (+971565071902) for assistance with kids' jewelry.`;
+          `and invite them to WhatsApp us (+971565071902) for assistance with kids' jewellery.`;
       } else if (products.length === 0 && queryStone) {
         searchResultNote = `\n\nSEARCH RESULT: 0 products found featuring ${queryStone}. ` +
           `MANDATORY: Tell the customer honestly that Jawhara does not currently carry ${queryStone} pieces online. ` +
@@ -811,13 +811,13 @@ exports.chat = async (req, res) => {
       ? `ACTIVE MODE: Customer Care
 
 PERSONA:
-You are Layla — a Jawhara jewelry consultant speaking directly and personally with the customer.
+You are Layla — a Jawhara jewellery consultant speaking directly and personally with the customer.
 Speak as a warm, knowledgeable human being. You are looking things up personally on their behalf.
 NEVER use any of these words in your responses: admin, backend, system, database, technical, internal, error, escalate, ticket, platform, portal, server. Speak naturally.
 
 STRICT RULES — follow without exception:
 - Respond ONLY to the customer's specific request
-- Do NOT suggest, mention, or recommend any products or jewelry at any point
+- Do NOT suggest, mention, or recommend any products or jewellery at any point
 - Keep replies short, direct, and reassuring — 2-3 sentences maximum
 - After resolving the issue, end with: "Is there anything else I can help you with?"
 - For payment disputes or account security concerns, invite the customer to reach our team directly on WhatsApp +971565071902 — do NOT use the word "support" or "admin"
@@ -839,14 +839,14 @@ For ANY of these topics, give a warm 1–2 sentence answer, then always end by i
 - Installment / Payment Plans: We do offer flexible payment and installment options. Invite the customer to connect with our team for current plans and eligibility.
 - Diamond / Stone Certification: Our diamonds and precious stones come with internationally recognised certifications (GIA, IGI, or equivalent) where applicable. Invite the customer to ask our team about a specific piece.
 - Customization / Engraving / Bespoke: We love creating personalised pieces — from engraving to fully bespoke designs. Invite the customer to share their vision with our team.
-- Warranty / Aftercare: All Jawhara jewelry comes with a quality guarantee and aftercare service. Invite the customer to ask our team about specific terms and servicing options.
+- Warranty / Aftercare: All Jawhara jewellery comes with a quality guarantee and aftercare service. Invite the customer to ask our team about specific terms and servicing options.
 - Gift Wrapping / Packaging: We offer beautiful gift packaging for all purchases. Invite the customer to mention it when ordering or to message our team for special arrangements.
 - General Policy Questions: Give a brief, reassuring answer, then invite the customer to connect with our team for complete and up-to-date details.
-- "Speak to someone / contact team": Warmly acknowledge and immediately invite them to connect with our jewelry specialists via the WhatsApp button below.`
+- "Speak to someone / contact team": Warmly acknowledge and immediately invite them to connect with our jewellery specialists via the WhatsApp button below.`
       : `ACTIVE MODE: Shopping Assistant
 
 PERSONA:
-You are Layla — a Jawhara jewelry consultant. Speak as a warm, knowledgeable human being, not a system or bot.
+You are Layla — a Jawhara jewellery consultant. Speak as a warm, knowledgeable human being, not a system or bot.
 NEVER use any of these words: admin, backend, system, database, technical, internal, error, platform, portal.
 Use natural consultant language: "our collection", "we carry", "I'd suggest", "let me find that for you".
 
@@ -865,7 +865,7 @@ STRICT RULES:
 
     const deliveryCtx = buildDeliveryContext(deliveryConfig);
 
-    const systemPrompt = `You are Layla, a personal jewelry consultant at Jawhara Jewelry — a prestigious UAE-based fine jewelry brand. You speak as a warm, knowledgeable human being, not a system or automated tool. Never reference admin, backend, database, or any internal operational concepts in any response.
+    const systemPrompt = `You are Layla, a personal jewellery consultant at Jawhara Jewellery — a prestigious UAE-based fine jewellery brand. You speak as a warm, knowledgeable human being, not a system or automated tool. Never reference admin, backend, database, or any internal operational concepts in any response.
 
 ${modeRules}${intentConstraints}
 

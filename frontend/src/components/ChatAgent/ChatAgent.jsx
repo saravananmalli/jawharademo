@@ -65,11 +65,11 @@ const CHIP_QUERY_MAP = {
   // Shopping
   'Gold Jewellery':     'Show me gold jewellery',
   'Diamond Jewellery':  'Show me diamond jewellery',
-  'Best Value':         'Show me best value jewelry pieces',
+  'Best Value':         'Show me best value jewellery pieces',
   // Customer service
   'Installment Plans':  'Do you offer installment or payment plan options?',
-  'Customization':      'Can I customize or personalize a jewelry piece?',
-  'Warranty & Care':    'Do you offer warranty and aftercare services for your jewelry?',
+  'Customization':      'Can I customize or personalize a jewellery piece?',
+  'Warranty & Care':    'Do you offer warranty and aftercare services for your jewellery?',
 };
 
 const QUICK_REPLIES_GUEST = ["Today's Gold Price", 'Engagement Ring', 'Gold Necklace', 'I need a gift', WHATSAPP_CHIP];
@@ -603,7 +603,7 @@ export default function ChatAgent() {
       <button
         className={`chat-agent__toggle${open ? ' open' : ''}`}
         onClick={() => setOpen(o => !o)}
-        aria-label="Open jewelry assistant"
+        aria-label="Open jewellery assistant"
       >
         {open ? '✕' : (
           <>

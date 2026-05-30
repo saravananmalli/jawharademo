@@ -32,11 +32,11 @@ export default function OfferPage() {
         if (!o) { setLoading(false); return; }
         setOffer(o);
         setBaseProducts(o.products || []);
-        document.title = `${o.title} | Jawhara Jewelry`;
+        document.title = `${o.title} | Jawhara Jewellery`;
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-    return () => { document.title = 'Jawhara Jewelry'; };
+    return () => { document.title = 'Jawhara Jewellery'; };
   }, []);
 
   const displayProducts = useMemo(() => {

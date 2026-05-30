@@ -10,18 +10,18 @@ export const translations = {
       sale: 'Sale',
     },
     header: {
-      searchPlaceholder: 'Search jewelry, rings, necklaces...',
+      searchPlaceholder: 'Search jewellery, rings, necklaces...',
       wishlist: 'Wishlist',
       cart: 'Cart',
       signIn: 'Sign In',
-      topBanner: 'Free shipping on orders over AED 500 | Certified Authentic Jewelry',
+      topBanner: 'Free shipping on orders over AED 500 | Certified Authentic Jewellery',
     },
     categories: {
       rings: 'Rings',
       necklaces: 'Necklaces & Pendants',
       earrings: 'Earrings',
       bracelets: 'Bracelets & Bangles',
-      sets: 'Jewelry Sets',
+      sets: 'Jewellery Sets',
     },
     product: {
       addToCart: 'Add to Cart',
@@ -34,13 +34,13 @@ export const translations = {
     },
     trust: {
       certified: '100% Certified',
-      certifiedDesc: 'All jewelry is BIS hallmarked',
+      certifiedDesc: 'All jewellery is BIS hallmarked',
       freeShipping: 'Free Shipping',
       freeShippingDesc: 'On orders above AED 500',
       easyReturns: 'Easy Returns',
       easyReturnsDesc: '15-day hassle-free returns',
       support: '24/7 Support',
-      supportDesc: 'Expert jewelry consultation',
+      supportDesc: 'Expert jewellery consultation',
     },
     sections: {
       latestCollections: 'Latest Collections',

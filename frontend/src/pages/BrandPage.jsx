@@ -34,14 +34,14 @@ export default function BrandPage() {
     api.get(`/brands/${slug}`)
       .then(({ data }) => {
         setBrand(data.data);
-        document.title = data.data.seoTitle || `${data.data.name} | Jawhara Jewelry`;
+        document.title = data.data.seoTitle || `${data.data.name} | Jawhara Jewellery`;
       })
       .catch((err) => {
         if (err.response?.status === 404) setNotFound(true);
       })
       .finally(() => setBrandLoading(false));
 
-    return () => { document.title = 'Jawhara Jewelry'; };
+    return () => { document.title = 'Jawhara Jewellery'; };
   }, [slug]);
 
   // Fetch brand products

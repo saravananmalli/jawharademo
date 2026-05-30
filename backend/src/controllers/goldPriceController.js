@@ -7,7 +7,7 @@ let _cache = { data: null, ts: 0 };
 
 function httpsGet(url, headers = {}) {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'jawhara-jewelry/1.0', ...headers } }, res => {
+    https.get(url, { headers: { 'User-Agent': 'jawhara-jewellery/1.0', ...headers } }, res => {
       let raw = '';
       res.on('data', chunk => (raw += chunk));
       res.on('end', () => {

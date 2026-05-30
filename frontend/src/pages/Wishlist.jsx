@@ -17,7 +17,7 @@ export default function Wishlist() {
             icon={<FiHeart />}
             title="Your Wishlist is Empty"
             description="Save the pieces you love and come back to them later."
-            cta={{ label: 'Browse Jewelry', onClick: () => navigate('/') }}
+            cta={{ label: 'Browse Jewellery', onClick: () => navigate('/') }}
           />
         </div>
       </main>

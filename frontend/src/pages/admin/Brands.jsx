@@ -322,7 +322,7 @@ export default function BrandsPage() {
                 label="SEO Meta Title"
                 value={form.seoTitle}
                 onChange={e => set('seoTitle', e.target.value)}
-                placeholder={form.name ? `${form.name} | Jawhara Jewelry` : 'Brand | Jawhara Jewelry'}
+                placeholder={form.name ? `${form.name} | Jawhara Jewellery` : 'Brand | Jawhara Jewellery'}
                 helperText={`${form.seoTitle.length}/70 chars`}
                 inputProps={{ maxLength: 70 }}
               />
