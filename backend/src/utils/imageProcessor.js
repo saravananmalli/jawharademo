@@ -8,7 +8,7 @@ const UPLOADS_BASE = process.env.VERCEL
   ? '/tmp/uploads'
   : path.join(__dirname, '../../uploads');
 
-const VALID_CATEGORIES = ['products', 'categories', 'banners', 'brands'];
+const VALID_CATEGORIES = ['products', 'categories', 'banners', 'brands', 'mobile'];
 
 function ensureDir(dirPath) {
   if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath, { recursive: true });
@@ -35,7 +35,7 @@ async function processImage(buffer, category) {
 
   // Save full WebP (max 1200px, optimized)
   const webpFile = `${filename}.webp`;
-  const maxDim = category === 'banners' ? 1920 : 1200;
+  const maxDim = category === 'banners' ? 1920 : category === 'mobile' ? 1080 : 1200;
   await sharp(buffer)
     .resize(maxDim, maxDim, { fit: 'inside', withoutEnlargement: true })
     .webp({ quality: 85, effort: 4 })

@@ -49,9 +49,11 @@ const Analytics      = lazy(() => import('./pages/admin/Analytics'));
 const Categories     = lazy(() => import('./pages/admin/Categories'));
 const Brands         = lazy(() => import('./pages/admin/Brands'));
 const Reviews        = lazy(() => import('./pages/admin/Reviews'));
-const Banners        = lazy(() => import('./pages/admin/Banners'));
-const Offers         = lazy(() => import('./pages/admin/Offers'));
-const Settings       = lazy(() => import('./pages/admin/Settings'));
+const Banners           = lazy(() => import('./pages/admin/Banners'));
+const Offers            = lazy(() => import('./pages/admin/Offers'));
+const Settings          = lazy(() => import('./pages/admin/Settings'));
+const MobileOnboarding  = lazy(() => import('./pages/admin/MobileOnboarding'));
+const MobileHomeBanner  = lazy(() => import('./pages/admin/MobileHomeBanner'));
 
 function Layout({ children }) {
   return (
@@ -140,6 +142,8 @@ export default function App() {
                     <Route path="banners"              element={<Banners />} />
                     <Route path="offers"               element={<Offers />} />
                     <Route path="settings"             element={<Settings />} />
+                    <Route path="mobile/onboarding"    element={<MobileOnboarding />} />
+                    <Route path="mobile/home-banner"   element={<MobileHomeBanner />} />
                   </Route>
 
                   <Route path="*" element={<Layout><NotFound /></Layout>} />

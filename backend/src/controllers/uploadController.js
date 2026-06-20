@@ -1,6 +1,6 @@
 const { processImage, deleteImage } = require('../utils/imageProcessor');
 
-const VALID_CATEGORIES = ['products', 'categories', 'banners', 'brands'];
+const VALID_CATEGORIES = ['products', 'categories', 'banners', 'brands', 'mobile'];
 
 exports.uploadImages = async (req, res) => {
   try {

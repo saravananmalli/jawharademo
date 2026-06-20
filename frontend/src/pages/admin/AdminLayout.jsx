@@ -4,6 +4,7 @@ import {
   Box, Drawer, AppBar, Toolbar, Typography, List, ListItem, ListItemButton,
   ListItemIcon, ListItemText, Divider, IconButton, Avatar, Chip, Tooltip,
   Menu, MenuItem, useMediaQuery, useTheme, InputBase, Badge, Popover, Paper,
+  Collapse,
 } from '@mui/material';
 import DashboardIcon       from '@mui/icons-material/Dashboard';
 import InventoryIcon       from '@mui/icons-material/Inventory2';
@@ -16,6 +17,8 @@ import StarIcon            from '@mui/icons-material/Star';
 import ImageIcon           from '@mui/icons-material/Image';
 import LocalOfferIcon      from '@mui/icons-material/LocalOffer';
 import SettingsIcon        from '@mui/icons-material/Settings';
+import PhoneAndroidIcon    from '@mui/icons-material/PhoneAndroid';
+import ViewCarouselIcon    from '@mui/icons-material/ViewCarousel';
 import LogoutIcon          from '@mui/icons-material/Logout';
 import MenuIcon            from '@mui/icons-material/Menu';
 import DiamondIcon         from '@mui/icons-material/Diamond';
@@ -24,6 +27,8 @@ import LightModeIcon          from '@mui/icons-material/LightMode';
 import SearchIcon             from '@mui/icons-material/Search';
 import NotificationsIcon      from '@mui/icons-material/Notifications';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlined';
+import ExpandLessIcon         from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon         from '@mui/icons-material/ExpandMore';
 import { useAuth }            from '../../context/AuthContext';
 import api                    from '../../services/api';
 import { AdminThemeProvider, useAdminTheme } from './AdminThemeContext';
@@ -45,6 +50,15 @@ const NAV = [
   { section: 'Content' },
   { to: '/admin/banners',    icon: <ImageIcon />,              label: 'Banners' },
   { to: '/admin/offers',     icon: <LocalOfferIcon />,         label: 'Offers & Countdown' },
+  {
+    accordion: 'mobile',
+    label: 'Mobile Apps',
+    icon: <PhoneAndroidIcon />,
+    children: [
+      { to: '/admin/mobile/onboarding',  icon: <PhoneAndroidIcon />, label: 'Onboarding Screens' },
+      { to: '/admin/mobile/home-banner', icon: <ViewCarouselIcon />, label: 'Home Banner' },
+    ],
+  },
   { section: 'System' },
   { to: '/admin/settings',   icon: <SettingsIcon />,           label: 'Settings' },
 ];
@@ -54,7 +68,34 @@ function SidebarContent({ onClose }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
+  // Track which accordions are open; auto-open if a child route is active
+  const [openAccordions, setOpenAccordions] = useState(() => {
+    const initial = {};
+    NAV.forEach(item => {
+      if (item.accordion) {
+        initial[item.accordion] = item.children.some(c => location.pathname.startsWith(c.to));
+      }
+    });
+    return initial;
+  });
+
+  const toggleAccordion = (key) => setOpenAccordions(prev => ({ ...prev, [key]: !prev[key] }));
+
   const handleLogout = () => { logout(); navigate('/login'); };
+
+  const navItemSx = (isActive) => ({
+    borderRadius: '9px',
+    py: 0.9,
+    px: 1.5,
+    color: isActive ? '#ffffff' : 'rgba(255,255,255,0.52)',
+    backgroundColor: isActive ? 'rgba(255,255,255,0.10)' : 'transparent',
+    minHeight: 40,
+    transition: 'background-color 0.15s, color 0.15s',
+    '&:hover': {
+      backgroundColor: isActive ? 'rgba(255,255,255,0.13)' : 'rgba(255,255,255,0.07)',
+      color: '#ffffff',
+    },
+  });
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
@@ -84,6 +125,7 @@ function SidebarContent({ onClose }) {
       <Box sx={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', py: 1, '&::-webkit-scrollbar': { width: 4 }, '&::-webkit-scrollbar-track': { background: 'transparent' }, '&::-webkit-scrollbar-thumb': { background: 'rgba(255,255,255,0.12)', borderRadius: 4 } }}>
         <List dense disablePadding>
           {NAV.map((item, idx) => {
+            // Section label
             if (item.section) {
               return (
                 <Typography
@@ -95,6 +137,58 @@ function SidebarContent({ onClose }) {
                 </Typography>
               );
             }
+
+            // Accordion group
+            if (item.accordion) {
+              const isOpen = openAccordions[item.accordion];
+              const anyChildActive = item.children.some(c => location.pathname.startsWith(c.to));
+              return (
+                <Box key={item.accordion}>
+                  <ListItem disablePadding sx={{ px: 1.25, mb: 0.25 }}>
+                    <ListItemButton
+                      onClick={() => toggleAccordion(item.accordion)}
+                      sx={navItemSx(anyChildActive && !isOpen)}
+                    >
+                      <ListItemIcon sx={{ minWidth: 34, color: 'inherit', '& svg': { fontSize: '1.1rem' } }}>
+                        {item.icon}
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={item.label}
+                        primaryTypographyProps={{ fontSize: '0.845rem', fontWeight: anyChildActive ? 600 : 400, lineHeight: 1.3 }}
+                      />
+                      {isOpen ? <ExpandLessIcon sx={{ fontSize: '1rem', opacity: 0.6 }} /> : <ExpandMoreIcon sx={{ fontSize: '1rem', opacity: 0.6 }} />}
+                    </ListItemButton>
+                  </ListItem>
+                  <Collapse in={isOpen} timeout="auto" unmountOnExit>
+                    <List dense disablePadding>
+                      {item.children.map(child => {
+                        const isActive = location.pathname.startsWith(child.to);
+                        return (
+                          <ListItem key={child.to} disablePadding sx={{ px: 1.25, mb: 0.25, pl: 2.5 }}>
+                            <ListItemButton
+                              component={NavLink}
+                              to={child.to}
+                              onClick={onClose}
+                              sx={navItemSx(isActive)}
+                            >
+                              <ListItemIcon sx={{ minWidth: 30, color: 'inherit', '& svg': { fontSize: '1rem' } }}>
+                                {child.icon}
+                              </ListItemIcon>
+                              <ListItemText
+                                primary={child.label}
+                                primaryTypographyProps={{ fontSize: '0.8rem', fontWeight: isActive ? 600 : 400, lineHeight: 1.3 }}
+                              />
+                            </ListItemButton>
+                          </ListItem>
+                        );
+                      })}
+                    </List>
+                  </Collapse>
+                </Box>
+              );
+            }
+
+            // Regular nav item
             const isActive = item.end
               ? location.pathname === item.to
               : location.pathname.startsWith(item.to);
@@ -105,19 +199,7 @@ function SidebarContent({ onClose }) {
                   component={NavLink}
                   to={item.to}
                   onClick={onClose}
-                  sx={{
-                    borderRadius: '9px',
-                    py: 0.9,
-                    px: 1.5,
-                    color: isActive ? '#ffffff' : 'rgba(255,255,255,0.52)',
-                    backgroundColor: isActive ? 'rgba(255,255,255,0.10)' : 'transparent',
-                    minHeight: 40,
-                    transition: 'background-color 0.15s, color 0.15s',
-                    '&:hover': {
-                      backgroundColor: isActive ? 'rgba(255,255,255,0.13)' : 'rgba(255,255,255,0.07)',
-                      color: '#ffffff',
-                    },
-                  }}
+                  sx={navItemSx(isActive)}
                 >
                   <ListItemIcon sx={{ minWidth: 34, color: 'inherit', '& svg': { fontSize: '1.1rem' } }}>
                     {item.icon}

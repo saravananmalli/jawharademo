@@ -54,4 +54,12 @@ router.get('/notifications', getNotifications);
 router.put('/notifications/read-all', markAllRead);
 router.put('/notifications/:id/read', markRead);
 
+const mobileCtrl = require('../controllers/mobileAssetController');
+router.get('/mobile-assets',         mobileCtrl.getAllAssets);
+router.get('/mobile-assets/:screen', mobileCtrl.getAllAssets);
+router.post('/mobile-assets',        mobileCtrl.createAsset);
+router.put('/mobile-assets/reorder', mobileCtrl.reorderAssets);
+router.put('/mobile-assets/:id',     mobileCtrl.updateAsset);
+router.delete('/mobile-assets/:id',  mobileCtrl.deleteAsset);
+
 module.exports = router;
