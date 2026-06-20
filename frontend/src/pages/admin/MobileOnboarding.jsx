@@ -12,6 +12,7 @@ import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import PhoneAndroidIcon  from '@mui/icons-material/PhoneAndroid';
 import ImageUploader     from '../../components/admin/ImageUploader';
 import api               from '../../services/api';
+import { getImageUrl }   from '../../utils/imageUrl';
 
 const EMPTY = { title: '', description: '', imageUrl: '', order: 1, active: true };
 
@@ -157,7 +158,7 @@ export default function MobileOnboarding() {
                 {/* Portrait image */}
                 <Box sx={{ height: 220, bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
                   {s.imageUrl ? (
-                    <CardMedia component="img" src={s.imageUrl} alt={s.title} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <CardMedia component="img" src={getImageUrl(s.imageUrl)} alt={s.title} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
                     <Box sx={{ textAlign: 'center', color: 'text.disabled' }}>
                       <ImageIcon sx={{ fontSize: 44 }} />

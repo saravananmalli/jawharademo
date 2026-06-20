@@ -12,6 +12,7 @@ import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import ViewCarouselIcon  from '@mui/icons-material/ViewCarousel';
 import ImageUploader     from '../../components/admin/ImageUploader';
 import api               from '../../services/api';
+import { getImageUrl }   from '../../utils/imageUrl';
 
 const EMPTY = { title: '', description: '', imageUrl: '', order: 1, active: true };
 
@@ -158,7 +159,7 @@ export default function MobileHomeBanner() {
               >
                 <Box sx={{ height: 160, bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
                   {b.imageUrl ? (
-                    <CardMedia component="img" src={b.imageUrl} alt={b.title} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <CardMedia component="img" src={getImageUrl(b.imageUrl)} alt={b.title} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
                     <Box sx={{ textAlign: 'center', color: 'text.disabled' }}>
                       <ImageIcon sx={{ fontSize: 44 }} />

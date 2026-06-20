@@ -13,6 +13,7 @@ import SearchIcon     from '@mui/icons-material/Search';
 import OpenInNewIcon  from '@mui/icons-material/OpenInNew';
 import ImageIcon      from '@mui/icons-material/Image';
 import api from '../../services/api';
+import { getImageUrl } from '../../utils/imageUrl';
 import { StatusChip } from './adminUtils';
 
 function slugify(text) {
@@ -190,7 +191,7 @@ export default function BrandsPage() {
                       </TableCell>
                       <TableCell>
                         <Avatar
-                          src={b.logo}
+                          src={getImageUrl(b.logo)}
                           alt={b.name}
                           variant="rounded"
                           sx={{ width: 36, height: 36, bgcolor: 'grey.100' }}

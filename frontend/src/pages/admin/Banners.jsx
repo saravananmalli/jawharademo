@@ -14,6 +14,7 @@ import LinkIcon       from '@mui/icons-material/Link';
 import { StatusChip } from './adminUtils';
 import ImageUploader  from '../../components/admin/ImageUploader';
 import api            from '../../services/api';
+import { getImageUrl } from '../../utils/imageUrl';
 import { FLAG_COLLECTIONS } from '../../utils/filterConstants';
 
 const CAMPAIGNS = [
@@ -198,7 +199,7 @@ export default function Banners() {
                   {/* Image preview */}
                   <Box sx={{ height: 150, bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
                     {b.imageUrl ? (
-                      <CardMedia component="img" src={b.imageUrl} alt={b.title} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <CardMedia component="img" src={getImageUrl(b.imageUrl)} alt={b.title} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
                       <Box sx={{ textAlign: 'center', color: 'text.disabled' }}>
                         <ImageIcon sx={{ fontSize: 44 }} />

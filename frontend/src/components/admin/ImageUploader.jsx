@@ -8,10 +8,11 @@ import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import ErrorOutlinedIcon from '@mui/icons-material/ErrorOutlined';
 import axios from 'axios';
+import { getImageUrl } from '../../utils/imageUrl';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 // Derive thumbnail path from a stored webp path
 function toThumbUrl(webpUrl) {
@@ -23,7 +24,7 @@ function toThumbUrl(webpUrl) {
 function fromUrl(url) {
   return {
     url,
-    previewSrc: toThumbUrl(url) || url,
+    previewSrc: getImageUrl(toThumbUrl(url) || url),
     filename: url.split('/').pop()?.replace('.webp', '') || '',
     uploading: false,
     progress: 100,

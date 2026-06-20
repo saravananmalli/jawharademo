@@ -12,6 +12,7 @@ import PaymentIcon       from '@mui/icons-material/Payment';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PublicIcon        from '@mui/icons-material/Public';
 import api from '../../services/api';
+import { getImageUrl } from '../../utils/imageUrl';
 
 function TabPanel({ children, value, index }) {
   return value === index ? <Box sx={{ pt: 3 }}>{children}</Box> : null;
@@ -182,7 +183,7 @@ export default function Settings() {
                 <TextField fullWidth label="Logo URL" value={store.logo} onChange={e => setStore(s => ({ ...s, logo: e.target.value }))} placeholder="https://..." />
                 {store.logo && (
                   <Box sx={{ mt: 1.5 }}>
-                    <Avatar src={store.logo} variant="rounded" sx={{ width: 80, height: 80 }} />
+                    <Avatar src={getImageUrl(store.logo)} variant="rounded" sx={{ width: 80, height: 80 }} />
                   </Box>
                 )}
               </Grid>
