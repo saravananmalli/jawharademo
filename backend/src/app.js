@@ -1,5 +1,6 @@
 require('dotenv').config();
 const path = require('path');
+const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/database');
@@ -31,11 +32,16 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// On Vercel new uploads go to /tmp (writable); committed images stay in ../uploads
-if (process.env.VERCEL) {
-  app.use('/uploads', express.static('/tmp/uploads'));
+// On Vercel new uploads go to /tmp (writable); committed images stay in uploads/
+// We try three paths so the correct one is found regardless of how Vercel resolves __dirname
+const UPLOADS_PATHS = [
+  '/tmp/uploads',                                // new uploads on Vercel (writable)
+  path.join(__dirname, '../uploads'),            // src/app.js → ../uploads (backend/uploads)
+  path.join(process.cwd(), 'uploads'),           // fallback: cwd/uploads (Vercel /var/task/uploads)
+];
+for (const p of UPLOADS_PATHS) {
+  app.use('/uploads', express.static(p));
 }
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/banners', require('./routes/banners'));
@@ -60,6 +66,15 @@ app.get('/api/health', (req, res) => {
   const mongoose = require('mongoose');
   const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
   const dbState = states[mongoose.connection.readyState] || 'unknown';
+
+  const uploadDiag = UPLOADS_PATHS.map(p => ({
+    path: p,
+    exists: fs.existsSync(p),
+    files: (() => {
+      try { return fs.readdirSync(p); } catch { return []; }
+    })(),
+  }));
+
   res.json({
     status: 'ok',
     db: dbState,
@@ -67,7 +82,11 @@ app.get('/api/health', (req, res) => {
     env: {
       hasMongoUri: !!process.env.MONGODB_URI,
       nodeEnv: process.env.NODE_ENV,
+      isVercel: !!process.env.VERCEL,
+      cwd: process.cwd(),
+      dirname: __dirname,
     },
+    uploads: uploadDiag,
   });
 });
 
