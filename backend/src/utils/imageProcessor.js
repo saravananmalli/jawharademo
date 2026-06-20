@@ -3,10 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const { randomUUID } = require('crypto');
 
-// Vercel serverless has a read-only filesystem except /tmp
-const UPLOADS_BASE = process.env.VERCEL
-  ? '/tmp/uploads'
-  : path.join(__dirname, '../../uploads');
+const UPLOADS_BASE = path.join(__dirname, '../../uploads');
 
 const VALID_CATEGORIES = ['products', 'categories', 'banners', 'brands', 'mobile'];
 
