@@ -10,6 +10,7 @@ const { getAllBanners, createBanner, updateBanner, deleteBanner } = require('../
 const { getAllOffers, createOffer, updateOffer, deleteOffer } = require('../controllers/offerController');
 const { getBrands: getAdminBrands, createBrand, updateBrand, deleteBrand } = require('../controllers/brandController');
 const { getNotifications, markRead, markAllRead } = require('../controllers/notificationController');
+const { getAllAssets: getMobileAssets, createAsset: createMobileAsset, updateAsset: updateMobileAsset, deleteAsset: deleteMobileAsset, reorderAssets: reorderMobileAssets } = require('../controllers/mobileAssetController');
 
 router.use(protect, adminOnly);
 
@@ -54,12 +55,11 @@ router.get('/notifications', getNotifications);
 router.put('/notifications/read-all', markAllRead);
 router.put('/notifications/:id/read', markRead);
 
-const mobileCtrl = require('../controllers/mobileAssetController');
-router.get('/mobile-assets',         mobileCtrl.getAllAssets);
-router.get('/mobile-assets/:screen', mobileCtrl.getAllAssets);
-router.post('/mobile-assets',        mobileCtrl.createAsset);
-router.put('/mobile-assets/reorder', mobileCtrl.reorderAssets);
-router.put('/mobile-assets/:id',     mobileCtrl.updateAsset);
-router.delete('/mobile-assets/:id',  mobileCtrl.deleteAsset);
+router.get('/mobile-assets',         getMobileAssets);
+router.get('/mobile-assets/:screen', getMobileAssets);
+router.post('/mobile-assets',        createMobileAsset);
+router.put('/mobile-assets/reorder', reorderMobileAssets);
+router.put('/mobile-assets/:id',     updateMobileAsset);
+router.delete('/mobile-assets/:id',  deleteMobileAsset);
 
 module.exports = router;
