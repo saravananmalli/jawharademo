@@ -1,6 +1,6 @@
 const { processImage, deleteImage } = require('../utils/imageProcessor');
 
-const VALID_CATEGORIES = ['products', 'categories', 'banners', 'brands', 'mobile', 'branding'];
+const VALID_CATEGORIES = ['products', 'categories', 'banners', 'brands', 'mobile', 'branding', 'avatars'];
 
 exports.uploadImages = async (req, res) => {
   try {
@@ -19,6 +19,16 @@ exports.uploadImages = async (req, res) => {
     );
 
     res.json({ success: true, data: results });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+exports.uploadAvatar = async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ success: false, error: 'No file provided' });
+    const result = await processImage(req.file.buffer, 'avatars');
+    res.json({ success: true, data: result });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

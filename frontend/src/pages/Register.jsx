@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import axios from 'axios';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Auth.scss';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 const EyeIcon = ({ open }) => open ? (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -15,18 +18,29 @@ const EyeIcon = ({ open }) => open ? (
 );
 
 export default function Register() {
-  const [form, setForm]         = useState({ name: '', email: '', phone: '', password: '', confirm: '' });
-  const [showPwd, setShowPwd]   = useState(false);
-  const [showConf, setShowConf] = useState(false);
-  const [errors, setErrors]     = useState({});
-  const [error, setError]       = useState('');
-  const { register, loading }   = useAuth();
-  const navigate                = useNavigate();
-  const location                = useLocation();
+  const [form, setForm]           = useState({ name: '', email: '', phone: '', password: '', confirm: '' });
+  const [showPwd, setShowPwd]     = useState(false);
+  const [showConf, setShowConf]   = useState(false);
+  const [errors, setErrors]       = useState({});
+  const [error, setError]         = useState('');
+  const [avatarFile, setAvatarFile]       = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState('');
+  const avatarInputRef            = useRef(null);
+  const { register, updateProfile, loading } = useAuth();
+  const navigate                  = useNavigate();
+  const location                  = useLocation();
 
   const from = location.state?.from
     || new URLSearchParams(location.search).get('redirect')
     || '/account';
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+    e.target.value = '';
+  };
 
   const set = (e) => {
     const { name, value } = e.target;
@@ -55,6 +69,17 @@ export default function Register() {
 
     const result = await register(form.name, form.email, form.password, form.phone);
     if (result.success) {
+      if (avatarFile) {
+        try {
+          const formData = new FormData();
+          formData.append('images', avatarFile);
+          const token = localStorage.getItem('jawhara-token');
+          const res = await axios.post(`${API_BASE}/upload/avatar`, formData, {
+            headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+          });
+          await updateProfile({ avatar: res.data.data.webp });
+        } catch { /* non-fatal — account created, avatar skipped */ }
+      }
       navigate(from, { replace: true });
     } else {
       setError(result.message);
@@ -88,6 +113,36 @@ export default function Register() {
           <p className="auth-subtitle">Join Jawhara for exclusive access and offers</p>
 
           {error && <div className="auth-error">{error}</div>}
+
+          {/* ── Avatar picker ── */}
+          <div className="avatar-picker-wrap">
+            <div className="avatar-picker" onClick={() => avatarInputRef.current?.click()}>
+              {avatarPreview ? (
+                <img src={avatarPreview} alt="Profile preview" />
+              ) : (
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              )}
+              <div className="avatar-overlay">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+              </div>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                hidden
+                onChange={handleAvatarChange}
+              />
+            </div>
+            <span className="avatar-hint">
+              {avatarPreview ? 'Tap to change photo' : 'Add profile photo (optional)'}
+            </span>
+          </div>
 
           <form onSubmit={handleSubmit} className="auth-form" noValidate>
             <div className="form-row">

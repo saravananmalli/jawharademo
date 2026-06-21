@@ -337,6 +337,65 @@
   &:hover { color: $primary-gold; }
 }
 
+/* ── Avatar picker ───────────────────────────────────────────────────────── */
+.avatar-picker-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.75rem;
+}
+
+.avatar-picker {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  border: 2px dashed $primary-gold;
+  background: $off-white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  color: $text-light;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &:hover {
+    border-color: $primary-gold;
+    box-shadow: 0 0 0 4px rgba(196, 169, 96, 0.14);
+  }
+}
+
+.avatar-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.18s;
+  border-radius: 50%;
+
+  .avatar-picker:hover & {
+    opacity: 1;
+  }
+}
+
+.avatar-hint {
+  font-size: 0.72rem;
+  color: $text-light;
+  margin-top: 0.55rem;
+  letter-spacing: 0.2px;
+}
+
 .auth-divider {
   display: flex;
   align-items: center;

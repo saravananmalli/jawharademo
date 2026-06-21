@@ -5,7 +5,7 @@ const { randomUUID } = require('crypto');
 
 const UPLOADS_BASE = path.join(__dirname, '../../uploads');
 
-const VALID_CATEGORIES = ['products', 'categories', 'banners', 'brands', 'mobile', 'branding'];
+const VALID_CATEGORIES = ['products', 'categories', 'banners', 'brands', 'mobile', 'branding', 'avatars'];
 
 function ensureDir(dirPath) {
   if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath, { recursive: true });

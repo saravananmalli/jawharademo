@@ -10,6 +10,7 @@ const userPayload = (user) => ({
   email: user.email,
   phone: user.phone || '',
   role: user.role,
+  avatar: user.avatar || '',
 });
 
 exports.register = async (req, res) => {
@@ -45,10 +46,11 @@ exports.getMe = async (req, res) => {
 };
 
 exports.updateProfile = async (req, res) => {
-  const { name, phone } = req.body;
+  const { name, phone, avatar } = req.body;
   const updates = {};
   if (name && name.trim()) updates.name = name.trim();
   if (phone !== undefined) updates.phone = phone.trim();
+  if (avatar !== undefined) updates.avatar = avatar;
 
   const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true, runValidators: true });
   res.json({ success: true, data: userPayload(user) });
