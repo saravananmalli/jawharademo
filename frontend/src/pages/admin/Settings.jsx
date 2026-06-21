@@ -11,8 +11,10 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import PaymentIcon       from '@mui/icons-material/Payment';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PublicIcon        from '@mui/icons-material/Public';
+import PaletteIcon       from '@mui/icons-material/Palette';
 import api from '../../services/api';
 import { getImageUrl } from '../../utils/imageUrl';
+import ImageUploader from '../../components/admin/ImageUploader';
 
 function TabPanel({ children, value, index }) {
   return value === index ? <Box sx={{ pt: 3 }}>{children}</Box> : null;
@@ -41,6 +43,8 @@ export default function Settings() {
   const [saved, setSaved] = useState(false);
   const [deliveryLoading, setDeliveryLoading] = useState(true);
   const [deliverySaving, setDeliverySaving]   = useState(false);
+  const [brandingSaving, setBrandingSaving]   = useState(false);
+  const [branding, setBranding] = useState({ websiteLogo: '', mobileLogo: '', favicon: '' });
   const [delivery, setDelivery] = useState({
     enableInternationalDelivery: false,
     supportedCountryCodes: ['AE'],
@@ -52,7 +56,12 @@ export default function Settings() {
 
   useEffect(() => {
     api.get('/settings')
-      .then(({ data }) => { if (data.success && data.data?.delivery) setDelivery(data.data.delivery); })
+      .then(({ data }) => {
+        if (data.success) {
+          if (data.data?.delivery) setDelivery(data.data.delivery);
+          if (data.data?.branding) setBranding(data.data.branding);
+        }
+      })
       .catch(() => {})
       .finally(() => setDeliveryLoading(false));
   }, []);
@@ -95,6 +104,16 @@ export default function Settings() {
       setTimeout(() => setSaved(false), 2500);
     } catch { /* handled by global interceptor */ }
     finally { setDeliverySaving(false); }
+  };
+
+  const saveBranding = async () => {
+    setBrandingSaving(true);
+    try {
+      await api.put('/settings', { branding });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch { /* handled by global interceptor */ }
+    finally { setBrandingSaving(false); }
   };
 
   const [store, setStore] = useState({
@@ -155,6 +174,7 @@ export default function Settings() {
             <Tab icon={<PaymentIcon fontSize="small" />}       iconPosition="start" label="Payment"       sx={{ minHeight: 52, fontSize: '0.875rem' }} />
             <Tab icon={<LocalShippingIcon fontSize="small" />} iconPosition="start" label="Shipping"      sx={{ minHeight: 52, fontSize: '0.875rem' }} />
             <Tab icon={<PublicIcon fontSize="small" />}       iconPosition="start" label="Delivery Zones" sx={{ minHeight: 52, fontSize: '0.875rem' }} />
+            <Tab icon={<PaletteIcon fontSize="small" />}     iconPosition="start" label="Branding"       sx={{ minHeight: 52, fontSize: '0.875rem' }} />
           </Tabs>
         </Box>
 
@@ -352,6 +372,50 @@ export default function Settings() {
             )}
           </TabPanel>
 
+          {/* ── Branding ──────────────────────────────────────── */}
+          <TabPanel value={tab} index={5}>
+            <SectionLabel>Website Logo</SectionLabel>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+              Used in the browser header and desktop navigation. Recommended: PNG, transparent background, min 200×60 px.
+            </Typography>
+            <ImageUploader
+              key={`website-${branding.websiteLogo}`}
+              images={branding.websiteLogo ? [branding.websiteLogo] : []}
+              onChange={([url] = []) => setBranding(b => ({ ...b, websiteLogo: url || '' }))}
+              maxImages={1}
+              single
+              category="branding"
+            />
+
+            <Divider sx={{ my: 3 }} />
+            <SectionLabel>Mobile App Logo</SectionLabel>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+              Displayed in the mobile header and splash screens. Recommended: PNG, square or wide, min 512×512 px.
+            </Typography>
+            <ImageUploader
+              key={`mobile-${branding.mobileLogo}`}
+              images={branding.mobileLogo ? [branding.mobileLogo] : []}
+              onChange={([url] = []) => setBranding(b => ({ ...b, mobileLogo: url || '' }))}
+              maxImages={1}
+              single
+              category="branding"
+            />
+
+            <Divider sx={{ my: 3 }} />
+            <SectionLabel>Favicon</SectionLabel>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+              Shown in browser tabs and bookmarks. Recommended: PNG, square, 32×32 or 64×64 px.
+            </Typography>
+            <ImageUploader
+              key={`favicon-${branding.favicon}`}
+              images={branding.favicon ? [branding.favicon] : []}
+              onChange={([url] = []) => setBranding(b => ({ ...b, favicon: url || '' }))}
+              maxImages={1}
+              single
+              category="branding"
+            />
+          </TabPanel>
+
           <Divider sx={{ mt: 3 }} />
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
             {tab === 4 ? (
@@ -363,6 +427,16 @@ export default function Settings() {
                 sx={{ minWidth: 160 }}
               >
                 {deliverySaving ? 'Saving…' : 'Save Delivery Settings'}
+              </Button>
+            ) : tab === 5 ? (
+              <Button
+                variant="contained"
+                startIcon={brandingSaving ? <CircularProgress size={16} color="inherit" /> : <SaveIcon />}
+                onClick={saveBranding}
+                disabled={brandingSaving}
+                sx={{ minWidth: 160 }}
+              >
+                {brandingSaving ? 'Saving…' : 'Save Branding'}
               </Button>
             ) : (
               <Button variant="contained" startIcon={<SaveIcon />} onClick={handleSave} sx={{ minWidth: 140 }}>

@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 const settingsSchema = new mongoose.Schema(
   {
     key: { type: String, default: 'global', unique: true },
+    branding: {
+      websiteLogo: { type: String, default: '' },
+      mobileLogo:  { type: String, default: '' },
+      favicon:     { type: String, default: '' },
+    },
     delivery: {
       enableInternationalDelivery: { type: Boolean, default: false },
       supportedCountryCodes: { type: [String], default: ['AE'] },
