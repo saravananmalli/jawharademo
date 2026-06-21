@@ -16,10 +16,15 @@ const DEFAULT_SECTIONS = [
 ];
 
 async function ensureSections() {
-  const count = await DashboardSection.countDocuments();
-  if (count === 0) {
-    await DashboardSection.insertMany(DEFAULT_SECTIONS);
-  }
+  const existing = await DashboardSection.find().sort({ order: 1 });
+  if (existing.length > 0) return existing;
+
+  // Use upsert so concurrent serverless cold-starts don't cause duplicate-key errors
+  await Promise.all(
+    DEFAULT_SECTIONS.map(s =>
+      DashboardSection.updateOne({ key: s.key }, { $setOnInsert: s }, { upsert: true })
+    )
+  );
   return DashboardSection.find().sort({ order: 1 });
 }
 
