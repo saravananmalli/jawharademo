@@ -16,6 +16,16 @@ const getPublicDeliverySettings = async (req, res) => {
   }
 };
 
+// Public — branding (logos, favicon) for the mobile app
+const getPublicBranding = async (req, res) => {
+  try {
+    const s = await getOrCreateSettings();
+    res.json({ success: true, data: s.branding });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // Admin — full settings
 const getSettings = async (req, res) => {
   try {
@@ -40,4 +50,4 @@ const updateSettings = async (req, res) => {
   }
 };
 
-module.exports = { getPublicDeliverySettings, getSettings, updateSettings };
+module.exports = { getPublicDeliverySettings, getPublicBranding, getSettings, updateSettings };

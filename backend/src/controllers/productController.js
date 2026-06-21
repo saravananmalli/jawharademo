@@ -31,7 +31,7 @@ exports.searchProducts = async (req, res) => {
 };
 
 exports.getProducts = async (req, res) => {
-  const { q, category, metal, stone, brand, minPrice, maxPrice, sort, page = 1, limit = 20, inStock, badge, flag, minRating, forWho } = req.query;
+  const { q, category, collection, metal, stone, brand, minPrice, maxPrice, sort, page = 1, limit = 20, inStock, badge, flag, minRating, forWho } = req.query;
 
   const filter = {};
   if (q) {
@@ -62,6 +62,7 @@ exports.getProducts = async (req, res) => {
     const brands = brand.split(',').map(b => b.trim()).filter(Boolean);
     filter.brand = brands.length === 1 ? new RegExp(brands[0], 'i') : { $in: brands.map(b => new RegExp(b, 'i')) };
   }
+  if (collection) filter.collection = new RegExp(collection.trim(), 'i');
   if (minPrice || maxPrice) {
     filter.price = {};
     if (minPrice) filter.price.$gte = Number(minPrice);

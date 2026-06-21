@@ -2,8 +2,13 @@ const User = require('../models/User');
 const Product = require('../models/Product');
 
 exports.updateProfile = async (req, res) => {
-  const { name, phone, address } = req.body;
-  const user = await User.findByIdAndUpdate(req.user._id, { name, phone, address }, { new: true });
+  const { name, phone, address, avatar } = req.body;
+  const updates = {};
+  if (name    !== undefined) updates.name    = name;
+  if (phone   !== undefined) updates.phone   = phone;
+  if (address !== undefined) updates.address = address;
+  if (avatar  !== undefined) updates.avatar  = avatar;
+  const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true });
   res.json({ success: true, data: user });
 };
 
