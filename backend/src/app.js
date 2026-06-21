@@ -49,7 +49,8 @@ app.use('/api/admin',    require('./routes/admin'));
 app.use('/api/settings', require('./routes/settings'));
 app.use('/api/chat',       require('./routes/chat'));
 app.use('/api/gold-price', require('./routes/goldPrice'));
-app.use('/api/mobile-assets', require('./routes/mobile-assets'));
+app.use('/api/mobile-assets',    require('./routes/mobile-assets'));
+app.use('/api/mobile-dashboard', require('./routes/mobile-dashboard'));
 
 app.get('/', (req, res) => res.json({ name: 'Jawhara Jewellery API', status: 'ok', version: '1.0.0' }));
 app.get('/api/health', (req, res) => {

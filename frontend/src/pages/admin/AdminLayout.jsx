@@ -19,6 +19,7 @@ import LocalOfferIcon      from '@mui/icons-material/LocalOffer';
 import SettingsIcon        from '@mui/icons-material/Settings';
 import PhoneAndroidIcon    from '@mui/icons-material/PhoneAndroid';
 import ViewCarouselIcon    from '@mui/icons-material/ViewCarousel';
+import ViewQuiltIcon       from '@mui/icons-material/ViewQuilt';
 import LogoutIcon          from '@mui/icons-material/Logout';
 import MenuIcon            from '@mui/icons-material/Menu';
 import DiamondIcon         from '@mui/icons-material/Diamond';
@@ -55,6 +56,7 @@ const NAV = [
     label: 'Mobile Apps',
     icon: <PhoneAndroidIcon />,
     children: [
+      { to: '/admin/mobile/dashboard',   icon: <ViewQuiltIcon />,    label: 'Dashboard' },
       { to: '/admin/mobile/onboarding',  icon: <PhoneAndroidIcon />, label: 'Onboarding Screens' },
       { to: '/admin/mobile/home-banner', icon: <ViewCarouselIcon />, label: 'Home Banner' },
     ],

@@ -16,9 +16,12 @@ exports.getPublicAssets = async (req, res) => {
 // Admin: all assets for a screen including inactive
 exports.getAllAssets = async (req, res) => {
   try {
-    const screen = req.params.screen || req.query.screen;
-    const filter = screen ? { screen } : {};
-    const assets = await MobileAsset.find(filter).sort({ screen: 1, order: 1, createdAt: -1 });
+    const screen  = req.params.screen || req.query.screen;
+    const section = req.query.section;
+    const filter  = {};
+    if (screen)  filter.screen  = screen;
+    if (section) filter.section = section;
+    const assets = await MobileAsset.find(filter).sort({ screen: 1, section: 1, order: 1, createdAt: -1 });
     res.json({ success: true, data: assets });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

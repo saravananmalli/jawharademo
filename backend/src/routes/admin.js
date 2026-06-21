@@ -11,6 +11,7 @@ const { getAllOffers, createOffer, updateOffer, deleteOffer } = require('../cont
 const { getBrands: getAdminBrands, createBrand, updateBrand, deleteBrand } = require('../controllers/brandController');
 const { getNotifications, markRead, markAllRead } = require('../controllers/notificationController');
 const { getAllAssets: getMobileAssets, createAsset: createMobileAsset, updateAsset: updateMobileAsset, deleteAsset: deleteMobileAsset, reorderAssets: reorderMobileAssets } = require('../controllers/mobileAssetController');
+const { getSections, updateSection, reorderSections } = require('../controllers/dashboardController');
 
 router.use(protect, adminOnly);
 
@@ -61,5 +62,9 @@ router.post('/mobile-assets',        createMobileAsset);
 router.put('/mobile-assets/reorder', reorderMobileAssets);
 router.put('/mobile-assets/:id',     updateMobileAsset);
 router.delete('/mobile-assets/:id',  deleteMobileAsset);
+
+router.get('/dashboard-sections',          getSections);
+router.put('/dashboard-sections/reorder',  reorderSections);
+router.put('/dashboard-sections/:id',      updateSection);
 
 module.exports = router;
