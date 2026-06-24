@@ -261,8 +261,7 @@ export default function AdminProducts() {
                           <Chip
                             label={`-${p.discount}%`}
                             size="small"
-                            color="error"
-                            sx={{ fontSize: 12, fontWeight: 700, height: 18, '& .MuiChip-label': { px: 0.75 } }}
+                            sx={{ fontSize: 12, fontWeight: 700, height: 18, bgcolor: '#fde8e8', color: '#c62828', '& .MuiChip-label': { px: 0.75 } }}
                           />
                         )}
                       </Stack>
