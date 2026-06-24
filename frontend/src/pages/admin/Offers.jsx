@@ -13,11 +13,13 @@ import EditIcon         from '@mui/icons-material/Edit';
 import DeleteIcon       from '@mui/icons-material/Delete';
 import TimerIcon        from '@mui/icons-material/Timer';
 import LocalOfferIcon   from '@mui/icons-material/LocalOffer';
+import WhatshotIcon     from '@mui/icons-material/Whatshot';
 import StarIcon         from '@mui/icons-material/Star';
 import StarBorderIcon   from '@mui/icons-material/StarBorder';
 import ArrowUpwardIcon  from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import SearchIcon       from '@mui/icons-material/Search';
+import AddCircleIcon    from '@mui/icons-material/AddCircle';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import VisibilityIcon   from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -98,6 +100,10 @@ export default function Offers() {
   const [productOptions, setProductOptions] = useState([]);
   const [prodSearch, setProdSearch]   = useState('');
   const searchTimer = useRef(null);
+
+  // Hot-deal suggestions (≥50% off)
+  const [suggestions, setSuggestions]         = useState([]);
+  const [loadingSuggestions, setLoadingSugg]  = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState(null);
 
@@ -209,7 +215,7 @@ export default function Offers() {
   };
 
   // ── Product management dialog ────────────────────────────────────────────────
-  const openProdDialog = (o) => {
+  const openProdDialog = async (o) => {
     setProdTarget(o);
     // Build local product list from populated offer.products
     const list = (o.products || []).map((p, i) => ({
@@ -222,7 +228,20 @@ export default function Offers() {
     setAssignedProducts(list);
     setProdSearch('');
     setProductOptions([]);
+    setSuggestions([]);
     setProdDialogOpen(true);
+
+    // Fetch hot-deal suggestions (≥50% off)
+    setLoadingSugg(true);
+    try {
+      const res = await api.get('/offers/hot-deals?minDiscount=50&limit=30');
+      const assignedIds = new Set(list.map(p => p.product?._id || p.product));
+      setSuggestions((res.data.data || []).filter(p => !assignedIds.has(p._id)));
+    } catch {
+      setSuggestions([]);
+    } finally {
+      setLoadingSugg(false);
+    }
   };
 
   const addProduct = (product) => {
@@ -233,6 +252,7 @@ export default function Offers() {
     ]);
     setProdSearch('');
     setProductOptions([]);
+    setSuggestions(prev => prev.filter(p => p._id !== product._id));
   };
 
   const removeProduct = (idx) => {
@@ -525,6 +545,60 @@ export default function Offers() {
             )}
             sx={{ mb: 2 }}
           />
+
+          {/* ── Hot-deal suggestions (≥50% off) ──────────────────────────── */}
+          {(loadingSuggestions || suggestions.length > 0) && (
+            <Box sx={{ mb: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
+                <WhatshotIcon sx={{ fontSize: 16, color: 'error.main' }} />
+                <Typography variant="caption" fontWeight={700} color="error.main">
+                  Suggested — 50%+ Discount
+                </Typography>
+                {loadingSuggestions && <CircularProgress size={12} sx={{ ml: 0.5 }} />}
+              </Box>
+              {!loadingSuggestions && (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+                  {suggestions.map(p => (
+                    <Box
+                      key={p._id}
+                      sx={{
+                        display: 'flex', alignItems: 'center', gap: 1.25,
+                        px: 1.25, py: 0.75,
+                        border: '1px dashed', borderColor: 'error.light',
+                        borderRadius: 1.5,
+                        bgcolor: isDark ? 'rgba(211,47,47,0.06)' : 'rgba(211,47,47,0.04)',
+                      }}
+                    >
+                      <Avatar src={p.images?.[0]} variant="rounded" sx={{ width: 34, height: 34, flexShrink: 0 }} />
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography variant="body2" fontWeight={600} noWrap>{p.name}</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          <DirhamSymbol size="0.75em" /> {p.price}
+                          {p.originalPrice && (
+                            <Box component="span" sx={{ textDecoration: 'line-through', ml: 0.5, color: 'text.disabled' }}>
+                              <DirhamSymbol size="0.75em" /> {p.originalPrice}
+                            </Box>
+                          )}
+                        </Typography>
+                      </Box>
+                      <Chip
+                        label={`-${p.discount}%`}
+                        size="small"
+                        color="error"
+                        sx={{ fontSize: '0.65rem', fontWeight: 700, flexShrink: 0 }}
+                      />
+                      <Tooltip title="Add to offer">
+                        <IconButton size="small" color="primary" onClick={() => addProduct(p)}>
+                          <AddCircleIcon sx={{ fontSize: 20 }} />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                  ))}
+                </Box>
+              )}
+              <Divider sx={{ mt: 1.5 }} />
+            </Box>
+          )}
 
           {/* Assigned product list */}
           {assignedProducts.length === 0 ? (
