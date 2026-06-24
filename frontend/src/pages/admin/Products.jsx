@@ -248,24 +248,21 @@ export default function AdminProducts() {
                     </TableCell>
                     <TableCell><Typography variant="body2">{p.category}</Typography></TableCell>
                     <TableCell>
-                      <Stack spacing={0.25}>
-                        {/* Sale price */}
-                        <Typography variant="body2" fontWeight={700} noWrap color={p.discount > 0 ? 'error.main' : 'text.primary'}>
+                      <Stack direction="row" alignItems="center" spacing={0.75} flexWrap="wrap">
+                        <Typography sx={{ fontSize: 12, fontWeight: 700 }} color={p.discount > 0 ? 'error.main' : 'text.primary'} noWrap>
                           <DirhamSymbol size="0.85em" /> {p.price?.toLocaleString()}
                         </Typography>
-                        {/* Original price */}
                         {p.originalPrice && p.originalPrice > p.price && (
-                          <Typography variant="caption" color="text.disabled" sx={{ textDecoration: 'line-through' }} noWrap>
-                            <DirhamSymbol size="0.75em" /> {p.originalPrice?.toLocaleString()}
+                          <Typography sx={{ fontSize: 12, textDecoration: 'line-through' }} color="text.disabled" noWrap>
+                            <DirhamSymbol size="0.85em" /> {p.originalPrice?.toLocaleString()}
                           </Typography>
                         )}
-                        {/* Discount % */}
                         {p.discount > 0 && (
                           <Chip
                             label={`-${p.discount}%`}
                             size="small"
                             color="error"
-                            sx={{ fontSize: '0.6rem', fontWeight: 700, height: 16, width: 'fit-content', '& .MuiChip-label': { px: 0.75 } }}
+                            sx={{ fontSize: 12, fontWeight: 700, height: 18, '& .MuiChip-label': { px: 0.75 } }}
                           />
                         )}
                       </Stack>
