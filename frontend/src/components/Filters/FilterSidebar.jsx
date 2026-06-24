@@ -32,7 +32,7 @@ export const RATING_OPTIONS = [
   { label: '2 Stars & Above', value: 2 },
 ];
 
-const ARRIVES_OPTIONS    = ['Delivered Next Day', 'Delivered in 1–3 Days', 'Delivered in 2–3 Days'];
+const ARRIVES_OPTIONS    = ['Next Day Delivery', '1–3 Day Delivery', '2–3 Day Delivery'];
 const FULFILLED_OPTIONS  = ['Premium Seller'];
 
 export const EMPTY_FILTERS = {

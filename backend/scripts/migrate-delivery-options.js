@@ -2,17 +2,20 @@ require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
 const mongoose = require('mongoose');
 
 const MAPPING = {
-  'Same Day':  'Delivered Next Day',
-  'Next Day':  'Delivered Next Day',
-  '1–3 Days':  'Delivered in 1–3 Days',
-  '1-3 Days':  'Delivered in 1–3 Days',
-  '2–3 Days':  'Delivered in 2–3 Days',
-  '2-3 Days':  'Delivered in 2–3 Days',
-  '3–5 Days':  'Delivered in 2–3 Days',
-  '3-5 Days':  'Delivered in 2–3 Days',
-  '5–7 Days':  'Delivered in 2–3 Days',
-  '7–14 Days': 'Delivered in 2–3 Days',
-  '2–3 Weeks': 'Delivered in 2–3 Days',
+  'Same Day':           'Next Day Delivery',
+  'Next Day':           'Next Day Delivery',
+  'Delivered Next Day': 'Next Day Delivery',
+  '1–3 Days':           '1–3 Day Delivery',
+  '1-3 Days':           '1–3 Day Delivery',
+  'Delivered in 1–3 Days': '1–3 Day Delivery',
+  '2–3 Days':           '2–3 Day Delivery',
+  '2-3 Days':           '2–3 Day Delivery',
+  'Delivered in 2–3 Days': '2–3 Day Delivery',
+  '3–5 Days':           '2–3 Day Delivery',
+  '3-5 Days':           '2–3 Day Delivery',
+  '5–7 Days':           '2–3 Day Delivery',
+  '7–14 Days':          '2–3 Day Delivery',
+  '2–3 Weeks':          '2–3 Day Delivery',
 };
 
 async function run() {
