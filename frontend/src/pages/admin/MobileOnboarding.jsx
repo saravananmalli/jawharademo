@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Box, Card, CardContent, Typography, Button, TextField, Grid,
   IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions,
-  Alert, Switch, FormControlLabel, CardMedia, CircularProgress, Tooltip,
+  Alert, Switch, FormControlLabel, CardMedia, CircularProgress, Tooltip, Skeleton,
 } from '@mui/material';
 import AddIcon           from '@mui/icons-material/Add';
 import EditIcon          from '@mui/icons-material/Edit';
@@ -136,7 +136,24 @@ export default function MobileOnboarding() {
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress /></Box>
+        <Grid container spacing={2.5}>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Grid item xs={12} sm={6} md={4} lg={3} key={i}>
+              <Card>
+                <Skeleton variant="rectangular" height={220} />
+                <CardContent>
+                  <Skeleton width="70%" height={18} sx={{ mb: 0.75 }} />
+                  <Skeleton width="50%" height={14} sx={{ mb: 1.5 }} />
+                  <Stack direction="row" spacing={1}>
+                    <Skeleton variant="circular" width={30} height={30} />
+                    <Skeleton variant="circular" width={30} height={30} />
+                    <Skeleton variant="circular" width={30} height={30} />
+                  </Stack>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
       ) : slides.length === 0 ? (
         <Box sx={{ textAlign: 'center', py: 10, color: 'text.disabled' }}>
           <PhoneAndroidIcon sx={{ fontSize: 56, mb: 1 }} />

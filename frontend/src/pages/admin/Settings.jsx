@@ -3,7 +3,7 @@ import { DirhamSymbol } from 'dirham/react';
 import {
   Box, Card, CardContent, Typography, Button, TextField, Grid,
   Divider, Switch, FormControlLabel, Alert, Tabs, Tab, Avatar,
-  InputAdornment, Stack, Chip, CircularProgress,
+  InputAdornment, Stack, Chip, CircularProgress, Skeleton,
 } from '@mui/material';
 import SaveIcon          from '@mui/icons-material/Save';
 import StorefrontIcon    from '@mui/icons-material/Storefront';
@@ -281,8 +281,15 @@ export default function Settings() {
           {/* ── Delivery Zones ────────────────────────────────── */}
           <TabPanel value={tab} index={4}>
             {deliveryLoading ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-                <CircularProgress size={28} />
+              <Box>
+                <Skeleton width={180} height={20} sx={{ mb: 2 }} />
+                <Skeleton variant="rounded" height={40} sx={{ mb: 1.5 }} />
+                <Skeleton variant="rounded" height={40} sx={{ mb: 1.5 }} />
+                <Skeleton width={140} height={20} sx={{ mb: 1, mt: 2 }} />
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} variant="rounded" height={36} sx={{ mb: 1 }} />
+                ))}
+                <Skeleton variant="rounded" width={120} height={36} sx={{ mt: 2 }} />
               </Box>
             ) : (
               <>

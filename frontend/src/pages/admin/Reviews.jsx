@@ -5,7 +5,7 @@ import {
   Tooltip, Stack, Select, MenuItem, FormControl, InputLabel, Alert,
   Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
   Switch, FormControlLabel, Chip, CircularProgress, InputAdornment,
-  Checkbox, Paper, Autocomplete,
+  Checkbox, Paper, Autocomplete, Skeleton,
 } from '@mui/material';
 import AddIcon           from '@mui/icons-material/Add';
 import EditIcon          from '@mui/icons-material/Edit';
@@ -19,6 +19,52 @@ import DeleteSweepIcon   from '@mui/icons-material/DeleteSweep';
 import PublishIcon       from '@mui/icons-material/Publish';
 import { StatusChip }    from './adminUtils';
 import api               from '../../services/api';
+
+function ReviewsTableSkeleton() {
+  return (
+    <Table size="small" sx={{ minWidth: 860 }}>
+      <TableHead>
+        <TableRow>
+          <TableCell padding="checkbox"><Skeleton variant="rounded" width={18} height={18} /></TableCell>
+          <TableCell>Customer</TableCell>
+          <TableCell>Product</TableCell>
+          <TableCell>Rating</TableCell>
+          <TableCell>Review</TableCell>
+          <TableCell>Status</TableCell>
+          <TableCell>Flags</TableCell>
+          <TableCell>Date</TableCell>
+          <TableCell align="center">Actions</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {Array.from({ length: 8 }).map((_, i) => (
+          <TableRow key={i}>
+            <TableCell padding="checkbox"><Skeleton variant="rounded" width={18} height={18} /></TableCell>
+            <TableCell>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Skeleton variant="circular" width={30} height={30} />
+                <Skeleton width={90} height={16} />
+              </Box>
+            </TableCell>
+            <TableCell><Skeleton width="70%" height={16} /></TableCell>
+            <TableCell><Skeleton width={80} height={16} /></TableCell>
+            <TableCell><Skeleton width="80%" height={16} /></TableCell>
+            <TableCell><Skeleton variant="rounded" width={64} height={22} /></TableCell>
+            <TableCell><Skeleton width={50} height={16} /></TableCell>
+            <TableCell><Skeleton width={70} height={16} /></TableCell>
+            <TableCell align="center">
+              <Stack direction="row" justifyContent="center" spacing={0.5}>
+                <Skeleton variant="circular" width={28} height={28} />
+                <Skeleton variant="circular" width={28} height={28} />
+                <Skeleton variant="circular" width={28} height={28} />
+              </Stack>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
 
 const BLANK = {
   userName: '', location: '', rating: 5, title: '',
@@ -447,13 +493,9 @@ export default function Reviews() {
 
       {/* ── Table ── */}
       <Card>
-        {loading && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-            <CircularProgress size={28} />
-          </Box>
-        )}
-        {!loading && (
-          <TableContainer sx={{ overflowX: 'auto' }}>
+        <TableContainer sx={{ overflowX: 'auto' }}>
+          {loading && <ReviewsTableSkeleton />}
+          {!loading && (
             <Table size="small" sx={{ minWidth: 860 }}>
               <TableHead>
                 <TableRow>
@@ -599,8 +641,8 @@ export default function Reviews() {
                 )}
               </TableBody>
             </Table>
-          </TableContainer>
-        )}
+          )}
+        </TableContainer>
         <TablePagination
           component="div"
           count={total}

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Box, Card, CardContent, Typography, Button, TextField, Grid,
   IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions,
-  Alert, Switch, FormControlLabel, CircularProgress, Tooltip, Paper, Chip,
+  Alert, Switch, FormControlLabel, CircularProgress, Tooltip, Paper, Chip, Skeleton,
 } from '@mui/material';
 import AddIcon           from '@mui/icons-material/Add';
 import EditIcon          from '@mui/icons-material/Edit';
@@ -236,8 +236,33 @@ export default function MobileDashboard() {
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
       {loadingSec ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
-          <CircularProgress />
+        <Box sx={{ display: 'flex', gap: 2.5, alignItems: 'flex-start' }}>
+          <Paper variant="outlined" sx={{ width: 248, flexShrink: 0, borderRadius: 2, overflow: 'hidden' }}>
+            <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+              <Skeleton width={80} height={18} />
+              <Skeleton width={160} height={14} sx={{ mt: 0.5 }} />
+            </Box>
+            {Array.from({ length: 9 }).map((_, i) => (
+              <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1.25, py: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
+                <Skeleton width={14} height={14} />
+                <Skeleton width="60%" height={16} sx={{ flex: 1 }} />
+                <Skeleton variant="rounded" width={32} height={18} />
+              </Box>
+            ))}
+          </Paper>
+          <Box sx={{ flex: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+              <Box><Skeleton width={140} height={24} /><Skeleton width={200} height={16} sx={{ mt: 0.5 }} /></Box>
+              <Skeleton variant="rounded" width={96} height={36} />
+            </Box>
+            <Grid container spacing={2}>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Grid item xs={12} sm={6} lg={4} key={i}>
+                  <Card><Skeleton variant="rectangular" height={140} /><CardContent><Skeleton width="70%" height={16} /><Skeleton width="45%" height={14} sx={{ mt: 0.5 }} /></CardContent></Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
         </Box>
       ) : (
         <Box sx={{ display: 'flex', gap: 2.5, alignItems: 'flex-start' }}>
@@ -321,9 +346,13 @@ export default function MobileDashboard() {
                 </Box>
 
                 {loadingItems ? (
-                  <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-                    <CircularProgress />
-                  </Box>
+                  <Grid container spacing={2}>
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <Grid item xs={12} sm={6} lg={4} key={i}>
+                        <Card><Skeleton variant="rectangular" height={140} /><CardContent><Skeleton width="70%" height={16} /><Skeleton width="45%" height={14} sx={{ mt: 0.5 }} /></CardContent></Card>
+                      </Grid>
+                    ))}
+                  </Grid>
                 ) : activeItems.length === 0 ? (
                   <Box sx={{
                     textAlign: 'center', py: 8, color: 'text.disabled',
@@ -442,8 +471,9 @@ export default function MobileDashboard() {
                 )}
               </>
             ) : (
-              <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
-                <CircularProgress />
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', py: 10, color: 'text.disabled' }}>
+                <ImageIcon sx={{ fontSize: 48, mb: 1 }} />
+                <Typography variant="body2">Select a section from the left to manage its items</Typography>
               </Box>
             )}
           </Box>

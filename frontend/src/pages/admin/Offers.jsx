@@ -5,7 +5,7 @@ import {
   IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions,
   Alert, Switch, FormControlLabel, LinearProgress, Divider, CircularProgress,
   Chip, Avatar, Tooltip, List, ListItem, ListItemAvatar, ListItemText,
-  InputAdornment, Autocomplete,
+  InputAdornment, Autocomplete, Skeleton,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import AddIcon          from '@mui/icons-material/Add';
@@ -319,7 +319,44 @@ export default function Offers() {
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress /></Box>
+        <Grid container spacing={2.5}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Grid item xs={12} md={6} key={i}>
+              <Card sx={{ height: '100%' }}>
+                <CardContent>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+                      <Skeleton variant="rounded" width={36} height={36} />
+                      <Box>
+                        <Skeleton width={140} height={18} />
+                        <Skeleton width={100} height={14} sx={{ mt: 0.5 }} />
+                      </Box>
+                    </Box>
+                    <Skeleton variant="rounded" width={64} height={22} />
+                  </Box>
+                  <Divider sx={{ mb: 2 }} />
+                  <Stack spacing={1}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Skeleton width="40%" height={16} />
+                      <Skeleton width="20%" height={16} />
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Skeleton width="30%" height={16} />
+                      <Skeleton width="35%" height={16} />
+                    </Box>
+                    <Skeleton variant="rounded" height={6} sx={{ mt: 1 }} />
+                  </Stack>
+                  <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+                    <Skeleton variant="rounded" width={70} height={30} sx={{ flex: 1 }} />
+                    <Skeleton variant="rounded" width={90} height={30} sx={{ flex: 1 }} />
+                    <Skeleton variant="rounded" width={70} height={30} sx={{ flex: 1 }} />
+                    <Skeleton variant="circular" width={30} height={30} />
+                  </Stack>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
       ) : (
         <Grid container spacing={2.5}>
           {offers.map(o => {

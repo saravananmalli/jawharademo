@@ -4,7 +4,7 @@ import {
   Table, TableHead, TableBody, TableRow, TableCell, TableContainer,
   IconButton, Tooltip, Stack, Dialog, DialogTitle, DialogContent,
   DialogActions, Alert, InputAdornment, CircularProgress, Avatar,
-  FormControlLabel, Switch,
+  FormControlLabel, Switch, Skeleton,
 } from '@mui/material';
 import AddIcon        from '@mui/icons-material/Add';
 import EditIcon       from '@mui/icons-material/Edit';
@@ -166,99 +166,92 @@ export default function BrandsPage() {
             }}
           />
 
-          {loading ? (
-            <Box sx={{ textAlign: 'center', py: 5 }}>
-              <CircularProgress size={32} />
-            </Box>
-          ) : (
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ width: 50 }}>#</TableCell>
-                    <TableCell sx={{ width: 60 }}>Logo</TableCell>
-                    <TableCell>Brand Name</TableCell>
-                    <TableCell>Slug</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell align="center">Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filtered.map((b, idx) => (
-                    <TableRow key={b._id} hover>
-                      <TableCell>
-                        <Typography variant="body2" color="text.disabled">{idx + 1}</Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Avatar
-                          src={getImageUrl(b.logo)}
-                          alt={b.name}
-                          variant="rounded"
-                          sx={{ width: 36, height: 36, bgcolor: 'grey.100' }}
-                        >
-                          <ImageIcon fontSize="small" sx={{ color: 'text.disabled' }} />
-                        </Avatar>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" fontWeight={600}>{b.name}</Typography>
-                        {b.description && (
-                          <Typography variant="caption" color="text.secondary" noWrap sx={{ maxWidth: 200, display: 'block' }}>
-                            {b.description}
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ width: 50 }}>#</TableCell>
+                  <TableCell sx={{ width: 60 }}>Logo</TableCell>
+                  <TableCell>Brand Name</TableCell>
+                  <TableCell>Slug</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell align="center">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {loading
+                  ? Array.from({ length: 8 }).map((_, i) => (
+                      <TableRow key={i}>
+                        <TableCell><Skeleton width={20} /></TableCell>
+                        <TableCell><Skeleton variant="rounded" width={36} height={36} /></TableCell>
+                        <TableCell><Skeleton width="65%" /></TableCell>
+                        <TableCell><Skeleton width="50%" /></TableCell>
+                        <TableCell><Skeleton variant="rounded" width={56} height={22} /></TableCell>
+                        <TableCell align="center">
+                          <Stack direction="row" justifyContent="center" spacing={0.5}>
+                            <Skeleton variant="circular" width={28} height={28} />
+                            <Skeleton variant="circular" width={28} height={28} />
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  : filtered.map((b, idx) => (
+                      <TableRow key={b._id} hover>
+                        <TableCell>
+                          <Typography variant="body2" color="text.disabled">{idx + 1}</Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Avatar src={getImageUrl(b.logo)} alt={b.name} variant="rounded" sx={{ width: 36, height: 36, bgcolor: 'grey.100' }}>
+                            <ImageIcon fontSize="small" sx={{ color: 'text.disabled' }} />
+                          </Avatar>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" fontWeight={600}>{b.name}</Typography>
+                          {b.description && (
+                            <Typography variant="caption" color="text.secondary" noWrap sx={{ maxWidth: 200, display: 'block' }}>
+                              {b.description}
+                            </Typography>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="caption" color="text.secondary" fontFamily="monospace">
+                            /brand/{b.slug}
                           </Typography>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="caption" color="text.secondary" fontFamily="monospace">
-                          /brand/{b.slug}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <StatusChip
-                          status={b.isActive ? 'active' : 'blocked'}
-                          label={b.isActive ? 'Active' : 'Inactive'}
-                          clickable
-                          onClick={() => toggleActive(b)}
-                        />
-                      </TableCell>
-                      <TableCell align="center">
-                        <Stack direction="row" spacing={0.5} justifyContent="center">
-                          <Tooltip title="View Brand Page">
-                            <IconButton
-                              size="small"
-                              color="default"
-                              component="a"
-                              href={`/brand/${b.slug}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <OpenInNewIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Edit">
-                            <IconButton size="small" color="primary" onClick={() => openEdit(b)}>
-                              <EditIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Delete">
-                            <IconButton size="small" color="error" onClick={() => setDeleteTarget(b)}>
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {filtered.length === 0 && !loading && (
-                    <TableRow>
-                      <TableCell colSpan={6} align="center" sx={{ py: 5, color: 'text.secondary' }}>
-                        {search ? `No brands match "${search}".` : 'No brands yet. Click "Add Brand" to get started.'}
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
+                        </TableCell>
+                        <TableCell>
+                          <StatusChip status={b.isActive ? 'active' : 'blocked'} label={b.isActive ? 'Active' : 'Inactive'} clickable onClick={() => toggleActive(b)} />
+                        </TableCell>
+                        <TableCell align="center">
+                          <Stack direction="row" spacing={0.5} justifyContent="center">
+                            <Tooltip title="View Brand Page">
+                              <IconButton size="small" color="default" component="a" href={`/brand/${b.slug}`} target="_blank" rel="noopener noreferrer">
+                                <OpenInNewIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Edit">
+                              <IconButton size="small" color="primary" onClick={() => openEdit(b)}>
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Delete">
+                              <IconButton size="small" color="error" onClick={() => setDeleteTarget(b)}>
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                {!loading && filtered.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center" sx={{ py: 5, color: 'text.secondary' }}>
+                      No brands found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </CardContent>
       </Card>
 

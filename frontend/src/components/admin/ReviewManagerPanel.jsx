@@ -4,7 +4,7 @@ import {
   TextField, Select, MenuItem, FormControl, InputLabel,
   Switch, FormControlLabel, IconButton, Tooltip, Dialog,
   DialogTitle, DialogContent, DialogActions, Chip, Avatar,
-  Alert, CircularProgress,
+  Alert, CircularProgress, Skeleton,
 } from '@mui/material';
 import AddIcon          from '@mui/icons-material/Add';
 import EditIcon         from '@mui/icons-material/Edit';
@@ -230,9 +230,28 @@ export default function ReviewManagerPanel({ productId }) {
       )}
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
-          <CircularProgress size={24} />
-        </Box>
+        <Stack spacing={1.5}>
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Card key={i} variant="outlined" sx={{ borderRadius: 2 }}>
+              <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                  <Skeleton variant="circular" width={32} height={32} />
+                  <Box sx={{ flex: 1 }}>
+                    <Skeleton width="50%" height={16} />
+                    <Skeleton width="30%" height={14} sx={{ mt: 0.25 }} />
+                  </Box>
+                  <Skeleton variant="rounded" width={56} height={20} />
+                </Box>
+                <Skeleton width="90%" height={14} sx={{ mb: 0.5 }} />
+                <Skeleton width="70%" height={14} sx={{ mb: 1 }} />
+                <Stack direction="row" spacing={0.75}>
+                  <Skeleton variant="rounded" width={72} height={28} />
+                  <Skeleton variant="rounded" width={72} height={28} />
+                </Stack>
+              </CardContent>
+            </Card>
+          ))}
+        </Stack>
       ) : reviews.length === 0 ? (
         <Box sx={{
           py: 3, textAlign: 'center',

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Box, Card, CardContent, Typography, Button, TextField, Grid,
   IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions,
-  Alert, Switch, FormControlLabel, CardMedia, CircularProgress, Tooltip,
+  Alert, Switch, FormControlLabel, CardMedia, CircularProgress, Tooltip, Skeleton,
 } from '@mui/material';
 import AddIcon           from '@mui/icons-material/Add';
 import EditIcon          from '@mui/icons-material/Edit';
@@ -136,7 +136,27 @@ export default function MobileHomeBanner() {
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress /></Box>
+        <Grid container spacing={2.5}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Grid item xs={12} sm={6} lg={4} key={i}>
+              <Card>
+                <Skeleton variant="rectangular" height={180} />
+                <CardContent>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                    <Skeleton width="55%" height={18} />
+                    <Skeleton variant="rounded" width={56} height={20} />
+                  </Box>
+                  <Skeleton width="35%" height={14} sx={{ mb: 1.5 }} />
+                  <Stack direction="row" spacing={1}>
+                    <Skeleton variant="circular" width={30} height={30} />
+                    <Skeleton variant="circular" width={30} height={30} />
+                    <Skeleton variant="circular" width={30} height={30} />
+                  </Stack>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
       ) : banners.length === 0 ? (
         <Box sx={{ textAlign: 'center', py: 10, color: 'text.disabled' }}>
           <ViewCarouselIcon sx={{ fontSize: 56, mb: 1 }} />
