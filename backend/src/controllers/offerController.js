@@ -106,4 +106,31 @@ const deleteOffer = async (req, res) => {
   }
 };
 
-module.exports = { getActiveOffer, getAllOffers, createOffer, updateOffer, deleteOffer };
+// ── Public: products with discount > 50% (for mobile "Hot Deals" section) ────
+const Product = require('../models/Product');
+
+const getHotDeals = async (req, res) => {
+  try {
+    const minDiscount = Number(req.query.minDiscount) || 50;
+    const limit       = Math.min(Number(req.query.limit) || 20, 50);
+
+    const products = await Product.find({
+      discount: { $gte: minDiscount },
+      inStock: true,
+    })
+      .sort({ discount: -1 })
+      .limit(limit)
+      .select('name price originalPrice discount images rating reviewCount badge category subcategory inStock deliveryDate arrivesBy');
+
+    res.json({
+      success: true,
+      count: products.length,
+      minDiscount,
+      data: products,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+module.exports = { getActiveOffer, getAllOffers, createOffer, updateOffer, deleteOffer, getHotDeals };
