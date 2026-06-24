@@ -40,7 +40,7 @@ export default function AdminProducts() {
   const [filterBadge, setFilterBadge]   = useState('');
   const [filterCat, setFilterCat]       = useState('');
   const [filterRating, setFilterRating] = useState('');
-  const [loading, setLoading]           = useState(true);
+  const [loading, setLoading]           = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const debounceRef  = useRef(null);
   const activeParams = useRef({});
@@ -217,8 +217,8 @@ export default function AdminProducts() {
                   <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody>
-                {loading ? Array.from({ length: 8 }).map((_, i) => (
+              <TableBody sx={{ opacity: loading && products.length > 0 ? 0.5 : 1, transition: 'opacity 0.15s' }}>
+                {loading && products.length === 0 ? Array.from({ length: 8 }).map((_, i) => (
                   <TableRow key={i}>
                     {[...Array(8)].map((__, j) => <TableCell key={j}><Skeleton height={20} /></TableCell>)}
                   </TableRow>

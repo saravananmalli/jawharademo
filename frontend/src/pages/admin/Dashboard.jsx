@@ -119,7 +119,7 @@ export default function Dashboard() {
   const [statusData,   setStatusData]   = useState([]);
   const [topProducts,  setTopProducts]  = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
-  const [loading,      setLoading]      = useState(true);
+  const [loading,      setLoading]      = useState(false);
   const [dateRange,    setDateRange]    = useState(() => computeDateRange('today'));
 
   const handleFilterChange = useCallback((range) => setDateRange(range), []);
@@ -414,7 +414,7 @@ export default function Dashboard() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {loading ? [1,2,3,4].map(i => (
+                {loading && recentOrders.length === 0 ? [1,2,3,4].map(i => (
                   <TableRow key={i}>
                     {[1,2,3,4,5].map(j => (
                       <TableCell key={j}><Skeleton variant="text" /></TableCell>

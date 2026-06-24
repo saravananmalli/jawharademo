@@ -16,7 +16,7 @@ export default function AdminOrders() {
   const [page, setPage]                 = useState(0);
   const [rowsPerPage]                   = useState(15);
   const [statusFilter, setStatusFilter] = useState('');
-  const [loading, setLoading]           = useState(true);
+  const [loading, setLoading]           = useState(false);
 
   const fetchOrders = (p = page, s = statusFilter) => {
     setLoading(true);
@@ -70,8 +70,8 @@ export default function AdminOrders() {
                 <TableCell>Update</TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>
-              {loading ? Array.from({ length: 8 }).map((_, i) => (
+            <TableBody sx={{ opacity: loading && orders.length > 0 ? 0.5 : 1, transition: 'opacity 0.15s' }}>
+              {loading && orders.length === 0 ? Array.from({ length: 8 }).map((_, i) => (
                 <TableRow key={i}>
                   {[...Array(8)].map((__, j) => <TableCell key={j}><Skeleton height={20} /></TableCell>)}
                 </TableRow>

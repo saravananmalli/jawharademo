@@ -41,7 +41,7 @@ const COUNTRY_PRESETS = [
 export default function Settings() {
   const [tab, setTab]     = useState(0);
   const [saved, setSaved] = useState(false);
-  const [deliveryLoading, setDeliveryLoading] = useState(true);
+  const [deliveryLoading, setDeliveryLoading] = useState(false);
   const [deliverySaving, setDeliverySaving]   = useState(false);
   const [brandingSaving, setBrandingSaving]   = useState(false);
   const [branding, setBranding] = useState({ websiteLogo: '', mobileLogo: '', favicon: '' });
@@ -55,6 +55,7 @@ export default function Settings() {
   const [newCountryName, setNewCountryName] = useState('');
 
   useEffect(() => {
+    setDeliveryLoading(true);
     api.get('/settings')
       .then(({ data }) => {
         if (data.success) {

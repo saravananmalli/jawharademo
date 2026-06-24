@@ -199,7 +199,7 @@ export default function Category() {
 
   const [baseProducts,    setBaseProducts]    = useState([]);
   const [sidebarFilters,  setSidebarFilters]  = useState(EMPTY_FILTERS);
-  const [loading,         setLoading]         = useState(true);
+  const [loading,         setLoading]         = useState(false);
   const [sort,            setSort]            = useState('default');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [visibleCount,    setVisibleCount]    = useState(PAGE_SIZE);
@@ -432,7 +432,7 @@ export default function Category() {
               </div>
             ) : (
               <>
-                <ProductGrid products={visibleProducts} loading={loading} cols={4} />
+                <ProductGrid products={visibleProducts} loading={loading && displayProducts.length === 0} cols={4} />
                 {!loading && visibleCount < displayProducts.length && (
                   <div className="category-page__load-more">
                     <button className="category-page__load-more-btn" onClick={loadMore}>

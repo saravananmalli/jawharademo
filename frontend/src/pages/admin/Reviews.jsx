@@ -494,9 +494,9 @@ export default function Reviews() {
       {/* ── Table ── */}
       <Card>
         <TableContainer sx={{ overflowX: 'auto' }}>
-          {loading && <ReviewsTableSkeleton />}
-          {!loading && (
-            <Table size="small" sx={{ minWidth: 860 }}>
+          {loading && reviews.length === 0 && <ReviewsTableSkeleton />}
+          {(!loading || reviews.length > 0) && (
+            <Table size="small" sx={{ minWidth: 860, opacity: loading && reviews.length > 0 ? 0.5 : 1, transition: 'opacity 0.15s' }}>
               <TableHead>
                 <TableRow>
                   <TableCell padding="checkbox">

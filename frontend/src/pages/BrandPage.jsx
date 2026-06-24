@@ -21,8 +21,8 @@ export default function BrandPage() {
   const [brand,           setBrand]           = useState(null);
   const [baseProducts,    setBaseProducts]    = useState([]);
   const [sidebarFilters,  setSidebarFilters]  = useState(EMPTY_FILTERS);
-  const [loading,         setLoading]         = useState(true);
-  const [brandLoading,    setBrandLoading]    = useState(true);
+  const [loading,         setLoading]         = useState(false);
+  const [brandLoading,    setBrandLoading]    = useState(false);
   const [notFound,        setNotFound]        = useState(false);
   const [sort,            setSort]            = useState('default');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
@@ -177,7 +177,7 @@ export default function BrandPage() {
                 </button>
               </div>
             ) : (
-              <ProductGrid products={displayProducts} loading={loading} cols={4} />
+              <ProductGrid products={displayProducts} loading={loading && baseProducts.length === 0} cols={4} />
             )}
           </div>
         </div>

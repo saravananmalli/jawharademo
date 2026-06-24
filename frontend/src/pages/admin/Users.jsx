@@ -54,7 +54,7 @@ export default function AdminCustomers() {
   const [stats, setStats]           = useState(null);
   const [page, setPage]             = useState(0);
   const [rowsPerPage]               = useState(15);
-  const [loading, setLoading]       = useState(true);
+  const [loading, setLoading]       = useState(false);
   const [search, setSearch]         = useState('');
   const [roleFilter, setRoleFilter]     = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -188,8 +188,8 @@ export default function AdminCustomers() {
                 <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem' }} align="center">Actions</TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>
-              {loading ? (
+            <TableBody sx={{ opacity: loading && users.length > 0 ? 0.5 : 1, transition: 'opacity 0.15s' }}>
+              {loading && users.length === 0 ? (
                 Array.from({ length: 8 }).map((_, i) => (
                   <TableRow key={i}>
                     {Array.from({ length: 8 }).map((__, j) => (

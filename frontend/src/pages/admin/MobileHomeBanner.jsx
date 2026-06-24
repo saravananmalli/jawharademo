@@ -18,7 +18,7 @@ const EMPTY = { title: '', description: '', imageUrl: '', order: 1, active: true
 
 export default function MobileHomeBanner() {
   const [banners, setBanners]           = useState([]);
-  const [loading, setLoading]           = useState(true);
+  const [loading, setLoading]           = useState(false);
   const [saving, setSaving]             = useState(false);
   const [error, setError]               = useState('');
   const [success, setSuccess]           = useState('');
@@ -135,7 +135,7 @@ export default function MobileHomeBanner() {
       {error   && <Alert severity="error"   sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
-      {loading ? (
+      {loading && banners.length === 0 ? (
         <Grid container spacing={2.5}>
           {Array.from({ length: 6 }).map((_, i) => (
             <Grid item xs={12} sm={6} lg={4} key={i}>
@@ -167,7 +167,7 @@ export default function MobileHomeBanner() {
           <Button variant="contained" startIcon={<AddIcon />} onClick={openAdd}>Add First Banner</Button>
         </Box>
       ) : (
-        <Grid container spacing={2.5}>
+        <Grid container spacing={2.5} sx={{ opacity: loading ? 0.5 : 1, transition: 'opacity 0.15s' }}>
           {banners.map((b, index) => (
             <Grid item xs={12} sm={6} lg={4} key={b._id}>
               <Card

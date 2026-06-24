@@ -81,7 +81,7 @@ export default function Offers() {
   const isDark = theme.palette.mode === 'dark';
 
   const [offers, setOffers]           = useState([]);
-  const [loading, setLoading]         = useState(true);
+  const [loading, setLoading]         = useState(false);
   const [saving, setSaving]           = useState(false);
   const [error, setError]             = useState('');
   const [success, setSuccess]         = useState('');
@@ -318,7 +318,7 @@ export default function Offers() {
       {error   && <Alert severity="error"   sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
-      {loading ? (
+      {loading && offers.length === 0 ? (
         <Grid container spacing={2.5}>
           {Array.from({ length: 4 }).map((_, i) => (
             <Grid item xs={12} md={6} key={i}>
@@ -358,7 +358,7 @@ export default function Offers() {
           ))}
         </Grid>
       ) : (
-        <Grid container spacing={2.5}>
+        <Grid container spacing={2.5} sx={{ opacity: loading ? 0.5 : 1, transition: 'opacity 0.15s' }}>
           {offers.map(o => {
             const st = offerStatus(o);
             const now = Date.now();

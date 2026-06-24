@@ -226,7 +226,7 @@ export default function Analytics() {
   const [statusData,  setStatusData]  = useState([]);
   const [topProducts, setTopProducts] = useState([]);
   const [summary,     setSummary]     = useState(null);
-  const [loading,     setLoading]     = useState(true);
+  const [loading,     setLoading]     = useState(false);
   const [dateRange,   setDateRange]   = useState(() => computeDateRange('today'));
 
   // stable callback — never changes identity, safe in useEffect deps

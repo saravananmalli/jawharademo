@@ -20,7 +20,7 @@ export default function OfferPage() {
   const [offer,           setOffer]           = useState(null);
   const [baseProducts,    setBaseProducts]    = useState([]);
   const [sidebarFilters,  setSidebarFilters]  = useState(EMPTY_FILTERS);
-  const [loading,         setLoading]         = useState(true);
+  const [loading,         setLoading]         = useState(false);
   const [sort,            setSort]            = useState('default');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
@@ -149,7 +149,7 @@ export default function OfferPage() {
                 </button>
               </div>
             ) : (
-              <ProductGrid products={displayProducts} loading={loading} cols={4} />
+              <ProductGrid products={displayProducts} loading={loading && baseProducts.length === 0} cols={4} />
             )}
           </div>
         </div>

@@ -18,7 +18,7 @@ const EMPTY = { title: '', description: '', imageUrl: '', order: 1, active: true
 
 export default function MobileOnboarding() {
   const [slides, setSlides]           = useState([]);
-  const [loading, setLoading]         = useState(true);
+  const [loading, setLoading]         = useState(false);
   const [saving, setSaving]           = useState(false);
   const [error, setError]             = useState('');
   const [success, setSuccess]         = useState('');
@@ -135,7 +135,7 @@ export default function MobileOnboarding() {
       {error   && <Alert severity="error"   sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
-      {loading ? (
+      {loading && slides.length === 0 ? (
         <Grid container spacing={2.5}>
           {Array.from({ length: 8 }).map((_, i) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={i}>
@@ -162,7 +162,7 @@ export default function MobileOnboarding() {
           <Button variant="contained" startIcon={<AddIcon />} onClick={openAdd}>Add First Slide</Button>
         </Box>
       ) : (
-        <Grid container spacing={2.5}>
+        <Grid container spacing={2.5} sx={{ opacity: loading ? 0.5 : 1, transition: 'opacity 0.15s' }}>
           {slides.map((s, index) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={s._id}>
               <Card

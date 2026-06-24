@@ -33,7 +33,7 @@ const EMPTY_FORM = {
 
 export default function BrandsPage() {
   const [brands,       setBrands]       = useState([]);
-  const [loading,      setLoading]      = useState(true);
+  const [loading,      setLoading]      = useState(false);
   const [search,       setSearch]       = useState('');
   const [dialogOpen,   setDialogOpen]   = useState(false);
   const [editTarget,   setEditTarget]   = useState(null);
@@ -178,8 +178,8 @@ export default function BrandsPage() {
                   <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody>
-                {loading
+              <TableBody sx={{ opacity: loading && brands.length > 0 ? 0.5 : 1, transition: 'opacity 0.15s' }}>
+                {loading && brands.length === 0
                   ? Array.from({ length: 8 }).map((_, i) => (
                       <TableRow key={i}>
                         <TableCell><Skeleton width={20} /></TableCell>

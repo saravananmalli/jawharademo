@@ -55,7 +55,7 @@ export default function Banners() {
   const [banners, setBanners]           = useState([]);
   const [categories, setCategories]     = useState([]);
   const [collections, setCollections]   = useState([]);
-  const [loading, setLoading]           = useState(true);
+  const [loading, setLoading]           = useState(false);
   const [saving, setSaving]             = useState(false);
   const [error, setError]               = useState('');
   const [success, setSuccess]           = useState('');
@@ -187,7 +187,7 @@ export default function Banners() {
       {error   && <Alert severity="error"   sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
-      {loading ? (
+      {loading && banners.length === 0 ? (
         <Grid container spacing={2.5}>
           {Array.from({ length: 6 }).map((_, i) => (
             <Grid item xs={12} sm={6} lg={4} key={i}>
@@ -211,7 +211,7 @@ export default function Banners() {
           ))}
         </Grid>
       ) : (
-        <Grid container spacing={2.5}>
+        <Grid container spacing={2.5} sx={{ opacity: loading ? 0.5 : 1, transition: 'opacity 0.15s' }}>
           {banners.map(b => {
             const st = bannerStatus(b);
             return (

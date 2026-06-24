@@ -37,7 +37,7 @@ export default function MobileDashboard() {
   const [sections, setSections]         = useState([]);
   const [activeKey, setActiveKey]       = useState(null);
   const [items, setItems]               = useState({});
-  const [loadingSec, setLoadingSec]     = useState(true);
+  const [loadingSec, setLoadingSec]     = useState(false);
   const [loadingItems, setLoadingItems] = useState(false);
   const [saving, setSaving]             = useState(false);
   const [error, setError]               = useState('');
@@ -235,7 +235,7 @@ export default function MobileDashboard() {
       {error   && <Alert severity="error"   sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
-      {loadingSec ? (
+      {loadingSec && sections.length === 0 ? (
         <Box sx={{ display: 'flex', gap: 2.5, alignItems: 'flex-start' }}>
           <Paper variant="outlined" sx={{ width: 248, flexShrink: 0, borderRadius: 2, overflow: 'hidden' }}>
             <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
@@ -345,7 +345,7 @@ export default function MobileDashboard() {
                   </Button>
                 </Box>
 
-                {loadingItems ? (
+                {loadingItems && !(items[activeKey]?.length > 0) ? (
                   <Grid container spacing={2}>
                     {Array.from({ length: 6 }).map((_, i) => (
                       <Grid item xs={12} sm={6} lg={4} key={i}>
