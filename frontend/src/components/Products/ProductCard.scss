@@ -184,24 +184,11 @@
   &__delivery {
     font-size: $font-xs;
     font-weight: $font-weight-medium;
-    font-style: italic;
     background: $gradient-gold;
     color: $white;
     white-space: nowrap;
-    letter-spacing: $letter-spacing-wide;
-    // push to right of the meta flex row
     margin-left: auto;
-
-    // ── Desktop: flush-right ribbon — breaks out of __body padding ──
-    padding: 3px $spacing-md 3px $spacing-sm;
-    border-radius: $border-radius-2xl 0 0 $border-radius-2xl;
-    margin-right: -$spacing-md;
-
-    // ── Mobile: full pill, stays inside the card ─────────────────
-    @media (max-width: #{$breakpoint-sm - 1px}) {
-      padding: 3px $spacing-sm;
-      border-radius: $border-radius-full;
-      margin-left: 0;
-    }
+    padding: 3px $spacing-sm;
+    border-radius: $border-radius-full;
   }
 }
