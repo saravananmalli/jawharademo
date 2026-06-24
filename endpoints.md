@@ -122,6 +122,16 @@ Returns all **enabled** dashboard sections, each with their **active** items sor
 }
 ```
 
+### Delivery Options (standardised values)
+
+The `arrivesBy` field on each product contains one of these exact strings — display them as-is, no prefix needed:
+
+| Value | Display |
+|-------|---------|
+| `Delivered Next Day` | Next-day delivery |
+| `Delivered in 1–3 Days` | Standard delivery |
+| `Delivered in 2–3 Days` | Express delivery |
+
 ---
 
 ## 2. Authentication

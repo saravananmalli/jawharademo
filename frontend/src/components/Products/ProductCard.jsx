@@ -93,7 +93,7 @@ function ProductCard({ product }) {
           )}
           {product.arrivesBy && (
             <span className="product-card__delivery">
-              Delivered {product.arrivesBy}
+              {product.arrivesBy}
             </span>
           )}
         </div>

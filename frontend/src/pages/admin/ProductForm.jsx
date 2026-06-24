@@ -47,8 +47,7 @@ import {
 const RING_SIZES = ['5', '6', '7', '8', '9', '10', '11', '12'];
 
 const DELIVERY_OPTIONS = [
-  'Same Day', 'Next Day', '1–3 Days', '3–5 Days',
-  '5–7 Days', '7–14 Days', '2–3 Weeks',
+  'Delivered Next Day', 'Delivered in 1–3 Days', 'Delivered in 2–3 Days',
 ];
 
 // Predefined collection options — must mirror the COLLECTION_MAP regexes in chatController.js

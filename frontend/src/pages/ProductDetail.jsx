@@ -451,7 +451,7 @@ export default function ProductDetail() {
                   <div className="pd__delivery-badge">
                     <FaTruck className="pd__delivery-icon" />
                     <span className="pd__delivery-text">
-                      <><span>Delivered </span> <strong>{product.arrivesBy || product.deliveryDate}</strong></>
+                      <strong>{product.arrivesBy || product.deliveryDate}</strong>
                     </span>
                   </div>
                 )}
@@ -699,7 +699,7 @@ export default function ProductDetail() {
               <li>Orders placed before 2:00 PM are dispatched the same day</li>
               <li>Secure and discreet packaging with live tracking via SMS/email</li>
               {product.arrivesBy && (
-                <li>This item is estimated to arrive by <strong>{product.arrivesBy}</strong></li>
+                <li>Estimated delivery: <strong>{product.arrivesBy}</strong></li>
               )}
               <li>Fulfilled by: <strong>{product.fulfilledBy || 'Jawhara Jewellery'}</strong></li>
             </ul>

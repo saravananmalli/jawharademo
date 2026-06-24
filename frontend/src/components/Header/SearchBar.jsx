@@ -107,7 +107,7 @@ function ProductRow({ product, isActive, query, onSelect, onEnter, onLeave }) {
             <>
               <span className="search-overlay__suggestion-dot">·</span>
               <span className="search-overlay__suggestion-delivery">
-                Arrives {product.deliveryDate || product.arrivesBy}
+                {product.arrivesBy || product.deliveryDate}
               </span>
             </>
           )}
