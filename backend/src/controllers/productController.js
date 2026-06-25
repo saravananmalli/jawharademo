@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const Order   = require('../models/Order');
 
 exports.searchProducts = async (req, res) => {
   const { q, flag, sort, limit = 8 } = req.query;
@@ -118,4 +119,78 @@ exports.deleteProduct = async (req, res) => {
   const product = await Product.findByIdAndDelete(req.params.id);
   if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
   res.json({ success: true, message: 'Product deleted' });
+};
+
+// Returns product categories (distinct values) for the admin suggestion filter.
+exports.getProductCategories = async (req, res) => {
+  try {
+    const cats = await Product.distinct('category');
+    res.json({ success: true, data: cats.filter(Boolean).sort() });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Returns suggested products for the "Most Loved" section picker.
+// sortBy: 'purchased' (from Orders), 'rated' (rating + reviews), 'newest'
+// category: optional category filter
+exports.getProductSuggestions = async (req, res) => {
+  try {
+    const { sortBy = 'rated', category, limit = 24 } = req.query;
+    const cap = Math.min(Number(limit), 100);
+
+    const filter = {};
+    if (category && category !== 'all') {
+      filter.category = new RegExp(category.trim(), 'i');
+    }
+
+    let products;
+
+    if (sortBy === 'purchased') {
+      // Aggregate how many times each product has been ordered (across all orders).
+      const pipeline = [
+        { $unwind: '$items' },
+        { $group: { _id: '$items.product', totalSold: { $sum: '$items.quantity' } } },
+        { $sort: { totalSold: -1 } },
+        { $limit: cap * 4 }, // over-fetch so category filter still yields enough results
+      ];
+      const topSales = await Order.aggregate(pipeline);
+      const idToSold = {};
+      const topIds   = [];
+      topSales.forEach(x => {
+        if (x._id) {
+          idToSold[x._id.toString()] = x.totalSold;
+          topIds.push(x._id);
+        }
+      });
+
+      const rawProducts = await Product.find({ _id: { $in: topIds }, ...filter })
+        .select('name category price originalPrice images rating reviewCount badge')
+        .lean();
+
+      // Re-sort by purchase count (aggregation order is lost after DB find)
+      rawProducts.sort((a, b) => (idToSold[b._id.toString()] || 0) - (idToSold[a._id.toString()] || 0));
+      products = rawProducts.slice(0, cap).map(p => ({
+        ...p,
+        soldCount: idToSold[p._id.toString()] || 0,
+      }));
+    } else if (sortBy === 'rated') {
+      products = await Product.find(filter)
+        .select('name category price originalPrice images rating reviewCount badge')
+        .sort({ rating: -1, reviewCount: -1 })
+        .limit(cap)
+        .lean();
+    } else {
+      // newest
+      products = await Product.find(filter)
+        .select('name category price originalPrice images rating reviewCount badge')
+        .sort({ createdAt: -1 })
+        .limit(cap)
+        .lean();
+    }
+
+    res.json({ success: true, data: products });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };

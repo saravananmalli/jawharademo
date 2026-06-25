@@ -3,6 +3,7 @@ import {
   Box, Card, CardContent, Typography, Button, TextField, Grid,
   IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions,
   Alert, Switch, FormControlLabel, CircularProgress, Tooltip, Paper, Chip, Skeleton,
+  Tabs, Tab, Divider,
 } from '@mui/material';
 import AddIcon           from '@mui/icons-material/Add';
 import EditIcon          from '@mui/icons-material/Edit';
@@ -10,6 +11,9 @@ import DeleteIcon        from '@mui/icons-material/Delete';
 import ImageIcon         from '@mui/icons-material/Image';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import PhoneAndroidIcon  from '@mui/icons-material/PhoneAndroid';
+import StarIcon          from '@mui/icons-material/Star';
+import CheckIcon         from '@mui/icons-material/Check';
+import AutoAwesomeIcon   from '@mui/icons-material/AutoAwesome';
 import ImageUploader     from '../../components/admin/ImageUploader';
 import api               from '../../services/api';
 import { getImageUrl }   from '../../utils/imageUrl';
@@ -19,7 +23,7 @@ const SECTION_HINTS = {
   categories:    'Category quick-links shown as icon tiles. Square thumbnails (400×400 px) recommended.',
   offers:        'Limited-time promotional offer cards with discount badges and CTA buttons.',
   collections:   'Curated jewellery collection cards (Gold Ring, Everyday Studs, etc.).',
-  most_loved:    'Best-selling and most popular products or collections.',
+  most_loved:    'Best-selling and most popular products shown on the mobile home screen.',
   gifting:       'Gift-idea cards and gifting collection banners.',
   trending:      'Currently trending styles and designs.',
   moodboard:     'Seasonal style moodboard images (e.g. "Your June Style Moodboard").',
@@ -32,6 +36,250 @@ const EMPTY_ITEM = {
   title: '', subtitle: '', description: '',
   imageUrl: '', ctaText: '', ctaLink: '', badge: '', active: true,
 };
+
+const SORT_TABS = [
+  { value: 'purchased', label: 'Most Purchased' },
+  { value: 'rated',     label: 'Highest Rated'  },
+  { value: 'newest',    label: 'Newest'          },
+];
+
+// ── Most Loved: Product Suggestion Panel ─────────────────────────────────────
+
+function ProductSuggestionPanel({ existingItems, onAdd }) {
+  const [sortBy,       setSortBy]       = useState('purchased');
+  const [category,     setCategory]     = useState('all');
+  const [categories,   setCategories]   = useState([]);
+  const [suggestions,  setSuggestions]  = useState([]);
+  const [loading,      setLoading]      = useState(false);
+  const [adding,       setAdding]       = useState(null); // product _id being added
+
+  const existingProductIds = new Set(
+    existingItems.map(x => x.productId).filter(Boolean)
+  );
+
+  // Load categories once
+  useEffect(() => {
+    api.get('/admin/products/categories')
+      .then(({ data }) => setCategories(data.data || []))
+      .catch(() => {});
+  }, []);
+
+  // Load suggestions whenever sortBy or category changes
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    api.get('/admin/products/suggestions', { params: { sortBy, category, limit: 24 } })
+      .then(({ data }) => { if (!cancelled) setSuggestions(data.data || []); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [sortBy, category]);
+
+  const handleAdd = async (product) => {
+    setAdding(product._id);
+    await onAdd(product);
+    setAdding(null);
+  };
+
+  return (
+    <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 3 }}>
+      {/* Panel header */}
+      <Box sx={{
+        px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider',
+        display: 'flex', alignItems: 'center', gap: 1,
+        bgcolor: 'primary.50',
+      }}>
+        <AutoAwesomeIcon sx={{ fontSize: '1.1rem', color: 'primary.main' }} />
+        <Box sx={{ flex: 1 }}>
+          <Typography variant="subtitle2" fontWeight={700}>Product Suggestions</Typography>
+          <Typography variant="caption" color="text.secondary">
+            Pick products to feature in the Most Loved section. Click Add to pin them to the mobile view.
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* Sort tabs */}
+      <Box sx={{ px: 2, pt: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Tabs
+          value={sortBy}
+          onChange={(_, v) => setSortBy(v)}
+          textColor="primary"
+          indicatorColor="primary"
+          sx={{ minHeight: 36, '& .MuiTab-root': { minHeight: 36, fontSize: '0.78rem', py: 0 } }}
+        >
+          {SORT_TABS.map(t => (
+            <Tab key={t.value} value={t.value} label={t.label} />
+          ))}
+        </Tabs>
+      </Box>
+
+      {/* Category filter chips */}
+      <Box sx={{ px: 2, py: 1.25, display: 'flex', gap: 0.75, flexWrap: 'wrap', borderBottom: '1px solid', borderColor: 'divider' }}>
+        {['all', ...categories].map(cat => (
+          <Chip
+            key={cat}
+            label={cat === 'all' ? 'All Categories' : cat.charAt(0).toUpperCase() + cat.slice(1)}
+            size="small"
+            variant={category === cat ? 'filled' : 'outlined'}
+            color={category === cat ? 'primary' : 'default'}
+            onClick={() => setCategory(cat)}
+            sx={{ fontSize: '0.72rem', cursor: 'pointer' }}
+          />
+        ))}
+      </Box>
+
+      {/* Product grid */}
+      <Box sx={{ p: 2 }}>
+        {loading ? (
+          <Grid container spacing={1.5}>
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Grid item xs={6} sm={4} md={3} key={i}>
+                <Box sx={{ borderRadius: 1.5, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}>
+                  <Skeleton variant="rectangular" height={110} />
+                  <Box sx={{ p: 1 }}>
+                    <Skeleton width="80%" height={14} />
+                    <Skeleton width="50%" height={12} sx={{ mt: 0.5 }} />
+                    <Skeleton variant="rounded" width="100%" height={28} sx={{ mt: 1 }} />
+                  </Box>
+                </Box>
+              </Grid>
+            ))}
+          </Grid>
+        ) : suggestions.length === 0 ? (
+          <Box sx={{ textAlign: 'center', py: 4, color: 'text.disabled' }}>
+            <ImageIcon sx={{ fontSize: 36, mb: 1 }} />
+            <Typography variant="body2">No products found for this filter.</Typography>
+          </Box>
+        ) : (
+          <Grid container spacing={1.5}>
+            {suggestions.map(product => {
+              const alreadyAdded = existingProductIds.has(product._id);
+              const isAdding     = adding === product._id;
+              const imgSrc       = getImageUrl(product.images?.[0]);
+
+              return (
+                <Grid item xs={6} sm={4} md={3} key={product._id}>
+                  <Box sx={{
+                    borderRadius: 1.5,
+                    border: '1px solid',
+                    borderColor: alreadyAdded ? 'success.main' : 'divider',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%',
+                    transition: 'border-color 0.2s',
+                    bgcolor: alreadyAdded ? 'success.50' : 'background.paper',
+                  }}>
+                    {/* Thumbnail */}
+                    <Box sx={{ position: 'relative', height: 110, bgcolor: 'action.hover', flexShrink: 0 }}>
+                      {imgSrc ? (
+                        <Box
+                          component="img"
+                          src={imgSrc}
+                          alt={product.name}
+                          sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      ) : (
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'text.disabled' }}>
+                          <ImageIcon />
+                        </Box>
+                      )}
+                      {/* Badge */}
+                      {product.badge && (
+                        <Chip
+                          label={product.badge}
+                          size="small"
+                          sx={{
+                            position: 'absolute', top: 5, left: 5,
+                            fontSize: '0.6rem', fontWeight: 700,
+                            bgcolor: 'primary.main', color: '#fff',
+                            height: 18,
+                          }}
+                        />
+                      )}
+                      {/* Already added tick */}
+                      {alreadyAdded && (
+                        <Box sx={{
+                          position: 'absolute', top: 5, right: 5,
+                          bgcolor: 'success.main', borderRadius: '50%',
+                          width: 20, height: 20,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          <CheckIcon sx={{ fontSize: '0.75rem', color: '#fff' }} />
+                        </Box>
+                      )}
+                      {/* Sold count badge for "purchased" sort */}
+                      {sortBy === 'purchased' && product.soldCount > 0 && (
+                        <Box sx={{
+                          position: 'absolute', bottom: 5, right: 5,
+                          bgcolor: 'rgba(0,0,0,0.65)', color: '#fff',
+                          px: 0.6, py: 0.1, borderRadius: 0.75,
+                          fontSize: '0.62rem', fontWeight: 700,
+                        }}>
+                          {product.soldCount} sold
+                        </Box>
+                      )}
+                    </Box>
+
+                    {/* Info */}
+                    <Box sx={{ p: 1, flex: 1, display: 'flex', flexDirection: 'column' }}>
+                      <Typography variant="caption" fontWeight={700} sx={{
+                        display: '-webkit-box', WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                        lineHeight: 1.3, mb: 0.25,
+                      }}>
+                        {product.name}
+                      </Typography>
+
+                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                        {product.category}
+                      </Typography>
+
+                      <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mt: 0.25 }}>
+                        {product.rating > 0 && (
+                          <>
+                            <StarIcon sx={{ fontSize: '0.7rem', color: 'warning.main' }} />
+                            <Typography variant="caption" sx={{ fontSize: '0.65rem', fontWeight: 600 }}>
+                              {product.rating.toFixed(1)}
+                            </Typography>
+                            {product.reviewCount > 0 && (
+                              <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.62rem' }}>
+                                ({product.reviewCount})
+                              </Typography>
+                            )}
+                          </>
+                        )}
+                      </Stack>
+
+                      <Typography variant="caption" fontWeight={700} color="primary.main" sx={{ mt: 0.25 }}>
+                        AED {product.price?.toLocaleString()}
+                      </Typography>
+
+                      <Button
+                        size="small"
+                        variant={alreadyAdded ? 'outlined' : 'contained'}
+                        color={alreadyAdded ? 'success' : 'primary'}
+                        startIcon={alreadyAdded ? <CheckIcon /> : isAdding ? null : <AddIcon />}
+                        disabled={alreadyAdded || isAdding}
+                        onClick={() => handleAdd(product)}
+                        sx={{ mt: 'auto', pt: 0.75, fontSize: '0.68rem', minHeight: 28 }}
+                        fullWidth
+                      >
+                        {isAdding ? <CircularProgress size={14} /> : alreadyAdded ? 'Added' : 'Add'}
+                      </Button>
+                    </Box>
+                  </Box>
+                </Grid>
+              );
+            })}
+          </Grid>
+        )}
+      </Box>
+    </Paper>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function MobileDashboard() {
   const [sections, setSections]         = useState([]);
@@ -156,13 +404,40 @@ export default function MobileDashboard() {
       setDialogOpen(false);
       setSuccess(editTarget ? 'Item updated.' : 'Item added.');
       setTimeout(() => setSuccess(''), 3000);
-      // Invalidate cache for this section so it reloads
       setItems(prev => { const n = { ...prev }; delete n[activeKey]; return n; });
       loadItems(activeKey);
     } catch (err) {
       setError(err.response?.data?.message || 'Save failed.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Add a product directly from the suggestion panel into Most Loved
+  const handleAddFromSuggestion = async (product) => {
+    try {
+      const currentCount = items[activeKey]?.length || 0;
+      const payload = {
+        screen:      'dashboard',
+        section:     'most_loved',
+        slot:        'most_loved',
+        productId:   product._id,
+        title:       product.name,
+        subtitle:    `AED ${product.price?.toLocaleString() || ''}`,
+        imageUrl:    product.images?.[0] || '',
+        ctaText:     'Shop Now',
+        ctaLink:     `/product/${product._id}`,
+        badge:       product.badge || '',
+        active:      true,
+        order:       currentCount + 1,
+      };
+      await api.post('/admin/mobile-assets', payload);
+      setSuccess(`"${product.name}" added to Most Loved.`);
+      setTimeout(() => setSuccess(''), 3000);
+      setItems(prev => { const n = { ...prev }; delete n['most_loved']; return n; });
+      loadItems('most_loved');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Could not add product.');
     }
   };
 
@@ -216,6 +491,7 @@ export default function MobileDashboard() {
   const activeSection = sections.find(s => s.key === activeKey);
   const activeItems   = items[activeKey] || [];
   const isStories     = activeKey === 'stories';
+  const isMostLoved   = activeKey === 'most_loved';
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -345,6 +621,27 @@ export default function MobileDashboard() {
                   </Button>
                 </Box>
 
+                {/* ── Most Loved: product suggestion panel ── */}
+                {isMostLoved && (
+                  <ProductSuggestionPanel
+                    existingItems={activeItems}
+                    onAdd={handleAddFromSuggestion}
+                  />
+                )}
+
+                {/* ── Section: pinned items label (Most Loved only) ── */}
+                {isMostLoved && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                    <Typography variant="subtitle2" fontWeight={700}>
+                      Pinned Items ({activeItems.length})
+                    </Typography>
+                    <Divider sx={{ flex: 1 }} />
+                    <Typography variant="caption" color="text.secondary">
+                      Drag to reorder · toggle to show/hide
+                    </Typography>
+                  </Box>
+                )}
+
                 {loadingItems && !(items[activeKey]?.length > 0) ? (
                   <Grid container spacing={2}>
                     {Array.from({ length: 6 }).map((_, i) => (
@@ -361,7 +658,10 @@ export default function MobileDashboard() {
                     <ImageIcon sx={{ fontSize: 48, mb: 1 }} />
                     <Typography variant="h6">No items yet</Typography>
                     <Typography variant="body2" sx={{ mb: 2 }}>
-                      Add the first item for the <strong>{activeSection.label}</strong> section.
+                      {isMostLoved
+                        ? 'Use the Product Suggestions panel above to add products, or click Add Item to add manually.'
+                        : <>Add the first item for the <strong>{activeSection.label}</strong> section.</>
+                      }
                     </Typography>
                     <Button variant="contained" startIcon={<AddIcon />} onClick={openAdd}>Add Item</Button>
                   </Box>

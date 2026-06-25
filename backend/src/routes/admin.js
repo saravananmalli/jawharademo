@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const protect = require('../middleware/auth');
 const adminOnly = require('../middleware/adminOnly');
-const { createProduct, updateProduct, deleteProduct } = require('../controllers/productController');
+const { createProduct, updateProduct, deleteProduct, getProductSuggestions, getProductCategories } = require('../controllers/productController');
 const { getAllOrders, updateOrderStatus } = require('../controllers/orderController');
 const { getAllUsers, updateUser } = require('../controllers/userController');
 const { getSummary, getSalesData, getTopProducts, getOrdersByStatus } = require('../controllers/analyticsController');
@@ -15,6 +15,8 @@ const { getSections, updateSection, reorderSections } = require('../controllers/
 
 router.use(protect, adminOnly);
 
+router.get('/products/suggestions',  getProductSuggestions);
+router.get('/products/categories',   getProductCategories);
 router.post('/products', createProduct);
 router.put('/products/:id', updateProduct);
 router.delete('/products/:id', deleteProduct);

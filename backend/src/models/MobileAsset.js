@@ -13,6 +13,8 @@ const mobileAssetSchema = new mongoose.Schema({
   badge:       { type: String, default: '' },
   order:       { type: Number, default: 0 },
   active:      { type: Boolean, default: true },
+  // Optional: links this asset back to a Product document (used by Most Loved suggestions)
+  productId:   { type: String, default: '' },
 }, { timestamps: true });
 
 mobileAssetSchema.index({ screen: 1, active: 1, order: 1 });
