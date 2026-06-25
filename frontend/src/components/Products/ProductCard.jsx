@@ -55,6 +55,7 @@ function ProductCard({ product }) {
           src={primaryImage}
           alt={product.name}
           loading="lazy"
+          decoding="async"
           width="400"
           height="400"
         />
@@ -64,6 +65,7 @@ function ProductCard({ product }) {
             src={secondaryImage}
             alt={`${product.name} alternate view`}
             loading="lazy"
+            decoding="async"
             width="400"
             height="400"
           />

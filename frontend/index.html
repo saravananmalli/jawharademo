@@ -4,10 +4,25 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-    <!-- DNS resolution + TCP handshake for external origins before they're needed -->
+    <!-- Preconnect: establish TCP/TLS to critical origins before the page fetches them -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
+    <!--
+      Preload the first hero banner (LCP image) so the browser starts
+      fetching it in parallel with scripts — drastically improves LCP.
+    -->
+    <link
+      rel="preload"
+      as="image"
+      href="/banner/banner1.webp"
+      type="image/webp"
+    />
+
+    <!--
+      font-display=swap prevents invisible text while fonts load (FOIT).
+      Using &display=swap on both font URLs.
+    -->
     <link
       href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap"
       rel="stylesheet"

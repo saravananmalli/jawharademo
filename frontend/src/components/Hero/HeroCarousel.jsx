@@ -60,7 +60,10 @@ export default function HeroCarousel() {
                   className="hero__bg"
                   // First slide: load immediately with high priority (LCP image)
                   loading={idx === 0 ? 'eager' : 'lazy'}
+                  decoding={idx === 0 ? 'sync' : 'async'}
                   fetchPriority={idx === 0 ? 'high' : 'auto'}
+                  width="1440"
+                  height="600"
                 />
               </Link>
             </SwiperSlide>

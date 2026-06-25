@@ -45,7 +45,7 @@ const NAV_CATEGORIES = [
       "By Metal & Stone":["Diamond", "Gold 18K", "Gold 22K", "White Gold", "Rose Gold", "Emerald", "Ruby", "Sapphire"],
       "By Price":        BY_PRICE_RANGES,
     },
-    promos: [{ title: "New Season Rings",  desc: "Latest designs just arrived",     link: "/category/rings?filter=new",      img: "/images/ring.png" }],
+    promos: [{ title: "New Season Rings",  desc: "Latest designs just arrived",     link: "/category/rings?filter=new",      img: "/images/ring.png",     imgWebP: "/images/ring.webp" }],
   },
   {
     id: "earrings",
@@ -57,7 +57,7 @@ const NAV_CATEGORIES = [
       "By Metal & Stone":["Diamond", "Gold", "White Gold", "Ruby", "Emerald", "Sapphire", "Pearl"],
       "By Price":        BY_PRICE_RANGES,
     },
-    promos: [{ title: "Stud Earrings",     desc: "Timeless stud collection",        link: "/category/earrings?filter=studs", img: "/images/earring.png" }],
+    promos: [{ title: "Stud Earrings",     desc: "Timeless stud collection",        link: "/category/earrings?filter=studs", img: "/images/earring.png",  imgWebP: "/images/earring.webp" }],
   },
   {
     id: "necklaces",
@@ -74,7 +74,7 @@ const NAV_CATEGORIES = [
       "By Metal & Stone":["Diamond", "Gold 18K", "White Gold", "Rose Gold", "Pearl", "Emerald"],
       "By Price":        BY_PRICE_RANGES,
     },
-    promos: [{ title: "Diamond Necklaces", desc: "Certified diamond collection",    link: "/category/necklaces?filter=diamond", img: "/images/necklace.png" }],
+    promos: [{ title: "Diamond Necklaces", desc: "Certified diamond collection",    link: "/category/necklaces?filter=diamond", img: "/images/necklace.png", imgWebP: "/images/necklace.webp" }],
   },
   {
     id: "bracelets",
@@ -86,7 +86,7 @@ const NAV_CATEGORIES = [
       "By Metal & Stone":["Diamond", "Gold 18K", "Gold 22K", "White Gold", "Rose Gold", "Silver"],
       "By Price":        BY_PRICE_RANGES,
     },
-    promos: [{ title: "Gold Bangles",      desc: "Traditional & modern bangles",    link: "/category/bracelets?filter=bangles", img: "/images/bracelet.png" }],
+    promos: [{ title: "Gold Bangles",      desc: "Traditional & modern bangles",    link: "/category/bracelets?filter=bangles", img: "/images/bracelet.png", imgWebP: "/images/bracelet.webp" }],
   },
 ];
 
@@ -264,14 +264,17 @@ export default function CategoryMenu() {
                         <Link key={promo.title} to={promo.link} className="mega-promo">
                           <div className="mega-promo__img">
                             {promo.img && (
-                              <img
-                                src={promo.img}
-                                alt={promo.title}
-                                loading="lazy"
-                                decoding="async"
-                                width="200"
-                                height="120"
-                              />
+                              <picture>
+                                {promo.imgWebP && <source srcSet={promo.imgWebP} type="image/webp" />}
+                                <img
+                                  src={promo.img}
+                                  alt={promo.title}
+                                  loading="lazy"
+                                  decoding="async"
+                                  width="200"
+                                  height="120"
+                                />
+                              </picture>
                             )}
                           </div>
                           <div className="mega-promo__info">

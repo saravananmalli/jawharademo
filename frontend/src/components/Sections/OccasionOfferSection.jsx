@@ -117,6 +117,9 @@ function OccasionOfferSection() {
                 src={getImageUrl(offer.bannerImage)}
                 alt={offer.bannerTitle}
                 loading="lazy"
+                decoding="async"
+                width="400"
+                height="500"
               />
               <div className="occ-left__overlay">
                 <h3 className="occ-left__overlay-title">{offer.bannerTitle}</h3>

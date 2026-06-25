@@ -35,6 +35,9 @@ function OfferBannerSection() {
             alt={banner.title}
             className="offer-banner__img"
             loading="lazy"
+            decoding="async"
+            width="1200"
+            height="400"
           />
           <div className="offer-banner__overlay">
             <div className="offer-banner__content">
