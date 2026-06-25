@@ -1,9 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   Box, Card, CardContent, Typography, Button, TextField, Grid,
   IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions,
   Alert, Switch, FormControlLabel, CircularProgress, Tooltip, Paper, Chip, Skeleton,
   Tabs, Tab, Divider,
+  Table, TableHead, TableBody, TableRow, TableCell, TableContainer,
+  InputAdornment,
 } from '@mui/material';
 import AddIcon           from '@mui/icons-material/Add';
 import EditIcon          from '@mui/icons-material/Edit';
@@ -13,7 +15,9 @@ import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import PhoneAndroidIcon  from '@mui/icons-material/PhoneAndroid';
 import StarIcon          from '@mui/icons-material/Star';
 import CheckIcon         from '@mui/icons-material/Check';
+import SearchIcon        from '@mui/icons-material/Search';
 import AutoAwesomeIcon   from '@mui/icons-material/AutoAwesome';
+import FavoriteIcon      from '@mui/icons-material/Favorite';
 import ImageUploader     from '../../components/admin/ImageUploader';
 import api               from '../../services/api';
 import { getImageUrl }   from '../../utils/imageUrl';
@@ -43,37 +47,63 @@ const SORT_TABS = [
   { value: 'newest',    label: 'Newest'          },
 ];
 
-// ── Most Loved: Product Suggestion Panel ─────────────────────────────────────
+// ── Thumb helper ─────────────────────────────────────────────────────────────
+function Thumb({ src, alt, size = 40 }) {
+  return src ? (
+    <Box
+      component="img"
+      src={src}
+      alt={alt}
+      sx={{ width: size, height: size, borderRadius: 1, objectFit: 'cover', flexShrink: 0, display: 'block' }}
+    />
+  ) : (
+    <Box sx={{
+      width: size, height: size, borderRadius: 1, flexShrink: 0,
+      bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}>
+      <ImageIcon sx={{ fontSize: size * 0.5, color: 'text.disabled' }} />
+    </Box>
+  );
+}
 
-function ProductSuggestionPanel({ existingItems, onAdd }) {
-  const [sortBy,       setSortBy]       = useState('purchased');
-  const [category,     setCategory]     = useState('all');
-  const [categories,   setCategories]   = useState([]);
-  const [suggestions,  setSuggestions]  = useState([]);
-  const [loading,      setLoading]      = useState(false);
-  const [adding,       setAdding]       = useState(null); // product _id being added
+// ── Most Loved: side-by-side split panel ─────────────────────────────────────
+function MostLovedPanel({ activeItems, loadingItems, onAdd, onEdit, onDelete, onToggle, onDragStart, onDrop, onOpenAdd }) {
+  const [sortBy,      setSortBy]      = useState('purchased');
+  const [category,    setCategory]    = useState('all');
+  const [categories,  setCategories]  = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
+  const [loadingSugg, setLoadingSugg] = useState(false);
+  const [adding,      setAdding]      = useState(null);
+  const [search,      setSearch]      = useState('');
 
-  const existingProductIds = new Set(
-    existingItems.map(x => x.productId).filter(Boolean)
+  const existingProductIds = useMemo(
+    () => new Set(activeItems.map(x => x.productId).filter(Boolean)),
+    [activeItems]
   );
 
-  // Load categories once
   useEffect(() => {
     api.get('/admin/products/categories')
       .then(({ data }) => setCategories(data.data || []))
       .catch(() => {});
   }, []);
 
-  // Load suggestions whenever sortBy or category changes
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    api.get('/admin/products/suggestions', { params: { sortBy, category, limit: 24 } })
+    setLoadingSugg(true);
+    api.get('/admin/products/suggestions', { params: { sortBy, category, limit: 30 } })
       .then(({ data }) => { if (!cancelled) setSuggestions(data.data || []); })
       .catch(() => {})
-      .finally(() => { if (!cancelled) setLoading(false); });
+      .finally(() => { if (!cancelled) setLoadingSugg(false); });
     return () => { cancelled = true; };
   }, [sortBy, category]);
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return suggestions;
+    const q = search.trim().toLowerCase();
+    return suggestions.filter(p =>
+      p.name?.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q)
+    );
+  }, [suggestions, search]);
 
   const handleAdd = async (product) => {
     setAdding(product._id);
@@ -82,200 +112,376 @@ function ProductSuggestionPanel({ existingItems, onAdd }) {
   };
 
   return (
-    <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 3 }}>
-      {/* Panel header */}
-      <Box sx={{
-        px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider',
-        display: 'flex', alignItems: 'center', gap: 1,
-        bgcolor: 'primary.50',
-      }}>
-        <AutoAwesomeIcon sx={{ fontSize: '1.1rem', color: 'primary.main' }} />
-        <Box sx={{ flex: 1 }}>
-          <Typography variant="subtitle2" fontWeight={700}>Product Suggestions</Typography>
-          <Typography variant="caption" color="text.secondary">
-            Pick products to feature in the Most Loved section. Click Add to pin them to the mobile view.
-          </Typography>
-        </Box>
-      </Box>
+    <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
 
-      {/* Sort tabs */}
-      <Box sx={{ px: 2, pt: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-        <Tabs
-          value={sortBy}
-          onChange={(_, v) => setSortBy(v)}
-          textColor="primary"
-          indicatorColor="primary"
-          sx={{ minHeight: 36, '& .MuiTab-root': { minHeight: 36, fontSize: '0.78rem', py: 0 } }}
-        >
-          {SORT_TABS.map(t => (
-            <Tab key={t.value} value={t.value} label={t.label} />
-          ))}
-        </Tabs>
-      </Box>
+      {/* ── LEFT: Suggestion table ──────────────────────────────────── */}
+      <Paper variant="outlined" sx={{ flex: '0 0 62%', borderRadius: 2, overflow: 'hidden' }}>
 
-      {/* Category filter chips */}
-      <Box sx={{ px: 2, py: 1.25, display: 'flex', gap: 0.75, flexWrap: 'wrap', borderBottom: '1px solid', borderColor: 'divider' }}>
-        {['all', ...categories].map(cat => (
-          <Chip
-            key={cat}
-            label={cat === 'all' ? 'All Categories' : cat.charAt(0).toUpperCase() + cat.slice(1)}
-            size="small"
-            variant={category === cat ? 'filled' : 'outlined'}
-            color={category === cat ? 'primary' : 'default'}
-            onClick={() => setCategory(cat)}
-            sx={{ fontSize: '0.72rem', cursor: 'pointer' }}
-          />
-        ))}
-      </Box>
-
-      {/* Product grid */}
-      <Box sx={{ p: 2 }}>
-        {loading ? (
-          <Grid container spacing={1.5}>
-            {Array.from({ length: 8 }).map((_, i) => (
-              <Grid item xs={6} sm={4} md={3} key={i}>
-                <Box sx={{ borderRadius: 1.5, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}>
-                  <Skeleton variant="rectangular" height={110} />
-                  <Box sx={{ p: 1 }}>
-                    <Skeleton width="80%" height={14} />
-                    <Skeleton width="50%" height={12} sx={{ mt: 0.5 }} />
-                    <Skeleton variant="rounded" width="100%" height={28} sx={{ mt: 1 }} />
-                  </Box>
-                </Box>
-              </Grid>
-            ))}
-          </Grid>
-        ) : suggestions.length === 0 ? (
-          <Box sx={{ textAlign: 'center', py: 4, color: 'text.disabled' }}>
-            <ImageIcon sx={{ fontSize: 36, mb: 1 }} />
-            <Typography variant="body2">No products found for this filter.</Typography>
+        {/* Header */}
+        <Box sx={{
+          px: 2, py: 1.5,
+          borderBottom: '1px solid', borderColor: 'divider',
+          display: 'flex', alignItems: 'center', gap: 1,
+          bgcolor: 'grey.50',
+        }}>
+          <AutoAwesomeIcon sx={{ color: 'primary.main', fontSize: '1.1rem' }} />
+          <Box>
+            <Typography variant="subtitle2" fontWeight={700}>Product Suggestions</Typography>
+            <Typography variant="caption" color="text.secondary">
+              Browse and pick products to feature. Click Add to pin them to the mobile view.
+            </Typography>
           </Box>
-        ) : (
-          <Grid container spacing={1.5}>
-            {suggestions.map(product => {
-              const alreadyAdded = existingProductIds.has(product._id);
-              const isAdding     = adding === product._id;
-              const imgSrc       = getImageUrl(product.images?.[0]);
+        </Box>
 
-              return (
-                <Grid item xs={6} sm={4} md={3} key={product._id}>
-                  <Box sx={{
-                    borderRadius: 1.5,
-                    border: '1px solid',
-                    borderColor: alreadyAdded ? 'success.main' : 'divider',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: '100%',
-                    transition: 'border-color 0.2s',
-                    bgcolor: alreadyAdded ? 'success.50' : 'background.paper',
-                  }}>
-                    {/* Thumbnail */}
-                    <Box sx={{ position: 'relative', height: 110, bgcolor: 'action.hover', flexShrink: 0 }}>
-                      {imgSrc ? (
-                        <Box
-                          component="img"
-                          src={imgSrc}
-                          alt={product.name}
-                          sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
-                      ) : (
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'text.disabled' }}>
-                          <ImageIcon />
-                        </Box>
-                      )}
-                      {/* Badge */}
-                      {product.badge && (
-                        <Chip
-                          label={product.badge}
-                          size="small"
-                          sx={{
-                            position: 'absolute', top: 5, left: 5,
-                            fontSize: '0.6rem', fontWeight: 700,
-                            bgcolor: 'primary.main', color: '#fff',
-                            height: 18,
-                          }}
-                        />
-                      )}
-                      {/* Already added tick */}
-                      {alreadyAdded && (
-                        <Box sx={{
-                          position: 'absolute', top: 5, right: 5,
-                          bgcolor: 'success.main', borderRadius: '50%',
-                          width: 20, height: 20,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        }}>
-                          <CheckIcon sx={{ fontSize: '0.75rem', color: '#fff' }} />
-                        </Box>
-                      )}
-                      {/* Sold count badge for "purchased" sort */}
-                      {sortBy === 'purchased' && product.soldCount > 0 && (
-                        <Box sx={{
-                          position: 'absolute', bottom: 5, right: 5,
-                          bgcolor: 'rgba(0,0,0,0.65)', color: '#fff',
-                          px: 0.6, py: 0.1, borderRadius: 0.75,
-                          fontSize: '0.62rem', fontWeight: 700,
-                        }}>
-                          {product.soldCount} sold
-                        </Box>
-                      )}
-                    </Box>
+        {/* Search + sort tabs */}
+        <Box sx={{ px: 2, pt: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+          <TextField
+            size="small"
+            fullWidth
+            placeholder="Search by name or category…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ fontSize: '1rem', color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+            }}
+            sx={{ mb: 1.25 }}
+          />
+          <Tabs
+            value={sortBy}
+            onChange={(_, v) => { setSortBy(v); setSearch(''); }}
+            textColor="primary"
+            indicatorColor="primary"
+            sx={{ minHeight: 34, '& .MuiTab-root': { minHeight: 34, fontSize: '0.75rem', py: 0, px: 1.5 } }}
+          >
+            {SORT_TABS.map(t => <Tab key={t.value} value={t.value} label={t.label} />)}
+          </Tabs>
+        </Box>
 
-                    {/* Info */}
-                    <Box sx={{ p: 1, flex: 1, display: 'flex', flexDirection: 'column' }}>
-                      <Typography variant="caption" fontWeight={700} sx={{
-                        display: '-webkit-box', WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical', overflow: 'hidden',
-                        lineHeight: 1.3, mb: 0.25,
-                      }}>
-                        {product.name}
-                      </Typography>
+        {/* Category chips */}
+        <Box sx={{ px: 2, py: 1, display: 'flex', gap: 0.6, flexWrap: 'wrap', borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'grey.50' }}>
+          {['all', ...categories].map(cat => (
+            <Chip
+              key={cat}
+              label={cat === 'all' ? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1)}
+              size="small"
+              variant={category === cat ? 'filled' : 'outlined'}
+              color={category === cat ? 'primary' : 'default'}
+              onClick={() => { setCategory(cat); setSearch(''); }}
+              sx={{ fontSize: '0.7rem', height: 22, cursor: 'pointer' }}
+            />
+          ))}
+        </Box>
 
-                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
-                        {product.category}
-                      </Typography>
+        {/* Table */}
+        <TableContainer sx={{ maxHeight: 480 }}>
+          <Table size="small" stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ fontWeight: 700, fontSize: '0.72rem', width: 44 }}>#</TableCell>
+                <TableCell sx={{ fontWeight: 700, fontSize: '0.72rem' }}>Product</TableCell>
+                <TableCell sx={{ fontWeight: 700, fontSize: '0.72rem', display: { xs: 'none', md: 'table-cell' } }}>Category</TableCell>
+                <TableCell sx={{ fontWeight: 700, fontSize: '0.72rem', display: { xs: 'none', sm: 'table-cell' } }}>Rating</TableCell>
+                <TableCell sx={{ fontWeight: 700, fontSize: '0.72rem' }}>Price</TableCell>
+                {sortBy === 'purchased' && (
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.72rem', display: { xs: 'none', md: 'table-cell' } }}>Sold</TableCell>
+                )}
+                <TableCell sx={{ fontWeight: 700, fontSize: '0.72rem', width: 80, textAlign: 'center' }}>Action</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {loadingSugg ? (
+                Array.from({ length: 8 }).map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell><Skeleton width={16} /></TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Skeleton variant="rectangular" width={36} height={36} sx={{ borderRadius: 1, flexShrink: 0 }} />
+                        <Skeleton width={120} />
+                      </Box>
+                    </TableCell>
+                    <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}><Skeleton width={60} /></TableCell>
+                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}><Skeleton width={36} /></TableCell>
+                    <TableCell><Skeleton width={60} /></TableCell>
+                    {sortBy === 'purchased' && <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}><Skeleton width={30} /></TableCell>}
+                    <TableCell><Skeleton variant="rounded" width={52} height={26} /></TableCell>
+                  </TableRow>
+                ))
+              ) : filtered.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4, color: 'text.disabled' }}>
+                    No products match this filter.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filtered.map((product, idx) => {
+                  const alreadyAdded = existingProductIds.has(product._id);
+                  const isAdding     = adding === product._id;
+                  const imgSrc       = getImageUrl(product.images?.[0]);
 
-                      <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mt: 0.25 }}>
-                        {product.rating > 0 && (
-                          <>
-                            <StarIcon sx={{ fontSize: '0.7rem', color: 'warning.main' }} />
-                            <Typography variant="caption" sx={{ fontSize: '0.65rem', fontWeight: 600 }}>
-                              {product.rating.toFixed(1)}
+                  return (
+                    <TableRow
+                      key={product._id}
+                      hover
+                      sx={{
+                        bgcolor: alreadyAdded ? 'success.50' : 'inherit',
+                        '&:last-child td': { border: 0 },
+                      }}
+                    >
+                      <TableCell sx={{ color: 'text.disabled', fontSize: '0.72rem' }}>{idx + 1}</TableCell>
+
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box sx={{ position: 'relative', flexShrink: 0 }}>
+                            <Thumb src={imgSrc} alt={product.name} size={40} />
+                            {alreadyAdded && (
+                              <Box sx={{
+                                position: 'absolute', bottom: -4, right: -4,
+                                bgcolor: 'success.main', borderRadius: '50%',
+                                width: 16, height: 16,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              }}>
+                                <CheckIcon sx={{ fontSize: '0.6rem', color: '#fff' }} />
+                              </Box>
+                            )}
+                          </Box>
+                          <Box sx={{ minWidth: 0 }}>
+                            <Typography variant="caption" fontWeight={600} sx={{
+                              display: '-webkit-box', WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                              lineHeight: 1.3,
+                            }}>
+                              {product.name}
                             </Typography>
+                            {product.badge && (
+                              <Chip label={product.badge} size="small" sx={{ fontSize: '0.6rem', height: 16, mt: 0.25 }} color="primary" />
+                            )}
+                          </Box>
+                        </Box>
+                      </TableCell>
+
+                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
+                          {product.category}
+                        </Typography>
+                      </TableCell>
+
+                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
+                        {product.rating > 0 ? (
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+                            <StarIcon sx={{ fontSize: '0.75rem', color: 'warning.main' }} />
+                            <Typography variant="caption" fontWeight={600}>{product.rating.toFixed(1)}</Typography>
                             {product.reviewCount > 0 && (
-                              <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.62rem' }}>
+                              <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.65rem' }}>
                                 ({product.reviewCount})
                               </Typography>
                             )}
-                          </>
+                          </Box>
+                        ) : (
+                          <Typography variant="caption" color="text.disabled">—</Typography>
                         )}
-                      </Stack>
+                      </TableCell>
 
-                      <Typography variant="caption" fontWeight={700} color="primary.main" sx={{ mt: 0.25 }}>
-                        AED {product.price?.toLocaleString()}
+                      <TableCell>
+                        <Typography variant="caption" fontWeight={600}>
+                          AED {product.price?.toLocaleString()}
+                        </Typography>
+                      </TableCell>
+
+                      {sortBy === 'purchased' && (
+                        <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                          <Typography variant="caption" color="text.secondary">
+                            {product.soldCount > 0 ? `${product.soldCount}` : '—'}
+                          </Typography>
+                        </TableCell>
+                      )}
+
+                      <TableCell sx={{ textAlign: 'center' }}>
+                        {alreadyAdded ? (
+                          <Chip
+                            label="Added"
+                            size="small"
+                            color="success"
+                            icon={<CheckIcon sx={{ fontSize: '0.7rem !important' }} />}
+                            sx={{ fontSize: '0.68rem', height: 24 }}
+                          />
+                        ) : (
+                          <Button
+                            size="small"
+                            variant="contained"
+                            disabled={isAdding}
+                            onClick={() => handleAdd(product)}
+                            sx={{ fontSize: '0.7rem', minWidth: 52, height: 26, px: 1 }}
+                          >
+                            {isAdding ? <CircularProgress size={12} color="inherit" /> : 'Add'}
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        <Box sx={{ px: 2, py: 1, borderTop: '1px solid', borderColor: 'divider', bgcolor: 'grey.50' }}>
+          <Typography variant="caption" color="text.disabled">
+            Showing {filtered.length} of {suggestions.length} products
+          </Typography>
+        </Box>
+      </Paper>
+
+      {/* ── RIGHT: Pinned items list ────────────────────────────────── */}
+      <Paper
+        variant="outlined"
+        sx={{ flex: 1, borderRadius: 2, overflow: 'hidden', position: 'sticky', top: 80 }}
+      >
+        {/* Header */}
+        <Box sx={{
+          px: 2, py: 1.5,
+          borderBottom: '1px solid', borderColor: 'divider',
+          display: 'flex', alignItems: 'center', gap: 1,
+          bgcolor: 'grey.50',
+        }}>
+          <FavoriteIcon sx={{ color: 'error.light', fontSize: '1.1rem' }} />
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="subtitle2" fontWeight={700}>
+              Pinned in App
+              <Chip
+                label={activeItems.length}
+                size="small"
+                color={activeItems.length > 0 ? 'primary' : 'default'}
+                sx={{ ml: 1, height: 18, fontSize: '0.65rem' }}
+              />
+            </Typography>
+            <Typography variant="caption" color="text.secondary">Drag rows to reorder</Typography>
+          </Box>
+        </Box>
+
+        {/* Pinned table */}
+        {loadingItems && activeItems.length === 0 ? (
+          <Box sx={{ p: 2 }}>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                <Skeleton width={16} height={20} />
+                <Skeleton variant="rectangular" width={36} height={36} sx={{ borderRadius: 1 }} />
+                <Box sx={{ flex: 1 }}>
+                  <Skeleton width="70%" height={14} />
+                  <Skeleton width="40%" height={12} sx={{ mt: 0.5 }} />
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        ) : activeItems.length === 0 ? (
+          <Box sx={{ textAlign: 'center', py: 5, px: 2, color: 'text.disabled' }}>
+            <FavoriteIcon sx={{ fontSize: 36, mb: 1, opacity: 0.3 }} />
+            <Typography variant="body2" fontWeight={500}>No products pinned yet</Typography>
+            <Typography variant="caption">Click Add in the suggestions table to feature a product.</Typography>
+          </Box>
+        ) : (
+          <TableContainer sx={{ maxHeight: 480 }}>
+            <Table size="small">
+              <TableBody>
+                {activeItems.map((item, index) => (
+                  <TableRow
+                    key={item._id}
+                    draggable
+                    onDragStart={() => onDragStart(index)}
+                    onDragOver={e => e.preventDefault()}
+                    onDrop={() => onDrop(index)}
+                    sx={{
+                      cursor: 'grab',
+                      '&:active': { cursor: 'grabbing' },
+                      opacity: item.active ? 1 : 0.5,
+                      transition: 'opacity 0.2s',
+                      '&:last-child td': { border: 0 },
+                      '&:hover': { bgcolor: 'action.hover' },
+                    }}
+                  >
+                    {/* Drag handle */}
+                    <TableCell sx={{ px: 0.75, width: 28, color: 'text.disabled' }}>
+                      <DragIndicatorIcon sx={{ fontSize: '1rem', display: 'block' }} />
+                    </TableCell>
+
+                    {/* Position */}
+                    <TableCell sx={{ px: 0.5, width: 24, color: 'text.disabled', fontSize: '0.68rem', fontWeight: 700 }}>
+                      {index + 1}
+                    </TableCell>
+
+                    {/* Thumbnail */}
+                    <TableCell sx={{ px: 0.75, width: 44 }}>
+                      <Thumb src={getImageUrl(item.imageUrl)} alt={item.title} size={36} />
+                    </TableCell>
+
+                    {/* Name + subtitle */}
+                    <TableCell sx={{ minWidth: 0 }}>
+                      <Typography variant="caption" fontWeight={600} sx={{
+                        display: 'block',
+                        overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
+                        maxWidth: 140,
+                      }}>
+                        {item.title || <em style={{ color: '#aaa' }}>No title</em>}
                       </Typography>
+                      {item.subtitle && (
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                          {item.subtitle}
+                        </Typography>
+                      )}
+                    </TableCell>
 
-                      <Button
-                        size="small"
-                        variant={alreadyAdded ? 'outlined' : 'contained'}
-                        color={alreadyAdded ? 'success' : 'primary'}
-                        startIcon={alreadyAdded ? <CheckIcon /> : isAdding ? null : <AddIcon />}
-                        disabled={alreadyAdded || isAdding}
-                        onClick={() => handleAdd(product)}
-                        sx={{ mt: 'auto', pt: 0.75, fontSize: '0.68rem', minHeight: 28 }}
-                        fullWidth
-                      >
-                        {isAdding ? <CircularProgress size={14} /> : alreadyAdded ? 'Added' : 'Add'}
-                      </Button>
-                    </Box>
-                  </Box>
-                </Grid>
-              );
-            })}
-          </Grid>
+                    {/* Active toggle */}
+                    <TableCell sx={{ px: 0.5, width: 40 }}>
+                      <Tooltip title={item.active ? 'Visible in app' : 'Hidden in app'}>
+                        <Switch
+                          size="small"
+                          checked={item.active}
+                          onChange={() => onToggle(item)}
+                          sx={{ transform: 'scale(0.8)' }}
+                        />
+                      </Tooltip>
+                    </TableCell>
+
+                    {/* Actions */}
+                    <TableCell sx={{ px: 0.5, width: 64 }}>
+                      <Stack direction="row" spacing={0.25}>
+                        <Tooltip title="Edit">
+                          <IconButton size="small" onClick={() => onEdit(item)} sx={{ p: 0.4 }}>
+                            <EditIcon sx={{ fontSize: '0.9rem' }} />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Remove">
+                          <IconButton size="small" color="error" onClick={() => onDelete(item)} sx={{ p: 0.4 }}>
+                            <DeleteIcon sx={{ fontSize: '0.9rem' }} />
+                          </IconButton>
+                        </Tooltip>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
-      </Box>
-    </Paper>
+
+        {/* Footer: Add custom item */}
+        <Box sx={{ p: 1.5, borderTop: '1px solid', borderColor: 'divider', bgcolor: 'grey.50' }}>
+          <Button
+            fullWidth
+            variant="outlined"
+            size="small"
+            startIcon={<AddIcon />}
+            onClick={onOpenAdd}
+            sx={{ fontSize: '0.75rem' }}
+          >
+            Add Custom Item
+          </Button>
+        </Box>
+      </Paper>
+    </Box>
   );
 }
 
@@ -413,25 +619,23 @@ export default function MobileDashboard() {
     }
   };
 
-  // Add a product directly from the suggestion panel into Most Loved
   const handleAddFromSuggestion = async (product) => {
     try {
       const currentCount = items[activeKey]?.length || 0;
-      const payload = {
-        screen:      'dashboard',
-        section:     'most_loved',
-        slot:        'most_loved',
-        productId:   product._id,
-        title:       product.name,
-        subtitle:    `AED ${product.price?.toLocaleString() || ''}`,
-        imageUrl:    product.images?.[0] || '',
-        ctaText:     'Shop Now',
-        ctaLink:     `/product/${product._id}`,
-        badge:       product.badge || '',
-        active:      true,
-        order:       currentCount + 1,
-      };
-      await api.post('/admin/mobile-assets', payload);
+      await api.post('/admin/mobile-assets', {
+        screen:    'dashboard',
+        section:   'most_loved',
+        slot:      'most_loved',
+        productId: product._id,
+        title:     product.name,
+        subtitle:  `AED ${product.price?.toLocaleString() || ''}`,
+        imageUrl:  product.images?.[0] || '',
+        ctaText:   'Shop Now',
+        ctaLink:   `/product/${product._id}`,
+        badge:     product.badge || '',
+        active:    true,
+        order:     currentCount + 1,
+      });
       setSuccess(`"${product.name}" added to Most Loved.`);
       setTimeout(() => setSuccess(''), 3000);
       setItems(prev => { const n = { ...prev }; delete n['most_loved']; return n; });
@@ -504,7 +708,7 @@ export default function MobileDashboard() {
           <Typography variant="h5" fontWeight={800}>Mobile App Dashboard</Typography>
         </Box>
         <Typography variant="body2" color="text.secondary">
-          Manage every section of the mobile app home screen. Toggle sections on/off, reorder them, and add or edit items within each section. Changes are immediately available via the API.
+          Manage every section of the mobile app home screen. Toggle sections on/off, reorder them, and add or edit items within each section.
         </Typography>
       </Box>
 
@@ -546,7 +750,7 @@ export default function MobileDashboard() {
           {/* ── Left: section list ──────────────────────────────────────── */}
           <Paper
             variant="outlined"
-            sx={{ width: 248, flexShrink: 0, borderRadius: 2, overflow: 'hidden' }}
+            sx={{ width: 248, flexShrink: 0, borderRadius: 2, overflow: 'hidden', position: 'sticky', top: 80 }}
           >
             <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
               <Typography variant="subtitle2" fontWeight={700}>Sections</Typography>
@@ -562,12 +766,8 @@ export default function MobileDashboard() {
                 onDrop={() => handleSecDrop(idx)}
                 onClick={() => selectSection(sec.key)}
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 0.75,
-                  px: 1.25,
-                  py: 0.85,
-                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 0.75,
+                  px: 1.25, py: 0.85, cursor: 'pointer',
                   borderLeft: '3px solid',
                   borderLeftColor: activeKey === sec.key ? 'primary.main' : 'transparent',
                   bgcolor: activeKey === sec.key ? 'action.selected' : 'transparent',
@@ -604,170 +804,147 @@ export default function MobileDashboard() {
           <Box sx={{ flex: 1, minWidth: 0 }}>
             {activeSection ? (
               <>
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1.5 }}>
-                  <Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="h6" fontWeight={700}>{activeSection.label}</Typography>
-                      {!activeSection.enabled && (
-                        <Chip label="Hidden in app" size="small" color="warning" variant="outlined" sx={{ fontSize: '0.68rem' }} />
-                      )}
+                {/* Section header — hidden for Most Loved (panel has its own header) */}
+                {!isMostLoved && (
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1.5 }}>
+                    <Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant="h6" fontWeight={700}>{activeSection.label}</Typography>
+                        {!activeSection.enabled && (
+                          <Chip label="Hidden in app" size="small" color="warning" variant="outlined" sx={{ fontSize: '0.68rem' }} />
+                        )}
+                      </Box>
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
+                        {SECTION_HINTS[activeSection.key] || ''}
+                      </Typography>
                     </Box>
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
-                      {SECTION_HINTS[activeSection.key] || ''}
-                    </Typography>
+                    <Button variant="contained" startIcon={<AddIcon />} onClick={openAdd}>
+                      Add Item
+                    </Button>
                   </Box>
-                  <Button variant="contained" startIcon={<AddIcon />} onClick={openAdd}>
-                    Add Item
-                  </Button>
-                </Box>
+                )}
 
-                {/* ── Most Loved: product suggestion panel ── */}
-                {isMostLoved && (
-                  <ProductSuggestionPanel
-                    existingItems={activeItems}
+                {/* ── Most Loved: split panel ── */}
+                {isMostLoved ? (
+                  <MostLovedPanel
+                    activeItems={activeItems}
+                    loadingItems={loadingItems}
                     onAdd={handleAddFromSuggestion}
+                    onEdit={openEdit}
+                    onDelete={setDeleteTarget}
+                    onToggle={toggleItemActive}
+                    onDragStart={handleItemDragStart}
+                    onDrop={handleItemDrop}
+                    onOpenAdd={openAdd}
                   />
-                )}
-
-                {/* ── Section: pinned items label (Most Loved only) ── */}
-                {isMostLoved && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-                    <Typography variant="subtitle2" fontWeight={700}>
-                      Pinned Items ({activeItems.length})
-                    </Typography>
-                    <Divider sx={{ flex: 1 }} />
-                    <Typography variant="caption" color="text.secondary">
-                      Drag to reorder · toggle to show/hide
-                    </Typography>
-                  </Box>
-                )}
-
-                {loadingItems && !(items[activeKey]?.length > 0) ? (
-                  <Grid container spacing={2}>
-                    {Array.from({ length: 6 }).map((_, i) => (
-                      <Grid item xs={12} sm={6} lg={4} key={i}>
-                        <Card><Skeleton variant="rectangular" height={140} /><CardContent><Skeleton width="70%" height={16} /><Skeleton width="45%" height={14} sx={{ mt: 0.5 }} /></CardContent></Card>
-                      </Grid>
-                    ))}
-                  </Grid>
-                ) : activeItems.length === 0 ? (
-                  <Box sx={{
-                    textAlign: 'center', py: 8, color: 'text.disabled',
-                    border: '2px dashed', borderColor: 'divider', borderRadius: 2,
-                  }}>
-                    <ImageIcon sx={{ fontSize: 48, mb: 1 }} />
-                    <Typography variant="h6">No items yet</Typography>
-                    <Typography variant="body2" sx={{ mb: 2 }}>
-                      {isMostLoved
-                        ? 'Use the Product Suggestions panel above to add products, or click Add Item to add manually.'
-                        : <>Add the first item for the <strong>{activeSection.label}</strong> section.</>
-                      }
-                    </Typography>
-                    <Button variant="contained" startIcon={<AddIcon />} onClick={openAdd}>Add Item</Button>
-                  </Box>
                 ) : (
-                  <Grid container spacing={2}>
-                    {activeItems.map((item, index) => (
-                      <Grid item xs={12} sm={6} lg={4} key={item._id}>
-                        <Card
-                          draggable
-                          onDragStart={() => handleItemDragStart(index)}
-                          onDragOver={e => e.preventDefault()}
-                          onDrop={() => handleItemDrop(index)}
-                          sx={{
-                            height: '100%', display: 'flex', flexDirection: 'column',
-                            cursor: 'grab', '&:active': { cursor: 'grabbing' },
-                            opacity: item.active ? 1 : 0.55,
-                            transition: 'opacity 0.2s',
-                          }}
-                        >
-                          {/* Thumbnail */}
-                          <Box sx={{
-                            height: 140, bgcolor: 'action.hover',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            position: 'relative', overflow: 'hidden', flexShrink: 0,
-                          }}>
-                            {item.imageUrl ? (
-                              <Box
-                                component="img"
-                                src={getImageUrl(item.imageUrl)}
-                                alt={item.title}
-                                sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                              />
-                            ) : (
-                              <Box sx={{ textAlign: 'center', color: 'text.disabled' }}>
-                                <ImageIcon sx={{ fontSize: 36 }} />
-                                <Typography variant="caption" display="block">No image</Typography>
-                              </Box>
-                            )}
+                  /* ── All other sections: card grid ── */
+                  loadingItems && !(items[activeKey]?.length > 0) ? (
+                    <Grid container spacing={2}>
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <Grid item xs={12} sm={6} lg={4} key={i}>
+                          <Card><Skeleton variant="rectangular" height={140} /><CardContent><Skeleton width="70%" height={16} /><Skeleton width="45%" height={14} sx={{ mt: 0.5 }} /></CardContent></Card>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  ) : activeItems.length === 0 ? (
+                    <Box sx={{
+                      textAlign: 'center', py: 8, color: 'text.disabled',
+                      border: '2px dashed', borderColor: 'divider', borderRadius: 2,
+                    }}>
+                      <ImageIcon sx={{ fontSize: 48, mb: 1 }} />
+                      <Typography variant="h6">No items yet</Typography>
+                      <Typography variant="body2" sx={{ mb: 2 }}>
+                        Add the first item for the <strong>{activeSection.label}</strong> section.
+                      </Typography>
+                      <Button variant="contained" startIcon={<AddIcon />} onClick={openAdd}>Add Item</Button>
+                    </Box>
+                  ) : (
+                    <Grid container spacing={2}>
+                      {activeItems.map((item, index) => (
+                        <Grid item xs={12} sm={6} lg={4} key={item._id}>
+                          <Card
+                            draggable
+                            onDragStart={() => handleItemDragStart(index)}
+                            onDragOver={e => e.preventDefault()}
+                            onDrop={() => handleItemDrop(index)}
+                            sx={{
+                              height: '100%', display: 'flex', flexDirection: 'column',
+                              cursor: 'grab', '&:active': { cursor: 'grabbing' },
+                              opacity: item.active ? 1 : 0.55,
+                              transition: 'opacity 0.2s',
+                            }}
+                          >
                             <Box sx={{
-                              position: 'absolute', top: 6, left: 6,
-                              bgcolor: 'rgba(0,0,0,0.6)', color: '#fff',
-                              px: 0.75, py: 0.2, borderRadius: 0.75,
-                              fontSize: '0.68rem', fontWeight: 700,
+                              height: 140, bgcolor: 'action.hover',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              position: 'relative', overflow: 'hidden', flexShrink: 0,
                             }}>
-                              #{index + 1}
-                            </Box>
-                            <Box sx={{ position: 'absolute', top: 6, right: 6, color: 'rgba(255,255,255,0.75)' }}>
-                              <DragIndicatorIcon fontSize="small" />
-                            </Box>
-                            {item.badge && (
-                              <Chip
-                                label={item.badge}
-                                size="small"
-                                sx={{
-                                  position: 'absolute', bottom: 6, left: 6,
-                                  fontSize: '0.65rem', bgcolor: 'primary.main',
-                                  color: '#fff', fontWeight: 700,
-                                }}
-                              />
-                            )}
-                          </Box>
-
-                          {/* Card body */}
-                          <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 1.5, '&:last-child': { pb: 1.5 } }}>
-                            <Typography variant="subtitle2" fontWeight={700} noWrap>
-                              {item.title || <span style={{ color: '#aaa', fontStyle: 'italic' }}>No title</span>}
-                            </Typography>
-                            {item.subtitle && (
-                              <Typography variant="caption" color="text.secondary" noWrap>{item.subtitle}</Typography>
-                            )}
-                            {item.description && (
-                              <Typography variant="caption" color="text.disabled" sx={{
-                                mt: 0.25,
-                                display: '-webkit-box', WebkitLineClamp: 1,
-                                WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                              {item.imageUrl ? (
+                                <Box component="img" src={getImageUrl(item.imageUrl)} alt={item.title}
+                                  sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ) : (
+                                <Box sx={{ textAlign: 'center', color: 'text.disabled' }}>
+                                  <ImageIcon sx={{ fontSize: 36 }} />
+                                  <Typography variant="caption" display="block">No image</Typography>
+                                </Box>
+                              )}
+                              <Box sx={{
+                                position: 'absolute', top: 6, left: 6,
+                                bgcolor: 'rgba(0,0,0,0.6)', color: '#fff',
+                                px: 0.75, py: 0.2, borderRadius: 0.75,
+                                fontSize: '0.68rem', fontWeight: 700,
                               }}>
-                                {item.description}
+                                #{index + 1}
+                              </Box>
+                              <Box sx={{ position: 'absolute', top: 6, right: 6, color: 'rgba(255,255,255,0.75)' }}>
+                                <DragIndicatorIcon fontSize="small" />
+                              </Box>
+                              {item.badge && (
+                                <Chip label={item.badge} size="small" sx={{
+                                  position: 'absolute', bottom: 6, left: 6,
+                                  fontSize: '0.65rem', bgcolor: 'primary.main', color: '#fff', fontWeight: 700,
+                                }} />
+                              )}
+                            </Box>
+                            <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 1.5, '&:last-child': { pb: 1.5 } }}>
+                              <Typography variant="subtitle2" fontWeight={700} noWrap>
+                                {item.title || <span style={{ color: '#aaa', fontStyle: 'italic' }}>No title</span>}
                               </Typography>
-                            )}
-                            {item.ctaText && (
-                              <Typography variant="caption" color="primary" sx={{ mt: 0.25 }}>
-                                CTA: {item.ctaText}
-                              </Typography>
-                            )}
-
-                            <Stack direction="row" spacing={0.75} sx={{ mt: 'auto', pt: 1, alignItems: 'center' }}>
-                              <Button
-                                size="small" variant="outlined"
-                                startIcon={<EditIcon />}
-                                onClick={() => openEdit(item)}
-                                sx={{ flex: 1, fontSize: '0.72rem' }}
-                              >
-                                Edit
-                              </Button>
-                              <Tooltip title={item.active ? 'Hide item' : 'Show item'}>
-                                <Switch size="small" checked={item.active} onChange={() => toggleItemActive(item)} />
-                              </Tooltip>
-                              <IconButton size="small" color="error" onClick={() => setDeleteTarget(item)}>
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </Stack>
-                          </CardContent>
-                        </Card>
-                      </Grid>
-                    ))}
-                  </Grid>
+                              {item.subtitle && (
+                                <Typography variant="caption" color="text.secondary" noWrap>{item.subtitle}</Typography>
+                              )}
+                              {item.description && (
+                                <Typography variant="caption" color="text.disabled" sx={{
+                                  mt: 0.25, display: '-webkit-box', WebkitLineClamp: 1,
+                                  WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                                }}>
+                                  {item.description}
+                                </Typography>
+                              )}
+                              {item.ctaText && (
+                                <Typography variant="caption" color="primary" sx={{ mt: 0.25 }}>
+                                  CTA: {item.ctaText}
+                                </Typography>
+                              )}
+                              <Stack direction="row" spacing={0.75} sx={{ mt: 'auto', pt: 1, alignItems: 'center' }}>
+                                <Button size="small" variant="outlined" startIcon={<EditIcon />}
+                                  onClick={() => openEdit(item)} sx={{ flex: 1, fontSize: '0.72rem' }}>
+                                  Edit
+                                </Button>
+                                <Tooltip title={item.active ? 'Hide item' : 'Show item'}>
+                                  <Switch size="small" checked={item.active} onChange={() => toggleItemActive(item)} />
+                                </Tooltip>
+                                <IconButton size="small" color="error" onClick={() => setDeleteTarget(item)}>
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </Stack>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  )
                 )}
               </>
             ) : (
@@ -804,67 +981,36 @@ export default function MobileDashboard() {
                 single
               />
             </Grid>
-
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label={isStories ? 'Customer Name *' : 'Title'}
-                value={form.title}
-                onChange={e => setF('title', e.target.value)}
-                autoFocus
-              />
+              <TextField fullWidth label={isStories ? 'Customer Name *' : 'Title'}
+                value={form.title} onChange={e => setF('title', e.target.value)} autoFocus />
             </Grid>
-
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label={isStories ? 'Star Rating (1–5)' : 'Badge / Label'}
-                value={form.badge}
-                onChange={e => setF('badge', e.target.value)}
-                placeholder={isStories ? 'e.g. 5' : 'e.g. BEST SELL · 50% OFF'}
-              />
+              <TextField fullWidth label={isStories ? 'Star Rating (1–5)' : 'Badge / Label'}
+                value={form.badge} onChange={e => setF('badge', e.target.value)}
+                placeholder={isStories ? 'e.g. 5' : 'e.g. BEST SELL · 50% OFF'} />
             </Grid>
-
             <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Subtitle"
-                value={form.subtitle}
+              <TextField fullWidth label="Subtitle" value={form.subtitle}
                 onChange={e => setF('subtitle', e.target.value)}
-                placeholder="Short supporting text shown below the title"
-              />
+                placeholder="Short supporting text shown below the title" />
             </Grid>
-
             <Grid item xs={12}>
-              <TextField
-                fullWidth multiline minRows={2}
+              <TextField fullWidth multiline minRows={2}
                 label={isStories ? 'Review Text' : 'Description'}
-                value={form.description}
-                onChange={e => setF('description', e.target.value)}
-                placeholder={isStories ? 'What the customer said…' : 'Additional detail or promotional copy'}
-              />
+                value={form.description} onChange={e => setF('description', e.target.value)}
+                placeholder={isStories ? 'What the customer said…' : 'Additional detail or promotional copy'} />
             </Grid>
-
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="CTA Button Text"
-                value={form.ctaText}
+              <TextField fullWidth label="CTA Button Text" value={form.ctaText}
                 onChange={e => setF('ctaText', e.target.value)}
-                placeholder="e.g. Shop Now · Explore"
-              />
+                placeholder="e.g. Shop Now · Explore" />
             </Grid>
-
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="CTA Link / Deep Link"
-                value={form.ctaLink}
+              <TextField fullWidth label="CTA Link / Deep Link" value={form.ctaLink}
                 onChange={e => setF('ctaLink', e.target.value)}
-                placeholder="e.g. /category/rings"
-              />
+                placeholder="e.g. /category/rings" />
             </Grid>
-
             <Grid item xs={12}>
               <FormControlLabel
                 control={<Switch checked={form.active} onChange={e => setF('active', e.target.checked)} color="primary" />}
@@ -875,11 +1021,8 @@ export default function MobileDashboard() {
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleSave}
-            disabled={saving || (!isStories && !form.imageUrl)}
-          >
+          <Button variant="contained" onClick={handleSave}
+            disabled={saving || (!isStories && !form.imageUrl)}>
             {saving ? 'Saving…' : editTarget ? 'Update' : 'Add Item'}
           </Button>
         </DialogActions>
@@ -887,15 +1030,15 @@ export default function MobileDashboard() {
 
       {/* ── Delete confirm dialog ───────────────────────────────────────── */}
       <Dialog open={Boolean(deleteTarget)} onClose={() => setDeleteTarget(null)} maxWidth="xs" fullWidth>
-        <DialogTitle>Delete Item?</DialogTitle>
+        <DialogTitle>Remove Item?</DialogTitle>
         <DialogContent>
           <Typography variant="body2">
-            Delete <strong>{deleteTarget?.title || 'this item'}</strong>? This cannot be undone.
+            Remove <strong>{deleteTarget?.title || 'this item'}</strong> from the mobile view? This cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button onClick={() => setDeleteTarget(null)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
+          <Button variant="contained" color="error" onClick={handleDelete}>Remove</Button>
         </DialogActions>
       </Dialog>
     </Box>
