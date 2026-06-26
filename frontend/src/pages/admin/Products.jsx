@@ -119,9 +119,9 @@ export default function AdminProducts() {
       />
 
       {/* Card */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+      <div className="bg-white dark:bg-[#1c2128] rounded-2xl border border-gray-200 dark:border-[#30363d] shadow-sm">
         {/* Search + filter toolbar */}
-        <div className="flex flex-wrap gap-3 items-center p-4 border-b border-gray-100 dark:border-gray-800">
+        <div className="flex flex-wrap gap-3 items-center p-4 border-b border-gray-100 dark:border-[#30363d]">
           <SearchInput
             value={searchInput}
             onChange={setSearchInput}
@@ -363,7 +363,7 @@ export default function AdminProducts() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800">
+          <div className="px-6 py-4 border-t border-gray-100 dark:border-[#30363d]">
             <Pagination
               page={page}
               totalPages={totalPages}

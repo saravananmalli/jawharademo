@@ -7,102 +7,39 @@
 /* ── Design tokens ──────────────────────────────────────────── */
 @theme {
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-
-  /* Brand colors */
-  --color-brand-50:  #eef2ff;
-  --color-brand-100: #e0e7ff;
-  --color-brand-200: #c7d2fe;
-  --color-brand-300: #a5b4fc;
-  --color-brand-400: #818cf8;
-  --color-brand-500: #6366f1;
-  --color-brand-600: #4f46e5;
-  --color-brand-700: #4338ca;
-  --color-brand-800: #3730a3;
-  --color-brand-900: #312e81;
-
-  /* Sidebar always dark */
   --color-sidebar: #0f1117;
-  --color-sidebar-hover: rgba(255,255,255,0.06);
-  --color-sidebar-active: rgba(99,102,241,0.15);
-  --color-sidebar-text: rgba(255,255,255,0.5);
-  --color-sidebar-text-active: #ffffff;
-
-  /* Animation */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* ── Global base ─────────────────────────────────────────────── */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; }
 
 html {
-  font-family: var(--font-sans);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* Admin layout container (light / dark) */
-.admin-root {
-  min-height: 100vh;
-  background-color: #f8fafc;
-  color: #0f172a;
-}
-
-.dark .admin-root {
-  background-color: #030712;
-  color: #f1f5f9;
 }
 
 /* ── Scrollbar ───────────────────────────────────────────────── */
 .admin-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
 .admin-scroll::-webkit-scrollbar-track { background: transparent; }
-.admin-scroll::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.3); border-radius: 9999px; }
-.admin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(148,163,184,0.5); }
-
-/* ── Sidebar ─────────────────────────────────────────────────── */
-.sidebar { background: #0f1117; }
-
-/* ── Glass effect ────────────────────────────────────────────── */
-.glass {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  background: rgba(255,255,255,0.8);
-  border: 1px solid rgba(255,255,255,0.2);
-}
-
-.dark .glass {
-  background: rgba(15,17,23,0.8);
-  border: 1px solid rgba(255,255,255,0.08);
-}
-
-/* ── Transitions ─────────────────────────────────────────────── */
-.transition-sidebar {
-  transition: width 0.25s cubic-bezier(0.4,0,0.2,1),
-              transform 0.25s cubic-bezier(0.4,0,0.2,1);
-}
+.admin-scroll::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.25); border-radius: 9999px; }
+.admin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(148,163,184,0.45); }
 
 /* ── Page fade-in ────────────────────────────────────────────── */
 @keyframes fadeSlideIn {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(5px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
-.page-enter {
-  animation: fadeSlideIn 0.2s ease-out both;
-}
+.page-enter { animation: fadeSlideIn 0.18s ease-out both; }
 
 /* ── Card hover lift ─────────────────────────────────────────── */
-.card-hover {
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-.card-hover:hover {
-  transform: translateY(-1px);
-}
+.card-hover { transition: box-shadow 0.18s ease, transform 0.18s ease; }
+.card-hover:hover { transform: translateY(-1px); }
 
-/* ── Stat card gradient overlays ─────────────────────────────── */
-.stat-gradient-indigo { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); }
+/* ── Stat gradient cards ─────────────────────────────────────── */
+.stat-gradient-indigo  { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); }
 .stat-gradient-emerald { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-.stat-gradient-amber { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
-.stat-gradient-rose { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); }
-.stat-gradient-violet { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+.stat-gradient-amber   { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+.stat-gradient-rose    { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); }
+.stat-gradient-violet  { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }

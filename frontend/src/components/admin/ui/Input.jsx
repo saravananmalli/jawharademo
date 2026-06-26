@@ -1,4 +1,4 @@
-const BASE_INPUT = 'w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3.5 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed';
+const BASE_INPUT = 'w-full bg-white dark:bg-[#0d1117] border border-gray-200 dark:border-[#30363d] rounded-xl px-3.5 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-400 dark:focus:border-indigo-500 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed';
 
 export function Input({ label, error, helper, icon: Icon, className = '', required, ...props }) {
   return (
@@ -75,8 +75,8 @@ export function Toggle({ label, helper, checked, onChange, disabled = false }) {
           onChange={onChange}
           disabled={disabled}
         />
-        <div className="w-10 h-6 bg-gray-200 dark:bg-gray-700 peer-checked:bg-indigo-600 rounded-full transition-colors duration-200 peer-disabled:opacity-50" />
-        <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 peer-checked:translate-x-4" />
+        <div className="w-9 h-5 bg-gray-200 dark:bg-gray-700 peer-checked:bg-indigo-600 rounded-full transition-colors duration-200 peer-disabled:opacity-50" />
+        <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 peer-checked:translate-x-4" />
       </div>
       {label && (
         <span>
