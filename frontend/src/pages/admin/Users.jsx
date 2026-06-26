@@ -1,101 +1,62 @@
 import { useState, useEffect, useCallback } from 'react';
-import {
-  Box, Card, Typography, Button, Avatar, Table, TableHead, TableBody,
-  TableRow, TableCell, TableContainer, TablePagination, Skeleton,
-  TextField, InputAdornment, MenuItem, Select, FormControl, InputLabel,
-  Grid, Chip, Stack, Tooltip,
-} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import SearchIcon              from '@mui/icons-material/Search';
-import PeopleIcon              from '@mui/icons-material/People';
-import CheckCircleIcon         from '@mui/icons-material/CheckCircle';
-import BlockIcon               from '@mui/icons-material/Block';
-import AdminPanelSettingsIcon  from '@mui/icons-material/AdminPanelSettings';
-import FavoriteIcon            from '@mui/icons-material/Favorite';
+import { Users, CheckCircle, ShieldAlert, ShieldCheck, Heart } from 'lucide-react';
 import api from '../../services/api';
-import { StatusChip, getKpiColors } from './adminUtils';
+import { StatusChip } from './adminUtils';
 import { getImageUrl } from '../../utils/imageUrl';
+import {
+  PageHeader, StatCard, Card, CardBody, Table, Th, Td, Tr,
+  Skeleton, EmptyState, Pagination, SearchInput, Select,
+  Button, Tooltip,
+} from '../../components/admin/ui/index.js';
 
-function StatCard({ title, value, icon: Icon, variant, loading }) {
-  const theme  = useTheme();
-  const isDark = theme.palette.mode === 'dark';
-  const { bg, color } = getKpiColors(variant, isDark);
-
-  if (loading) return (
-    <Card sx={{ height: '100%' }}>
-      <Box sx={{ p: 2.5 }}><Skeleton variant="rectangular" height={68} sx={{ borderRadius: 1.5 }} /></Box>
-    </Card>
-  );
-
-  return (
-    <Card sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
-      <Box sx={{ position: 'absolute', top: 0, left: 0, width: 3, height: '100%', bgcolor: color }} />
-      <Box sx={{ pl: 2.5, pr: 2.5, pt: 2.25, pb: 2.25, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Box>
-          <Typography variant="caption" color="text.secondary"
-            sx={{ textTransform: 'uppercase', letterSpacing: 1, fontWeight: 700, fontSize: '0.62rem' }}>
-            {title}
-          </Typography>
-          <Typography variant="h5" fontWeight={800} sx={{ mt: 0.5, color }}>
-            {value ?? '—'}
-          </Typography>
-        </Box>
-        <Box sx={{ width: 38, height: 38, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: bg }}>
-          <Icon sx={{ fontSize: '1.2rem', color }} />
-        </Box>
-      </Box>
-    </Card>
-  );
-}
+const PER_PAGE = 15;
 
 export default function AdminCustomers() {
-  const [users, setUsers]           = useState([]);
-  const [total, setTotal]           = useState(0);
-  const [stats, setStats]           = useState(null);
-  const [page, setPage]             = useState(0);
-  const [rowsPerPage]               = useState(15);
-  const [loading, setLoading]       = useState(false);
-  const [search, setSearch]         = useState('');
+  const [users, setUsers]               = useState([]);
+  const [total, setTotal]               = useState(0);
+  const [stats, setStats]               = useState(null);
+  const [page, setPage]                 = useState(1);
+  const [loading, setLoading]           = useState(false);
+  const [search, setSearch]             = useState('');
   const [roleFilter, setRoleFilter]     = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
-  const fetchUsers = useCallback((p = 0, q = search, role = roleFilter, status = statusFilter) => {
+  const fetchUsers = useCallback((p = 1, q = search, role = roleFilter, status = statusFilter) => {
     setLoading(true);
-    api.get('/admin/users', { params: { page: p + 1, limit: rowsPerPage, search: q, role, status } })
+    api.get('/admin/users', { params: { page: p, limit: PER_PAGE, search: q, role, status } })
       .then(({ data }) => {
         setUsers(data.data);
         setTotal(data.total);
         if (data.stats) setStats(data.stats);
       })
       .finally(() => setLoading(false));
-  }, [rowsPerPage, search, roleFilter, statusFilter]);
+  }, [search, roleFilter, statusFilter]);
 
-  useEffect(() => { fetchUsers(0, '', '', ''); }, []);
+  useEffect(() => { fetchUsers(1, '', '', ''); }, []);
 
-  const handleSearch = (e) => {
-    const q = e.target.value;
+  const handleSearch = (q) => {
     setSearch(q);
-    setPage(0);
-    fetchUsers(0, q, roleFilter, statusFilter);
+    setPage(1);
+    fetchUsers(1, q, roleFilter, statusFilter);
   };
 
   const handleRoleFilter = (e) => {
     const r = e.target.value;
     setRoleFilter(r);
-    setPage(0);
-    fetchUsers(0, search, r, statusFilter);
+    setPage(1);
+    fetchUsers(1, search, r, statusFilter);
   };
 
   const handleStatusFilter = (e) => {
     const s = e.target.value;
     setStatusFilter(s);
-    setPage(0);
-    fetchUsers(0, search, roleFilter, s);
+    setPage(1);
+    fetchUsers(1, search, roleFilter, s);
   };
 
-  const handlePageChange = (_, p) => {
+  const handlePageChange = (p) => {
     setPage(p);
-    fetchUsers(p);
+    fetchUsers(p, search, roleFilter, statusFilter);
   };
 
   const toggleActive = async (id, current) => {
@@ -111,181 +72,182 @@ export default function AdminCustomers() {
     setStats(s => s ? { ...s, admin: s.admin + (current === 'admin' ? -1 : 1) } : s);
   };
 
+  const totalPages = Math.ceil(total / PER_PAGE);
+  const statsLoading = !stats && loading;
+
   return (
-    <Box>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h5" fontWeight={800}>Customers</Typography>
-        <Typography variant="body2" color="text.secondary">
-          {stats ? `${stats.total} registered users` : 'Manage your registered users'}
-        </Typography>
-      </Box>
+    <div>
+      <PageHeader
+        title="Customers"
+        subtitle={stats ? `${stats.total} registered users` : 'Manage your registered users'}
+      />
 
-      {/* ── Stats row ─────────────────────────────────────────────────── */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={6} sm={3}>
-          <StatCard title="Total Users"  value={stats?.total}   icon={PeopleIcon}             variant="blue"   loading={!stats && loading} />
-        </Grid>
-        <Grid item xs={6} sm={3}>
-          <StatCard title="Active"       value={stats?.active}  icon={CheckCircleIcon}        variant="green"  loading={!stats && loading} />
-        </Grid>
-        <Grid item xs={6} sm={3}>
-          <StatCard title="Blocked"      value={stats?.blocked} icon={BlockIcon}              variant="maroon" loading={!stats && loading} />
-        </Grid>
-        <Grid item xs={6} sm={3}>
-          <StatCard title="Admins"       value={stats?.admin}   icon={AdminPanelSettingsIcon} variant="gold"   loading={!stats && loading} />
-        </Grid>
-      </Grid>
+      {/* Stats row */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+        {statsLoading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6">
+              <Skeleton className="h-16 w-full rounded-xl" />
+            </div>
+          ))
+        ) : (
+          <>
+            <StatCard title="Total Users"  value={stats?.total   ?? '—'} icon={Users}        color="indigo"  />
+            <StatCard title="Active"        value={stats?.active  ?? '—'} icon={CheckCircle}  color="emerald" />
+            <StatCard title="Blocked"       value={stats?.blocked ?? '—'} icon={ShieldAlert}  color="rose"    />
+            <StatCard title="Admins"        value={stats?.admin   ?? '—'} icon={ShieldCheck}  color="amber"   />
+          </>
+        )}
+      </div>
 
-      {/* ── Filters ───────────────────────────────────────────────────── */}
-      <Card sx={{ mb: 2 }}>
-        <Box sx={{ p: 2, display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
-          <TextField
-            size="small"
-            placeholder="Search name, email or phone…"
-            value={search}
-            onChange={handleSearch}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon sx={{ fontSize: '1.1rem', color: 'text.disabled' }} />
-                </InputAdornment>
-              ),
-            }}
-            sx={{ flex: 1, minWidth: 200 }}
-          />
-          <FormControl size="small" sx={{ minWidth: 130 }}>
-            <InputLabel>Role</InputLabel>
-            <Select value={roleFilter} label="Role" onChange={handleRoleFilter}>
-              <MenuItem value="">All Roles</MenuItem>
-              <MenuItem value="customer">Customer</MenuItem>
-              <MenuItem value="admin">Admin</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl size="small" sx={{ minWidth: 130 }}>
-            <InputLabel>Status</InputLabel>
-            <Select value={statusFilter} label="Status" onChange={handleStatusFilter}>
-              <MenuItem value="">All Status</MenuItem>
-              <MenuItem value="active">Active</MenuItem>
-              <MenuItem value="blocked">Blocked</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
-      </Card>
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-3 mb-4">
+        <SearchInput
+          value={search}
+          onChange={handleSearch}
+          placeholder="Search name, email or phone…"
+          className="flex-1 min-w-[200px]"
+        />
+        <Select
+          value={roleFilter}
+          onChange={handleRoleFilter}
+          className="min-w-[130px]"
+        >
+          <option value="">All Roles</option>
+          <option value="customer">Customer</option>
+          <option value="admin">Admin</option>
+        </Select>
+        <Select
+          value={statusFilter}
+          onChange={handleStatusFilter}
+          className="min-w-[130px]"
+        >
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="blocked">Blocked</option>
+        </Select>
+      </div>
 
-      {/* ── Table ─────────────────────────────────────────────────────── */}
+      {/* Table */}
       <Card>
-        <TableContainer sx={{ overflowX: 'auto' }}>
-          <Table size="small" sx={{ minWidth: 860 }}>
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem' }}>User</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem' }}>Email</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem' }}>Phone</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem' }}>Role</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem' }}>Joined</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem' }} align="center">Wishlist</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem' }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem' }} align="center">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody sx={{ opacity: loading && users.length > 0 ? 0.5 : 1, transition: 'opacity 0.15s' }}>
+        <CardBody className="p-0">
+          <Table>
+            <thead>
+              <tr>
+                <Th>User</Th>
+                <Th>Email</Th>
+                <Th>Phone</Th>
+                <Th>Role</Th>
+                <Th>Joined</Th>
+                <Th className="text-center">Wishlist</Th>
+                <Th>Status</Th>
+                <Th className="text-center">Actions</Th>
+              </tr>
+            </thead>
+            <tbody className={loading && users.length > 0 ? 'opacity-50 transition-opacity duration-150' : ''}>
               {loading && users.length === 0 ? (
                 Array.from({ length: 8 }).map((_, i) => (
-                  <TableRow key={i}>
+                  <Tr key={i}>
                     {Array.from({ length: 8 }).map((__, j) => (
-                      <TableCell key={j}><Skeleton height={20} /></TableCell>
+                      <Td key={j}><Skeleton className="h-4 w-full" /></Td>
                     ))}
-                  </TableRow>
+                  </Tr>
                 ))
               ) : users.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ py: 7, color: 'text.secondary' }}>
-                    No users found.
-                  </TableCell>
-                </TableRow>
-              ) : users.map(u => (
-                <TableRow key={u._id} hover>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Avatar
-                        src={u.avatar ? getImageUrl(u.avatar) : undefined}
-                        sx={{ width: 36, height: 36, bgcolor: 'primary.main', fontSize: '0.82rem', fontWeight: 800, flexShrink: 0 }}
-                      >
-                        {!u.avatar && u.name?.[0]?.toUpperCase()}
-                      </Avatar>
-                      <Typography variant="body2" fontWeight={600} noWrap sx={{ maxWidth: 150 }}>
-                        {u.name}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" color="text.secondary" noWrap sx={{ maxWidth: 200 }}>
-                      {u.email}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" color={u.phone ? 'text.primary' : 'text.disabled'} noWrap sx={{ maxWidth: 140 }}>
-                      {u.phone || '—'}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <StatusChip status={u.role} />
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" color="text.secondary" noWrap>
-                      {new Date(u.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="center">
-                    <Chip
-                      icon={<FavoriteIcon sx={{ fontSize: '0.82rem !important', color: '#db2777 !important' }} />}
-                      label={u.wishlist?.length ?? 0}
-                      size="small"
-                      sx={{ bgcolor: 'rgba(219,39,119,0.08)', color: '#db2777', fontWeight: 700, fontSize: '0.75rem', height: 22 }}
+                <tr>
+                  <td colSpan={8}>
+                    <EmptyState
+                      icon={Users}
+                      title="No users found"
+                      description="Try adjusting your search or filter."
+                      className="py-16"
                     />
-                  </TableCell>
-                  <TableCell>
+                  </td>
+                </tr>
+              ) : users.map(u => (
+                <Tr key={u._id}>
+                  {/* Avatar + Name */}
+                  <Td>
+                    <div className="flex items-center gap-2.5">
+                      {u.avatar ? (
+                        <img
+                          src={getImageUrl(u.avatar)}
+                          alt={u.name}
+                          className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-xs font-semibold text-indigo-600 dark:text-indigo-400 flex-shrink-0">
+                          {u.name?.[0]?.toUpperCase()}
+                        </div>
+                      )}
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white truncate max-w-[150px]">
+                        {u.name}
+                      </span>
+                    </div>
+                  </Td>
+                  <Td>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 truncate block max-w-[200px]">
+                      {u.email}
+                    </span>
+                  </Td>
+                  <Td>
+                    <span className={`text-sm truncate block max-w-[140px] ${u.phone ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-600'}`}>
+                      {u.phone || '—'}
+                    </span>
+                  </Td>
+                  <Td><StatusChip status={u.role} /></Td>
+                  <Td>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                      {new Date(u.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </span>
+                  </Td>
+                  <Td className="text-center">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-pink-50 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400 text-xs font-bold">
+                      <Heart size={11} className="fill-pink-500 text-pink-500" />
+                      {u.wishlist?.length ?? 0}
+                    </span>
+                  </Td>
+                  <Td>
                     <StatusChip status={u.isActive ? 'active' : 'blocked'} label={u.isActive ? 'Active' : 'Blocked'} />
-                  </TableCell>
-                  <TableCell align="center">
-                    <Stack direction="row" spacing={0.75} justifyContent="center">
+                  </Td>
+                  <Td className="text-center">
+                    <div className="flex items-center justify-center gap-1.5">
                       <Button
-                        size="small"
-                        variant="outlined"
-                        color={u.isActive ? 'error' : 'success'}
+                        size="xs"
+                        variant={u.isActive ? 'danger' : 'success'}
                         onClick={() => toggleActive(u._id, u.isActive)}
-                        sx={{ minWidth: 76, fontSize: '0.74rem', py: 0.35, textTransform: 'none' }}
                       >
                         {u.isActive ? 'Block' : 'Unblock'}
                       </Button>
-                      <Tooltip title={u.role === 'admin' ? 'Demote to Customer' : 'Promote to Admin'}>
+                      <Tooltip content={u.role === 'admin' ? 'Demote to Customer' : 'Promote to Admin'}>
                         <Button
-                          size="small"
-                          variant="outlined"
-                          color={u.role === 'admin' ? 'warning' : 'primary'}
+                          size="xs"
+                          variant={u.role === 'admin' ? 'warning' : 'outline'}
                           onClick={() => toggleRole(u._id, u.role)}
-                          sx={{ minWidth: 76, fontSize: '0.74rem', py: 0.35, textTransform: 'none' }}
                         >
                           {u.role === 'admin' ? 'Demote' : 'Promote'}
                         </Button>
                       </Tooltip>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
+                    </div>
+                  </Td>
+                </Tr>
               ))}
-            </TableBody>
+            </tbody>
           </Table>
-        </TableContainer>
 
-        <TablePagination
-          component="div"
-          count={total}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          rowsPerPageOptions={[15]}
-          onPageChange={handlePageChange}
-        />
+          {totalPages > 1 && (
+            <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800">
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                onPage={handlePageChange}
+                totalItems={total}
+                perPage={PER_PAGE}
+              />
+            </div>
+          )}
+        </CardBody>
       </Card>
-    </Box>
+    </div>
   );
 }

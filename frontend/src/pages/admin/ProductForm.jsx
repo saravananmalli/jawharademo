@@ -2,39 +2,18 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { DirhamSymbol } from 'dirham/react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Box, Card, CardContent, Typography, Button, Grid, TextField, Select,
-  MenuItem, FormControl, InputLabel, FormControlLabel, Switch, Chip,
-  IconButton, Alert, CircularProgress, Stack, Tooltip, Avatar,
-  InputAdornment, alpha, Autocomplete, Rating, FormHelperText,
-} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-
-// ── Section icons ───────────────────────────────────────────────────────────
-import DeleteOutlinedIcon  from '@mui/icons-material/DeleteOutlined';
-import ArrowBackIcon       from '@mui/icons-material/ArrowBack';
-import SaveIcon            from '@mui/icons-material/Save';
-import DiamondIcon         from '@mui/icons-material/Diamond';
-import SellIcon            from '@mui/icons-material/Sell';
-import AutoAwesomeIcon     from '@mui/icons-material/AutoAwesome';
-import CategoryIcon        from '@mui/icons-material/Category';
-import ImageIcon           from '@mui/icons-material/Image';
-import PeopleIcon          from '@mui/icons-material/People';
-import LocalShippingIcon   from '@mui/icons-material/LocalShipping';
-import ToggleOnIcon        from '@mui/icons-material/ToggleOn';
-import CheckIcon           from '@mui/icons-material/Check';
-import StarIcon            from '@mui/icons-material/Star';
-import StyleIcon           from '@mui/icons-material/Style';
-import TuneIcon            from '@mui/icons-material/Tune';
-import EditNoteIcon        from '@mui/icons-material/EditNote';
-import ManageSearchIcon    from '@mui/icons-material/ManageSearch';
-import RateReviewIcon      from '@mui/icons-material/RateReview';
-import NewReleasesIcon     from '@mui/icons-material/NewReleases';
-import CardGiftcardIcon    from '@mui/icons-material/CardGiftcard';
-import OpenInNewIcon       from '@mui/icons-material/OpenInNew';
+  ArrowLeft, Save, Diamond, Tag, Sparkles, FolderOpen, Image as ImageIcon,
+  Users, Truck, ToggleLeft, Check, Star, Layers, SlidersHorizontal,
+  FileText, Search, MessageSquare, Gift, Zap, ExternalLink,
+  AlertCircle, ChevronDown, X,
+} from 'lucide-react';
 
 import api from '../../services/api';
 import ImageUploader from '../../components/admin/ImageUploader';
 import ReviewManagerPanel from '../../components/admin/ReviewManagerPanel';
+import {
+  Input, Select, Textarea, Toggle, Button, Card, CardHeader, CardBody,
+} from '../../components/admin/ui/index.js';
 // brands loaded dynamically from API — see useBrands hook below
 import {
   METAL_OPTIONS, KARAT_OPTIONS, STONE_OPTIONS,
@@ -50,8 +29,6 @@ const DELIVERY_OPTIONS = [
   'Next Day Delivery', '1–3 Day Delivery', '2–3 Day Delivery',
 ];
 
-// Predefined collection options — must mirror the COLLECTION_MAP regexes in chatController.js
-// so the AI chatbot can find and prioritize products in each collection.
 const AI_COLLECTION_OPTIONS = [
   "Valentine's Day Collection",
   "Mother's Day Collection",
@@ -100,7 +77,6 @@ function slugify(text) {
   return text.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
-// Compute which "By Metal & Stone" nav labels this product matches
 function computeMatchedMetalStone(metals, stones, metalKt, category) {
   const catOptions = CATEGORY_FILTER_MAP[category]?.metalStone || [];
   const ms  = metals.map(m => m.toLowerCase());
@@ -118,102 +94,147 @@ function computeMatchedMetalStone(metals, stones, metalKt, category) {
   });
 }
 
-// ── Sub-components ─────────────────────────────────────────────────────────────
-
-function SectionHeader({ icon: Icon, title, subtitle, accent }) {
-  const theme = useTheme();
-  const color = accent || theme.palette.primary.main;
+// ── Section wrapper ───────────────────────────────────────────────────────────
+function Section({ icon: Icon, title, subtitle, accentColor = 'indigo', children }) {
+  const accentMap = {
+    indigo:  'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-800/40 text-indigo-600 dark:text-indigo-400',
+    violet:  'bg-violet-50 dark:bg-violet-900/20 border-violet-100 dark:border-violet-800/40 text-violet-600 dark:text-violet-400',
+    green:   'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800/40 text-emerald-600 dark:text-emerald-400',
+    blue:    'bg-blue-50 dark:bg-blue-900/20 border-blue-100 dark:border-blue-800/40 text-blue-600 dark:text-blue-400',
+    orange:  'bg-orange-50 dark:bg-orange-900/20 border-orange-100 dark:border-orange-800/40 text-orange-600 dark:text-orange-400',
+    teal:    'bg-teal-50 dark:bg-teal-900/20 border-teal-100 dark:border-teal-800/40 text-teal-600 dark:text-teal-400',
+    cyan:    'bg-cyan-50 dark:bg-cyan-900/20 border-cyan-100 dark:border-cyan-800/40 text-cyan-600 dark:text-cyan-400',
+    amber:   'bg-amber-50 dark:bg-amber-900/20 border-amber-100 dark:border-amber-800/40 text-amber-600 dark:text-amber-400',
+    sky:     'bg-sky-50 dark:bg-sky-900/20 border-sky-100 dark:border-sky-800/40 text-sky-600 dark:text-sky-400',
+  };
+  const accent = accentMap[accentColor] || accentMap.indigo;
   return (
-    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: 2.5 }}>
-      <Box sx={{
-        width: 38, height: 38, borderRadius: '10px', flexShrink: 0,
-        bgcolor: alpha(color, 0.1), border: `1px solid ${alpha(color, 0.22)}`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
-        <Icon sx={{ fontSize: '1.15rem', color }} />
-      </Box>
-      <Box sx={{ pt: 0.25 }}>
-        <Typography variant="subtitle1" fontWeight={700} lineHeight={1.2}>{title}</Typography>
-        {subtitle && (
-          <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.4, display: 'block' }}>
-            {subtitle}
-          </Typography>
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden mb-5">
+      <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-start gap-3">
+        {Icon && (
+          <div className={`w-8 h-8 rounded-lg border flex items-center justify-center flex-shrink-0 mt-0.5 ${accent}`}>
+            <Icon size={15} />
+          </div>
         )}
-      </Box>
-    </Box>
-  );
-}
-
-function SidebarCard({ title, icon: Icon, accent, children }) {
-  const theme  = useTheme();
-  const isDark = theme.palette.mode === 'dark';
-  const color  = accent || theme.palette.text.secondary;
-  return (
-    <Card sx={{
-      mb: 1.75,
-      border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)'}`,
-    }}>
-      {title && (
-        <Box sx={{
-          px: 2, pt: 1.5, pb: 0.9,
-          display: 'flex', alignItems: 'center', gap: 0.75,
-          borderBottom: `1px solid ${isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'}`,
-        }}>
-          {Icon && <Icon sx={{ fontSize: '0.82rem', color }} />}
-          <Typography variant="caption" fontWeight={700} sx={{
-            textTransform: 'uppercase', letterSpacing: '0.9px', fontSize: '0.62rem', color: 'text.secondary',
-          }}>
-            {title}
-          </Typography>
-        </Box>
-      )}
-      <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+        <div>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{title}</h3>
+          {subtitle && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{subtitle}</p>}
+        </div>
+      </div>
+      <div className="p-6">
         {children}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
-function ChipToggleGroup({ options, selected, onChange, color = 'primary', size = 'small' }) {
-  const theme  = useTheme();
-  const isDark = theme.palette.mode === 'dark';
+// ── Sidebar card ──────────────────────────────────────────────────────────────
+function SideCard({ title, icon: Icon, children }) {
+  return (
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden mb-4">
+      {title && (
+        <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
+          {Icon && <Icon size={13} className="text-gray-400 dark:text-gray-500" />}
+          <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest" style={{ letterSpacing: '0.9px', fontSize: '0.62rem' }}>
+            {title}
+          </span>
+        </div>
+      )}
+      <div className="p-4">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ── Chip toggle group ─────────────────────────────────────────────────────────
+function ChipToggle({ label, selected, onClick, color = 'indigo' }) {
+  const colorMap = {
+    indigo:  { on: 'bg-indigo-600 border-indigo-600 text-white', off: 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-indigo-300 dark:hover:border-indigo-700' },
+    violet:  { on: 'bg-violet-600 border-violet-600 text-white', off: 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-violet-300 dark:hover:border-violet-700' },
+    emerald: { on: 'bg-emerald-600 border-emerald-600 text-white', off: 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-emerald-300 dark:hover:border-emerald-700' },
+    info:    { on: 'bg-sky-600 border-sky-600 text-white', off: 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-sky-300 dark:hover:border-sky-700' },
+    warning: { on: 'bg-amber-500 border-amber-500 text-white', off: 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-amber-300 dark:hover:border-amber-700' },
+    teal:    { on: 'bg-teal-600 border-teal-600 text-white', off: 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-teal-300 dark:hover:border-teal-700' },
+  };
+  const c = colorMap[color] || colorMap.indigo;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-xs font-medium transition-all duration-150 cursor-pointer ${selected ? c.on : c.off}`}
+    >
+      {selected && <Check size={10} className="flex-shrink-0" />}
+      {label}
+    </button>
+  );
+}
+
+function ChipToggleGroup({ options, selected, onChange, color = 'indigo' }) {
   const toggle = (val) => onChange(selected.includes(val) ? selected.filter(v => v !== val) : [...selected, val]);
   return (
-    <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
-      {options.map(opt => {
-        const on = selected.includes(opt);
-        return (
-          <Chip
-            key={opt} label={opt} size={size}
-            onClick={() => toggle(opt)}
-            variant={on ? 'filled' : 'outlined'}
-            color={on ? color : 'default'}
-            icon={on ? <CheckIcon style={{ fontSize: '0.78rem' }} /> : undefined}
-            sx={{
-              cursor: 'pointer', fontWeight: on ? 700 : 400, fontSize: '0.76rem',
-              transition: 'all 0.15s',
-              borderColor: on ? undefined : (isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.14)'),
-            }}
-          />
-        );
-      })}
-    </Box>
+    <div className="flex flex-wrap gap-1.5">
+      {options.map(opt => (
+        <ChipToggle key={opt} label={opt} selected={selected.includes(opt)} onClick={() => toggle(opt)} color={color} />
+      ))}
+    </div>
   );
 }
+
+// ── Tag input (free-form) ─────────────────────────────────────────────────────
+function TagInput({ value = [], onChange, placeholder }) {
+  const [input, setInput] = useState('');
+  const addTag = (raw) => {
+    const tag = raw.trim();
+    if (tag && !value.includes(tag)) onChange([...value, tag]);
+    setInput('');
+  };
+  const handleKey = (e) => {
+    if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag(input); }
+    if (e.key === 'Backspace' && !input && value.length) onChange(value.slice(0, -1));
+  };
+  return (
+    <div className="flex flex-wrap gap-1.5 min-h-[42px] w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent transition-all duration-150">
+      {value.map(tag => (
+        <span key={tag} className="inline-flex items-center gap-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 rounded-md px-2 py-0.5 text-xs font-medium">
+          {tag}
+          <button type="button" onClick={() => onChange(value.filter(t => t !== tag))} className="hover:text-red-500 transition-colors">
+            <X size={10} />
+          </button>
+        </span>
+      ))}
+      <input
+        value={input}
+        onChange={e => setInput(e.target.value)}
+        onKeyDown={handleKey}
+        onBlur={() => input.trim() && addTag(input)}
+        placeholder={value.length === 0 ? placeholder : ''}
+        className="flex-1 min-w-[120px] bg-transparent text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none"
+      />
+    </div>
+  );
+}
+
+// ── Badge color utility for product badge chips ───────────────────────────────
+const BADGE_PILL_MAP = {
+  new:     'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700',
+  sale:    'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700',
+  hot:     'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700',
+  limited: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700',
+  default: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700',
+};
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function ProductForm() {
   const { id }   = useParams();
   const navigate = useNavigate();
-  const theme    = useTheme();
-  const isDark   = theme.palette.mode === 'dark';
   const isEdit   = !!id;
 
-  const [brandsList,  setBrandsList]  = useState([]);
-  const [form,        setForm]        = useState(EMPTY);
-  const [saving,      setSaving]      = useState(false);
-  const [error,       setError]       = useState('');
-  const [formErrors,  setFormErrors]  = useState({});
+  const [brandsList,    setBrandsList]    = useState([]);
+  const [form,          setForm]          = useState(EMPTY);
+  const [saving,        setSaving]        = useState(false);
+  const [error,         setError]         = useState('');
+  const [formErrors,    setFormErrors]    = useState({});
   // productLoaded gates the ImageUploader so it mounts exactly once with the
   // correct initial images (either immediately for new, or after API fetch for edit)
   const [productLoaded, setProductLoaded] = useState(!isEdit);
@@ -382,699 +403,747 @@ export default function ProductForm() {
     }
   };
 
-  const cardSx = {
-    mb: 2.5,
-    border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)'}`,
-  };
-
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ pb: 6 }}>
+    <form onSubmit={handleSubmit} noValidate className="pb-24">
 
       {/* ── Sticky page header ─────────────────────────────────────────────── */}
-      <Box sx={{
-        position: 'sticky', top: 0, zIndex: 20, bgcolor: 'background.default',
-        pt: 0.5, pb: 1.75, mb: 3,
-        borderBottom: `1px solid ${isDark ? 'rgba(255,255,255,0.07)' : '#e9eaec'}`,
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-          <Button variant="outlined" startIcon={<ArrowBackIcon />} size="small"
+      <div className="sticky top-0 z-20 bg-gray-50 dark:bg-gray-950 pt-1 pb-4 mb-6 border-b border-gray-200 dark:border-gray-800">
+        <div className="flex items-center gap-3 flex-wrap">
+          <button
+            type="button"
             onClick={() => navigate('/admin/products')}
-            sx={{ borderRadius: '8px', height: 34, flexShrink: 0 }}>
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-3 h-8 bg-white dark:bg-gray-900 transition-colors flex-shrink-0"
+          >
+            <ArrowLeft size={14} />
             Products
-          </Button>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography variant="h6" fontWeight={800} noWrap>
+          </button>
+
+          <div className="flex-1 min-w-0">
+            <h1 className="text-lg font-extrabold text-gray-900 dark:text-white leading-tight truncate">
               {isEdit ? 'Edit Product' : 'Add New Product'}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
+            </h1>
+            <p className="text-xs text-gray-400 dark:text-gray-500">
               {isEdit ? 'Update product listing details' : 'Fill in all details to publish a new product'}
-            </Typography>
-          </Box>
-          <Stack direction="row" spacing={1.25} sx={{ flexShrink: 0 }}>
-            <Button variant="outlined" onClick={() => navigate('/admin/products')}
-              sx={{ borderRadius: '8px', height: 38 }}>
-              Discard
-            </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              startIcon={saving ? <CircularProgress size={15} color="inherit" /> : <SaveIcon />}
-              disabled={saving}
-              sx={{ borderRadius: '10px', fontWeight: 700, height: 38, px: 3 }}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => navigate('/admin/products')}
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-xl px-4 h-9 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
+              Discard
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl px-5 h-9 shadow-sm shadow-indigo-200 dark:shadow-indigo-900/30 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {saving ? (
+                <svg className="animate-spin" width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                </svg>
+              ) : (
+                <Save size={14} />
+              )}
               {saving ? 'Saving…' : isEdit ? 'Save Changes' : 'Publish Product'}
-            </Button>
-          </Stack>
-        </Box>
+            </button>
+          </div>
+        </div>
+
+        {/* Error banner */}
         {error && (
-          <Alert severity="error" onClose={() => setError('')} sx={{ mt: 1.5, borderRadius: 2 }}>{error}</Alert>
+          <div className="mt-3 flex items-start gap-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
+            <AlertCircle size={15} className="text-red-500 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-red-700 dark:text-red-300 flex-1">{error}</p>
+            <button type="button" onClick={() => setError('')} className="text-red-400 hover:text-red-600 transition-colors">
+              <X size={14} />
+            </button>
+          </div>
         )}
-      </Box>
+      </div>
 
-      {/* ══════════════════════════════════════════════════════════════════════
-          TWO-COLUMN BODY — flex row on ≥900 px, stacked on mobile
-      ══════════════════════════════════════════════════════════════════════ */}
-      <Box sx={{
-        display: 'flex',
-        gap: 2.5,
-        alignItems: 'flex-start',
-        flexDirection: { xs: 'column', md: 'row' },
-      }}>
+      {/* ── Two-column body ────────────────────────────────────────────────── */}
+      <div className="flex gap-5 items-start flex-col lg:flex-row">
 
-        {/* ════ LEFT COLUMN — grows to fill available space ══════════════ */}
-        <Box sx={{ flex: '1 1 0', minWidth: 0, width: { xs: '100%', md: 'auto' } }}>
+        {/* ════ LEFT COLUMN ════════════════════════════════════════════════ */}
+        <div className="flex-1 min-w-0 w-full lg:w-auto">
 
-          {/* 1 ─ Product Information ──────────────────────────────────── */}
-          <Card sx={cardSx}>
-            <CardContent sx={{ p: { xs: 2.5, sm: 3 } }}>
-              <SectionHeader icon={DiamondIcon} title="Product Information"
-                subtitle="Product name and unique SKU / design code" />
-              <Grid container spacing={2.25}>
-                <Grid item xs={12}>
-                  <TextField fullWidth label="Product Name *"
-                    value={form.name} onChange={e => setName(e.target.value)}
-                    placeholder="e.g. 18K Gold Diamond Solitaire Ring"
-                    error={!!formErrors.name}
-                    helperText={formErrors.name || 'A clear, descriptive name (also pre-fills SEO title and URL slug)'} />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <TextField fullWidth label="SKU / Design Code *"
-                    value={form.designCode} onChange={e => set('designCode', e.target.value)}
-                    placeholder="e.g. RNG-001"
-                    error={!!formErrors.designCode}
-                    helperText={formErrors.designCode || 'Unique product identifier'} />
-                </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
-
-          {/* 2 ─ Product Description ──────────────────────────────────── */}
-          <Card sx={cardSx}>
-            <CardContent sx={{ p: { xs: 2.5, sm: 3 } }}>
-              <SectionHeader icon={EditNoteIcon} title="Product Description"
-                subtitle="Plain text description shown on the product page"
-                accent="#7c3aed" />
-              <TextField
-                fullWidth multiline rows={6}
-                placeholder="Write your product description here…"
-                value={form.description}
-                onChange={e => set('description', e.target.value)}
-                inputProps={{ maxLength: 2000 }}
-                error={!!formErrors.description}
-                helperText={formErrors.description || `${(form.description || '').length} / 2000`}
-              />
-            </CardContent>
-          </Card>
-
-          {/* 3 ─ Pricing ──────────────────────────────────────────────── */}
-          <Card sx={cardSx}>
-            <CardContent sx={{ p: { xs: 2.5, sm: 3 } }}>
-              <SectionHeader icon={SellIcon} title="Pricing"
-                subtitle="Sale price auto-assigns the price range bucket — override if needed"
-                accent="#16a34a" />
-              <Grid container spacing={2.25}>
-                <Grid item xs={12} sm={4}>
-                  <TextField fullWidth label="Sale Price *" type="number"
-                    value={form.price} onChange={e => { setPrice(e.target.value); clearError('price'); }}
-                    inputProps={{ min: 0, step: 0.01 }}
-                    InputProps={{ startAdornment: <InputAdornment position="start"><DirhamSymbol size="0.9em" /></InputAdornment> }}
-                    error={!!formErrors.price}
-                    helperText={formErrors.price || 'Current selling price'} />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <TextField fullWidth label="Original Price" type="number"
-                    value={form.originalPrice} onChange={e => setOriginalPrice(e.target.value)}
-                    inputProps={{ min: 0, step: 0.01 }}
-                    InputProps={{ startAdornment: <InputAdornment position="start"><DirhamSymbol size="0.9em" /></InputAdornment> }}
-                    helperText="Shown struck-through when higher than sale price" />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <TextField fullWidth label="Discount %" type="number"
-                    value={form.discount}
-                    inputProps={{ min: 0, max: 100, readOnly: true }}
-                    InputProps={{ endAdornment: <InputAdornment position="end">%</InputAdornment> }}
-                    helperText="Auto-calculated from sale & original price"
-                    sx={{ '& .MuiInputBase-input': { bgcolor: 'action.hover', cursor: 'default' } }} />
-                </Grid>
-
-                {autoDiscount !== null && (
-                  <Grid item xs={12}>
-                    <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1,
-                      px: 2, py: 0.9, borderRadius: 2,
-                      bgcolor: alpha('#16a34a', 0.08), border: `1px solid ${alpha('#16a34a', 0.2)}` }}>
-                      <CheckIcon sx={{ fontSize: '0.9rem', color: 'success.main' }} />
-                      <Typography variant="caption" color="success.main" fontWeight={600}>
-                        Customer saves AED {(Number(form.originalPrice) - Number(form.price)).toLocaleString()} · {autoDiscount}% off
-                      </Typography>
-                    </Box>
-                  </Grid>
-                )}
-
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth size="small">
-                    <InputLabel>Price Range Bucket</InputLabel>
-                    <Select label="Price Range Bucket" value={form.priceRange}
-                      inputProps={{ readOnly: true }}
-                      sx={{ bgcolor: 'action.hover', pointerEvents: 'none' }}>
-                      <MenuItem value="">None</MenuItem>
-                      {PRICE_BUCKET_MAP.map(b => (
-                        <MenuItem key={b.slug} value={b.slug}>{b.label}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
-
-          {/* 4 ─ Product Images ───────────────────────────────────────── */}
-          <Card sx={cardSx}>
-            <CardContent sx={{ p: { xs: 2.5, sm: 3 } }}>
-              <SectionHeader icon={ImageIcon} title="Product Images"
-                subtitle="Upload from device — first is the primary cover, second is the hover view"
-                accent="#2563eb" />
-              {productLoaded && (
-                <ImageUploader
-                  images={form.images}
-                  onChange={urls => { set('images', urls); clearError('images'); }}
-                  maxImages={10}
-                  category="products"
+          {/* 1 ─ Product Information ──────────────────────────────────────── */}
+          <Section icon={Diamond} title="Product Information" subtitle="Product name and unique SKU / design code" accentColor="indigo">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-2">
+                <Input
+                  label="Product Name"
+                  required
+                  value={form.name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="e.g. 18K Gold Diamond Solitaire Ring"
+                  error={formErrors.name}
+                  helper="A clear, descriptive name (also pre-fills SEO title and URL slug)"
                 />
-              )}
-              {formErrors.images && (
-                <FormHelperText error sx={{ mt: 1, fontSize: '0.82rem' }}>{formErrors.images}</FormHelperText>
-              )}
-            </CardContent>
-          </Card>
+              </div>
+              <div>
+                <Input
+                  label="SKU / Design Code"
+                  required
+                  value={form.designCode}
+                  onChange={e => set('designCode', e.target.value)}
+                  placeholder="e.g. RNG-001"
+                  error={formErrors.designCode}
+                  helper="Unique product identifier"
+                />
+              </div>
+            </div>
+          </Section>
 
-          {/* 5 ─ Product Variants (ring sizes — conditional) ──────────── */}
+          {/* 2 ─ Product Description ──────────────────────────────────────── */}
+          <Section icon={FileText} title="Product Description" subtitle="Plain text description shown on the product page" accentColor="violet">
+            <Textarea
+              rows={6}
+              placeholder="Write your product description here…"
+              value={form.description}
+              onChange={e => set('description', e.target.value)}
+              maxLength={2000}
+              error={formErrors.description}
+              helper={`${(form.description || '').length} / 2000`}
+            />
+          </Section>
+
+          {/* 3 ─ Pricing ──────────────────────────────────────────────────── */}
+          <Section icon={Tag} title="Pricing" subtitle="Sale price auto-assigns the price range bucket — override if needed" accentColor="green">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  Sale Price <span className="text-red-500 ml-0.5">*</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-3 flex items-center text-gray-400 text-sm pointer-events-none">
+                    <DirhamSymbol size="0.9em" />
+                  </span>
+                  <input
+                    type="number"
+                    min={0}
+                    step={0.01}
+                    value={form.price}
+                    onChange={e => { setPrice(e.target.value); clearError('price'); }}
+                    placeholder="0.00"
+                    className={`w-full pl-8 pr-3.5 py-2.5 bg-white dark:bg-gray-900 border rounded-xl text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all ${formErrors.price ? 'border-red-400' : 'border-gray-200 dark:border-gray-700'}`}
+                  />
+                </div>
+                {formErrors.price
+                  ? <p className="text-xs text-red-500 mt-1">{formErrors.price}</p>
+                  : <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Current selling price</p>
+                }
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Original Price</label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-3 flex items-center text-gray-400 text-sm pointer-events-none">
+                    <DirhamSymbol size="0.9em" />
+                  </span>
+                  <input
+                    type="number"
+                    min={0}
+                    step={0.01}
+                    value={form.originalPrice}
+                    onChange={e => setOriginalPrice(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full pl-8 pr-3.5 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Shown struck-through when higher than sale price</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Discount %</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    readOnly
+                    value={form.discount}
+                    className="w-full pr-8 pl-3.5 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-500 dark:text-gray-400 cursor-default focus:outline-none"
+                  />
+                  <span className="absolute inset-y-0 right-3 flex items-center text-gray-400 text-sm pointer-events-none">%</span>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Auto-calculated from sale &amp; original price</p>
+              </div>
+            </div>
+
+            {/* Savings callout */}
+            {autoDiscount !== null && (
+              <div className="mt-4 inline-flex items-center gap-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl px-4 py-2.5">
+                <Check size={14} className="text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                <span className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">
+                  Customer saves AED {(Number(form.originalPrice) - Number(form.price)).toLocaleString()} · {autoDiscount}% off
+                </span>
+              </div>
+            )}
+
+            {/* Price range bucket (read-only) */}
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Price Range Bucket</label>
+                <div className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-500 dark:text-gray-400 cursor-default">
+                  {form.priceRange
+                    ? PRICE_BUCKET_MAP.find(b => b.slug === form.priceRange)?.label || form.priceRange
+                    : 'Auto-assigned from price'
+                  }
+                </div>
+              </div>
+            </div>
+          </Section>
+
+          {/* 4 ─ Product Images ───────────────────────────────────────────── */}
+          <Section icon={ImageIcon} title="Product Images" subtitle="Upload from device — first is the primary cover, second is the hover view" accentColor="blue">
+            {productLoaded && (
+              <ImageUploader
+                images={form.images}
+                onChange={urls => { set('images', urls); clearError('images'); }}
+                maxImages={10}
+                category="products"
+              />
+            )}
+            {formErrors.images && (
+              <p className="text-xs text-red-500 mt-2">{formErrors.images}</p>
+            )}
+          </Section>
+
+          {/* 5 ─ Ring Sizes (conditional) ────────────────────────────────── */}
           {form.category === 'Rings' && (
-            <Card sx={cardSx}>
-              <CardContent sx={{ p: { xs: 2.5, sm: 3 } }}>
-                <SectionHeader icon={AutoAwesomeIcon} title="Product Variants"
-                  subtitle="Select available ring sizes"
-                  accent="#e5780b" />
-                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                  {RING_SIZES.map(s => {
-                    const on = form.sizes.includes(s);
-                    return (
-                      <Box key={s} onClick={() => toggleSize(s)} sx={{
-                        width: 52, height: 52, borderRadius: 2, cursor: 'pointer', transition: 'all 0.15s',
-                        border: `2px solid ${on ? theme.palette.primary.main : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)')}`,
-                        bgcolor: on ? alpha(theme.palette.primary.main, 0.12) : 'transparent',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        '&:hover': { borderColor: theme.palette.primary.main, bgcolor: alpha(theme.palette.primary.main, 0.08) },
-                      }}>
-                        <Typography fontWeight={on ? 700 : 500} fontSize="0.9rem"
-                          color={on ? 'primary.main' : 'text.secondary'}>{s}</Typography>
-                      </Box>
-                    );
-                  })}
-                </Box>
-                {form.sizes.length > 0 && (
-                  <Typography variant="caption" color="text.secondary" sx={{ mt: 1.5, display: 'block' }}>
-                    Selected: {[...form.sizes].sort((a, b) => Number(a) - Number(b)).join(', ')}
-                  </Typography>
-                )}
-              </CardContent>
-            </Card>
+            <Section icon={Sparkles} title="Product Variants" subtitle="Select available ring sizes" accentColor="orange">
+              <div className="flex flex-wrap gap-2">
+                {RING_SIZES.map(s => {
+                  const on = form.sizes.includes(s);
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => toggleSize(s)}
+                      className={`w-12 h-12 rounded-xl border-2 text-sm font-semibold transition-all duration-150 ${
+                        on
+                          ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500 dark:border-indigo-500 text-indigo-700 dark:text-indigo-300'
+                          : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-indigo-300 dark:hover:border-indigo-700'
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  );
+                })}
+              </div>
+              {form.sizes.length > 0 && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
+                  Selected: {[...form.sizes].sort((a, b) => Number(a) - Number(b)).join(', ')}
+                </p>
+              )}
+            </Section>
           )}
 
-          {/* 6 ─ Jewellery Specifications ───────────────────────────────── */}
-          <Card sx={cardSx}>
-            <CardContent sx={{ p: { xs: 2.5, sm: 3 } }}>
-              <SectionHeader icon={AutoAwesomeIcon} title="Jewellery Specifications"
-                subtitle="Metal, karat, stone — multiple selections allowed"
-                accent="#9c6fda" />
-              <Stack spacing={2.5}>
-                <Box>
-                  <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
-                    Metal Type <Box component="span" sx={{ color: 'error.main' }}>*</Box>
-                  </Typography>
-                  <ChipToggleGroup options={METAL_OPTIONS} selected={form.metals}
-                    onChange={val => { set('metals', val); clearError('metals'); }} color="primary" />
-                  {formErrors.metals && (
-                    <FormHelperText error sx={{ mt: 0.5 }}>{formErrors.metals}</FormHelperText>
-                  )}
-                </Box>
-                <Box>
-                  <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
-                    Metal Karat <Box component="span" sx={{ color: 'error.main' }}>*</Box>
-                  </Typography>
-                  <ChipToggleGroup
-                    options={KARAT_OPTIONS}
-                    selected={form.metalKt ? [form.metalKt] : []}
-                    onChange={val => { set('metalKt', val[val.length - 1] || ''); clearError('metalKt'); }}
-                    color="secondary" />
-                  {formErrors.metalKt && (
-                    <FormHelperText error sx={{ mt: 0.5 }}>{formErrors.metalKt}</FormHelperText>
-                  )}
-                </Box>
-                <Box>
-                  <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
-                    Stone / Gemstone
-                    <Box component="span" sx={{ fontWeight: 400, color: 'text.secondary', ml: 0.75 }}>
-                      (optional)
-                    </Box>
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-                    Leave empty for plain metal products (e.g. gold chains, plain bangles)
-                  </Typography>
-                  <ChipToggleGroup options={STONE_OPTIONS} selected={form.stones}
-                    onChange={val => set('stones', val)} color="info" />
-                </Box>
+          {/* 6 ─ Jewellery Specifications ─────────────────────────────────── */}
+          <Section icon={Sparkles} title="Jewellery Specifications" subtitle="Metal, karat, stone — multiple selections allowed" accentColor="violet">
+            <div className="space-y-5">
+              {/* Metal Type */}
+              <div>
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  Metal Type <span className="text-red-500">*</span>
+                </p>
+                <ChipToggleGroup options={METAL_OPTIONS} selected={form.metals}
+                  onChange={val => { set('metals', val); clearError('metals'); }} color="indigo" />
+                {formErrors.metals && <p className="text-xs text-red-500 mt-1.5">{formErrors.metals}</p>}
+              </div>
 
-                {/* ── Diamond-specific attributes (shown only when Diamond is selected) ── */}
-                {form.stones.includes('Diamond') && (
-                  <Box sx={{
-                    p: 2, borderRadius: 2,
-                    border: `1px solid ${isDark ? 'rgba(185,150,255,0.22)' : 'rgba(139,92,246,0.2)'}`,
-                    bgcolor: isDark ? 'rgba(139,92,246,0.06)' : 'rgba(139,92,246,0.04)',
-                  }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 2 }}>
-                      <DiamondIcon sx={{ fontSize: '0.95rem', color: '#8b5cf6' }} />
-                      <Typography variant="body2" fontWeight={700} color="#8b5cf6">Diamond Specifications</Typography>
-                    </Box>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} sm={4}>
-                        <FormControl fullWidth size="small">
-                          <InputLabel>Clarity</InputLabel>
-                          <Select label="Clarity" value={form.diamondClarity}
-                            onChange={e => set('diamondClarity', e.target.value)}>
-                            <MenuItem value=""><em>Not specified</em></MenuItem>
-                            {['FL','IF','VVS1','VVS2','VS1','VS2','SI1','SI2','I1','I2','I3'].map(v => (
-                              <MenuItem key={v} value={v}>{v}</MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </Grid>
-                      <Grid item xs={12} sm={4}>
-                        <FormControl fullWidth size="small">
-                          <InputLabel>Color Grade</InputLabel>
-                          <Select label="Color Grade" value={form.diamondColor}
-                            onChange={e => set('diamondColor', e.target.value)}>
-                            <MenuItem value=""><em>Not specified</em></MenuItem>
-                            {['D','E','F','G','H','I','J','K','L','M','N'].map(v => (
-                              <MenuItem key={v} value={v}>{v}</MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </Grid>
-                      <Grid item xs={12} sm={4}>
-                        <TextField fullWidth size="small" label="Carat Weight (ct.)"
-                          type="number" value={form.diamondCt}
-                          onChange={e => set('diamondCt', e.target.value)}
-                          inputProps={{ min: 0, step: 0.01 }}
-                          placeholder="e.g. 0.50" />
-                      </Grid>
-                    </Grid>
-                  </Box>
-                )}
+              {/* Metal Karat */}
+              <div>
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  Metal Karat <span className="text-red-500">*</span>
+                </p>
+                <ChipToggleGroup
+                  options={KARAT_OPTIONS}
+                  selected={form.metalKt ? [form.metalKt] : []}
+                  onChange={val => { set('metalKt', val[val.length - 1] || ''); clearError('metalKt'); }}
+                  color="violet"
+                />
+                {formErrors.metalKt && <p className="text-xs text-red-500 mt-1.5">{formErrors.metalKt}</p>}
+              </div>
 
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField fullWidth size="small" label="Product Weight (g)"
-                      type="number" value={form.weight}
-                      onChange={e => set('weight', e.target.value)}
-                      inputProps={{ min: 0, step: 0.01 }}
-                      placeholder="e.g. 4.20" />
-                  </Grid>
-                </Grid>
+              {/* Stone / Gemstone */}
+              <div>
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
+                  Stone / Gemstone{' '}
+                  <span className="text-gray-400 dark:text-gray-500 font-normal">(optional)</span>
+                </p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mb-2">Leave empty for plain metal products (e.g. gold chains, plain bangles)</p>
+                <ChipToggleGroup options={STONE_OPTIONS} selected={form.stones}
+                  onChange={val => set('stones', val)} color="info" />
+              </div>
 
-                {matchedNavMS.length > 0 && (
-                  <Box sx={{ pt: 0.5 }}>
-                    <Typography variant="caption" color="text.secondary" sx={{ mb: 0.75, display: 'block' }}>
-                      This product will appear in "By Metal &amp; Stone" filter for:
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
-                      {matchedNavMS.map(opt => (
-                        <Chip key={opt} label={opt} size="small" color="success" variant="outlined"
-                          icon={<CheckIcon style={{ fontSize: '0.75rem' }} />}
-                          sx={{ fontSize: '0.72rem', height: 24, fontWeight: 600 }} />
+              {/* Diamond-specific attributes */}
+              {form.stones.includes('Diamond') && (
+                <div className="p-4 rounded-xl border border-violet-200 dark:border-violet-800/40 bg-violet-50/50 dark:bg-violet-900/10">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Diamond size={14} className="text-violet-600 dark:text-violet-400" />
+                    <span className="text-sm font-bold text-violet-700 dark:text-violet-300">Diamond Specifications</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <Select
+                      label="Clarity"
+                      value={form.diamondClarity}
+                      onChange={e => set('diamondClarity', e.target.value)}
+                    >
+                      <option value="">Not specified</option>
+                      {['FL','IF','VVS1','VVS2','VS1','VS2','SI1','SI2','I1','I2','I3'].map(v => (
+                        <option key={v} value={v}>{v}</option>
                       ))}
-                    </Box>
-                  </Box>
-                )}
-              </Stack>
-            </CardContent>
-          </Card>
-
-          {/* 7 ─ Frontend Filter Mapping ──────────────────────────────── */}
-          <Card sx={cardSx}>
-            <CardContent sx={{ p: { xs: 2.5, sm: 3 } }}>
-              <SectionHeader icon={TuneIcon} title="Frontend Filter Mapping"
-                subtitle={form.category
-                  ? `Mega-nav options for "${form.category}" — selections control which storefront filters show this product`
-                  : 'Select a category first to see the relevant filter options'}
-                accent="#0891b2" />
-
-              {!form.category ? (
-                <Box sx={{ py: 3, textAlign: 'center' }}>
-                  <TuneIcon sx={{ fontSize: '2.5rem', color: 'text.disabled', mb: 1 }} />
-                  <Typography variant="body2" color="text.secondary">
-                    Choose a category in the sidebar to unlock category-specific filter chips.
-                  </Typography>
-                </Box>
-              ) : (
-                <Stack spacing={3}>
-                  <Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                      <StarIcon sx={{ fontSize: '0.88rem', color: 'warning.main' }} />
-                      <Typography variant="body2" fontWeight={700}>Featured In</Typography>
-                      {form.featured.length > 0 && (
-                        <Chip label={`${form.featured.length} selected`} size="small" color="warning" variant="outlined"
-                          sx={{ height: 20, fontSize: '0.67rem', fontWeight: 700 }} />
-                      )}
-                    </Box>
-                    <ChipToggleGroup options={categoryMap.featured} selected={form.featured}
-                      onChange={val => set('featured', val)} color="warning" />
-                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.75, display: 'block' }}>
-                      Controls which "Featured" column items this product appears under in the mega-nav
-                    </Typography>
-                    {formErrors.featured && (
-                      <FormHelperText error sx={{ mt: 0.5 }}>{formErrors.featured}</FormHelperText>
-                    )}
-                  </Box>
-
-                  <Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                      <StyleIcon sx={{ fontSize: '0.88rem', color: '#0891b2' }} />
-                      <Typography variant="body2" fontWeight={700}>By Style</Typography>
-                      {form.styles.length > 0 && (
-                        <Chip label={`${form.styles.length} selected`} size="small" color="info" variant="outlined"
-                          sx={{ height: 20, fontSize: '0.67rem', fontWeight: 700 }} />
-                      )}
-                    </Box>
-                    <ChipToggleGroup options={categoryMap.styles} selected={form.styles}
-                      onChange={val => set('styles', val)} color="info" />
-                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.75, display: 'block' }}>
-                      Controls "By Style" filter column in the mega-nav
-                    </Typography>
-                    {formErrors.styles && (
-                      <FormHelperText error sx={{ mt: 0.5 }}>{formErrors.styles}</FormHelperText>
-                    )}
-                  </Box>
-                </Stack>
+                    </Select>
+                    <Select
+                      label="Color Grade"
+                      value={form.diamondColor}
+                      onChange={e => set('diamondColor', e.target.value)}
+                    >
+                      <option value="">Not specified</option>
+                      {['D','E','F','G','H','I','J','K','L','M','N'].map(v => (
+                        <option key={v} value={v}>{v}</option>
+                      ))}
+                    </Select>
+                    <Input
+                      label="Carat Weight (ct.)"
+                      type="number"
+                      min={0}
+                      step={0.01}
+                      value={form.diamondCt}
+                      onChange={e => set('diamondCt', e.target.value)}
+                      placeholder="e.g. 0.50"
+                    />
+                  </div>
+                </div>
               )}
-            </CardContent>
-          </Card>
 
-          {/* 8 ─ Tags & Audience ──────────────────────────────────────── */}
-          <Card sx={cardSx}>
-            <CardContent sx={{ p: { xs: 2.5, sm: 3 } }}>
-              <SectionHeader icon={PeopleIcon} title="Tags & Audience"
-                subtitle="Searchable keywords and target customer segments"
-                accent="#0e9f8c" />
-              <Grid container spacing={2.25}>
-                <Grid item xs={12} sm={6}>
-                  <Autocomplete multiple freeSolo options={[]}
-                    value={form.tags} onChange={(_, val) => set('tags', val)}
-                    renderTags={(tags, getTagProps) => tags.map((tag, i) => (
-                      <Chip {...getTagProps({ index: i })} key={tag} label={tag} size="small" variant="outlined"
-                        sx={{ fontSize: '0.72rem', height: 24 }} />
-                    ))}
-                    renderInput={params => (
-                      <TextField {...params} label="Search Tags" size="small"
-                        placeholder="Type a tag, press Enter…"
-                        helperText="e.g. diamond, ring, engagement, anniversary" />
-                    )} />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body2" fontWeight={600} sx={{ mb: 0.75 }}>
-                    Target Audience <Box component="span" sx={{ color: 'error.main' }}>*</Box>
-                  </Typography>
-                  <ChipToggleGroup options={FORWHO_OPTIONS} selected={form.forWho}
-                    onChange={val => { set('forWho', val); clearError('forWho'); }} color="success" />
-                  {formErrors.forWho && (
-                    <FormHelperText error sx={{ mt: 0.5 }}>{formErrors.forWho}</FormHelperText>
-                  )}
-                </Grid>
+              {/* Weight */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  label="Product Weight (g)"
+                  type="number"
+                  min={0}
+                  step={0.01}
+                  value={form.weight}
+                  onChange={e => set('weight', e.target.value)}
+                  placeholder="e.g. 4.20"
+                />
+              </div>
 
-                {/* Collection Tags — optional, drives AI chatbot priority recommendations */}
-                <Grid item xs={12}>
-                  <Autocomplete
-                    multiple
-                    freeSolo
-                    options={AI_COLLECTION_OPTIONS}
-                    value={form.collection}
-                    onChange={(_, val) => set('collection', val)}
-                    renderTags={(tags, getTagProps) => tags.map((tag, i) => (
-                      <Chip
-                        {...getTagProps({ index: i })}
-                        key={tag}
-                        label={tag}
-                        size="small"
-                        color="primary"
-                        variant="outlined"
-                        sx={{ fontSize: '0.72rem', height: 24 }}
-                      />
+              {/* Metal & Stone nav match preview */}
+              {matchedNavMS.length > 0 && (
+                <div>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mb-2">
+                    This product will appear in "By Metal &amp; Stone" filter for:
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {matchedNavMS.map(opt => (
+                      <span key={opt} className="inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700 rounded-lg px-2 py-0.5 text-xs font-semibold">
+                        <Check size={10} />
+                        {opt}
+                      </span>
                     ))}
-                    renderInput={params => (
-                      <TextField
-                        {...params}
-                        size="small"
-                        label="Collection Tags (optional)"
-                        placeholder={form.collection.length ? '' : "e.g. Valentine's Day Collection"}
-                        helperText="The AI chatbot will prioritize this product for each tagged collection. Pick from the list or type a custom name and press Enter."
-                      />
+                  </div>
+                </div>
+              )}
+            </div>
+          </Section>
+
+          {/* 7 ─ Frontend Filter Mapping ──────────────────────────────────── */}
+          <Section icon={SlidersHorizontal} title="Frontend Filter Mapping"
+            subtitle={form.category
+              ? `Mega-nav options for "${form.category}" — selections control which storefront filters show this product`
+              : 'Select a category first to see the relevant filter options'}
+            accentColor="cyan">
+
+            {!form.category ? (
+              <div className="py-8 text-center">
+                <SlidersHorizontal size={36} className="mx-auto text-gray-300 dark:text-gray-600 mb-2" />
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Choose a category in the sidebar to unlock category-specific filter chips.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Featured In */}
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Star size={13} className="text-amber-500" />
+                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">Featured In</span>
+                    {form.featured.length > 0 && (
+                      <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700 text-xs font-bold px-1.5 py-0.5 rounded-md">
+                        {form.featured.length} selected
+                      </span>
                     )}
-                  />
-                </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
+                  </div>
+                  <ChipToggleGroup options={categoryMap.featured} selected={form.featured}
+                    onChange={val => set('featured', val)} color="warning" />
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1.5">
+                    Controls which "Featured" column items this product appears under in the mega-nav
+                  </p>
+                  {formErrors.featured && <p className="text-xs text-red-500 mt-1">{formErrors.featured}</p>}
+                </div>
 
-          {/* 9 ─ SEO ──────────────────────────────────────────────────── */}
-          <Card sx={cardSx}>
-            <CardContent sx={{ p: { xs: 2.5, sm: 3 } }}>
-              <SectionHeader icon={ManageSearchIcon} title="SEO"
-                subtitle="Search engine metadata — pre-filled from product name and description"
-                accent="#0369a1" />
-              <Grid container spacing={2.25}>
-                <Grid item xs={12}>
-                  <TextField fullWidth size="small" label="Meta Title"
-                    value={form.seoTitle || form.name}
-                    onChange={e => set('seoTitle', e.target.value)}
-                    helperText={`${(form.seoTitle || form.name).length} / 60 characters recommended`}
-                    inputProps={{ maxLength: 80 }} />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField fullWidth size="small" multiline rows={2} label="Meta Description"
-                    value={form.seoDescription}
-                    onChange={e => set('seoDescription', e.target.value)}
-                    placeholder="Brief description for search engines…"
-                    helperText={`${form.seoDescription.length} / 160 characters recommended`}
-                    inputProps={{ maxLength: 200 }} />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField fullWidth size="small" label="URL Slug"
+                {/* By Style */}
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Layers size={13} className="text-sky-500" />
+                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">By Style</span>
+                    {form.styles.length > 0 && (
+                      <span className="bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-700 text-xs font-bold px-1.5 py-0.5 rounded-md">
+                        {form.styles.length} selected
+                      </span>
+                    )}
+                  </div>
+                  <ChipToggleGroup options={categoryMap.styles} selected={form.styles}
+                    onChange={val => set('styles', val)} color="info" />
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1.5">
+                    Controls "By Style" filter column in the mega-nav
+                  </p>
+                  {formErrors.styles && <p className="text-xs text-red-500 mt-1">{formErrors.styles}</p>}
+                </div>
+              </div>
+            )}
+          </Section>
+
+          {/* 8 ─ Tags & Audience ──────────────────────────────────────────── */}
+          <Section icon={Users} title="Tags & Audience" subtitle="Searchable keywords and target customer segments" accentColor="teal">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Search Tags</label>
+                <TagInput
+                  value={form.tags}
+                  onChange={val => set('tags', val)}
+                  placeholder="Type a tag, press Enter…"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400">e.g. diamond, ring, engagement, anniversary</p>
+              </div>
+
+              <div>
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  Target Audience <span className="text-red-500">*</span>
+                </p>
+                <ChipToggleGroup options={FORWHO_OPTIONS} selected={form.forWho}
+                  onChange={val => { set('forWho', val); clearError('forWho'); }} color="emerald" />
+                {formErrors.forWho && <p className="text-xs text-red-500 mt-1.5">{formErrors.forWho}</p>}
+              </div>
+            </div>
+
+            {/* AI Collection Tags */}
+            <div className="mt-5 space-y-1.5">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Collection Tags{' '}
+                <span className="text-gray-400 dark:text-gray-500 font-normal">(optional)</span>
+              </label>
+              <TagInput
+                value={form.collection}
+                onChange={val => set('collection', val)}
+                placeholder="e.g. Valentine's Day Collection…"
+              />
+              <p className="text-xs text-gray-400 dark:text-gray-500">
+                The AI chatbot will prioritize this product for each tagged collection. Pick from the suggestions below or type a custom name and press Enter.
+              </p>
+              {/* Suggestion pills */}
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {AI_COLLECTION_OPTIONS.filter(o => !form.collection.includes(o)).map(opt => (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => set('collection', [...form.collection, opt])}
+                    className="inline-flex items-center px-2 py-0.5 rounded-md border border-dashed border-gray-300 dark:border-gray-600 text-xs text-gray-500 dark:text-gray-400 hover:border-indigo-400 dark:hover:border-indigo-600 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                  >
+                    + {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </Section>
+
+          {/* 9 ─ SEO ──────────────────────────────────────────────────────── */}
+          <Section icon={Search} title="SEO" subtitle="Search engine metadata — pre-filled from product name and description" accentColor="sky">
+            <div className="space-y-4">
+              <Input
+                label="Meta Title"
+                value={form.seoTitle || form.name}
+                onChange={e => set('seoTitle', e.target.value)}
+                maxLength={80}
+                helper={`${(form.seoTitle || form.name).length} / 60 characters recommended`}
+              />
+              <Textarea
+                label="Meta Description"
+                rows={2}
+                value={form.seoDescription}
+                onChange={e => set('seoDescription', e.target.value)}
+                placeholder="Brief description for search engines…"
+                maxLength={200}
+                helper={`${form.seoDescription.length} / 160 characters recommended`}
+              />
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">URL Slug</label>
+                <div className="flex">
+                  <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm text-gray-400 dark:text-gray-500 whitespace-nowrap">
+                    /products/
+                  </span>
+                  <input
+                    type="text"
                     value={form.slug || slugify(form.name)}
                     onChange={e => set('slug', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
-                    InputProps={{ startAdornment: <InputAdornment position="start">/products/</InputAdornment> }}
-                    helperText="Auto-generated from product name — edit to customise" />
-                </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
+                    className="flex-1 min-w-0 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-r-xl px-3.5 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Auto-generated from product name — edit to customise</p>
+              </div>
+            </div>
+          </Section>
 
-          {/* 10 ─ Reviews ─────────────────────────────────────────────── */}
-          <Card sx={cardSx}>
-            <CardContent sx={{ p: { xs: 2.5, sm: 3 } }}>
-              <SectionHeader icon={RateReviewIcon} title="Reviews & Ratings"
-                subtitle={isEdit ? 'Add and manage reviews for this product' : 'Save product first to manage reviews'}
-                accent="#f59e0b" />
+          {/* 10 ─ Reviews ─────────────────────────────────────────────────── */}
+          <Section icon={MessageSquare} title="Reviews & Ratings"
+            subtitle={isEdit ? 'Add and manage reviews for this product' : 'Save product first to manage reviews'}
+            accentColor="amber">
 
-              {/* Rating summary row — only when reviews exist */}
-              {isEdit && form.reviewCount > 0 && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2.5, flexWrap: 'wrap' }}>
-                  <Box sx={{ textAlign: 'center' }}>
-                    <Typography variant="h3" fontWeight={800}>{(form.rating || 0).toFixed(1)}</Typography>
-                    <Rating value={form.rating || 0} precision={0.5} readOnly size="small" />
-                    <Typography variant="caption" color="text.secondary">
-                      {form.reviewCount} published review{form.reviewCount !== 1 ? 's' : ''}
-                    </Typography>
-                  </Box>
-                  <Button variant="outlined" size="small"
-                    onClick={() => navigate('/admin/reviews')}
-                    sx={{ borderRadius: '8px', textTransform: 'none' }}>
-                    View All Reviews →
-                  </Button>
-                </Box>
-              )}
+            {isEdit && form.reviewCount > 0 && (
+              <div className="flex items-center gap-4 mb-5 flex-wrap">
+                <div className="text-center">
+                  <div className="text-4xl font-extrabold text-gray-900 dark:text-white leading-tight">
+                    {(form.rating || 0).toFixed(1)}
+                  </div>
+                  <div className="flex items-center gap-0.5 justify-center mt-1">
+                    {[1,2,3,4,5].map(i => (
+                      <Star
+                        key={i}
+                        size={13}
+                        className={(form.rating || 0) >= i ? 'text-amber-400 fill-amber-400' : 'text-gray-200 dark:text-gray-700 fill-gray-200 dark:fill-gray-700'}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                    {form.reviewCount} published review{form.reviewCount !== 1 ? 's' : ''}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate('/admin/reviews')}
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-700 rounded-xl px-3 py-1.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
+                >
+                  View All Reviews
+                  <ExternalLink size={12} />
+                </button>
+              </div>
+            )}
 
-              <ReviewManagerPanel productId={isEdit ? id : null} />
-            </CardContent>
-          </Card>
+            <ReviewManagerPanel productId={isEdit ? id : null} />
+          </Section>
 
-        </Box>
+        </div>
         {/* ════ END LEFT COLUMN ════════════════════════════════════════════ */}
 
-        {/* ════ RIGHT SIDEBAR — fixed width, sticky on desktop ═══════════ */}
-        <Box sx={{
-          width: { xs: '100%', md: 320 },
-          flexShrink: 0,
-          position: { md: 'sticky' },
-          top: { md: 80 },
-          alignSelf: 'flex-start',
-        }}>
+        {/* ════ RIGHT SIDEBAR ══════════════════════════════════════════════ */}
+        <div className="w-full lg:w-72 xl:w-80 flex-shrink-0 lg:sticky lg:top-20 lg:self-start">
 
           {/* Status & Visibility ────────────────────────────────────────── */}
-          <SidebarCard title="Status & Visibility" icon={ToggleOnIcon} accent="#16a34a">
-            <Stack spacing={1.5}>
+          <SideCard title="Status & Visibility" icon={ToggleLeft}>
+            <div className="space-y-3">
               {[
-                { key: 'inStock',   label: 'In Stock',   desc: v => v ? 'Available for purchase' : 'Out of stock',        color: 'success' },
-                { key: 'certified', label: 'Certified',  desc: v => v ? 'Has quality certification' : 'No certification', color: 'info' },
-              ].map(({ key, label, desc, color }) => (
-                <Box key={key} sx={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  p: 1.25, borderRadius: 1.5,
-                  border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`,
-                  bgcolor: form[key] ? alpha(theme.palette[color].main, 0.06) : 'transparent',
-                }}>
-                  <Box>
-                    <Typography variant="body2" fontWeight={600} fontSize="0.82rem">{label}</Typography>
-                    <Typography variant="caption" color="text.secondary">{desc(form[key])}</Typography>
-                  </Box>
-                  <Switch checked={form[key]} onChange={e => set(key, e.target.checked)} color={color} size="small" />
-                </Box>
+                { key: 'inStock',   label: 'In Stock',  desc: v => v ? 'Available for purchase' : 'Out of stock',       activeClass: 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/40' },
+                { key: 'certified', label: 'Certified', desc: v => v ? 'Has quality certification' : 'No certification', activeClass: 'bg-sky-50 dark:bg-sky-900/10 border-sky-100 dark:border-sky-800/40' },
+              ].map(({ key, label, desc, activeClass }) => (
+                <label key={key} className={`flex items-center justify-between gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${form[key] ? activeClass : 'border-gray-100 dark:border-gray-800'}`}>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{label}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">{desc(form[key])}</p>
+                  </div>
+                  <Toggle
+                    checked={form[key]}
+                    onChange={e => set(key, e.target.checked)}
+                  />
+                </label>
               ))}
 
-              <Box>
-                <Typography variant="caption" fontWeight={700} color="text.secondary"
-                  sx={{ textTransform: 'uppercase', letterSpacing: 0.8, fontSize: '0.63rem', mb: 0.75, display: 'block' }}>
+              {/* Product Badge */}
+              <div>
+                <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2" style={{ letterSpacing: '0.9px', fontSize: '0.63rem' }}>
                   Product Badge
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
-                  <Chip label="None" size="small" variant={!form.badge ? 'filled' : 'outlined'}
-                    onClick={() => set('badge', '')} sx={{ cursor: 'pointer', fontWeight: 600, fontSize: '0.72rem' }} />
-                  {BADGE_OPTIONS.map(b => (
-                    <Chip key={b} label={b} size="small"
-                      color={BADGE_COLORS[b] || 'default'}
-                      variant={form.badge === b ? 'filled' : 'outlined'}
-                      onClick={() => set('badge', b)}
-                      sx={{ cursor: 'pointer', fontWeight: 600, fontSize: '0.72rem', textTransform: 'capitalize' }} />
-                  ))}
-                </Box>
-              </Box>
-            </Stack>
-          </SidebarCard>
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => set('badge', '')}
+                    className={`px-2.5 py-1 rounded-lg border text-xs font-semibold transition-all ${!form.badge ? 'bg-gray-700 dark:bg-gray-200 border-gray-700 dark:border-gray-200 text-white dark:text-gray-900' : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-gray-400'}`}
+                  >
+                    None
+                  </button>
+                  {BADGE_OPTIONS.map(b => {
+                    const active = form.badge === b;
+                    const pillCls = BADGE_PILL_MAP[b?.toLowerCase()] || BADGE_PILL_MAP.default;
+                    return (
+                      <button
+                        key={b}
+                        type="button"
+                        onClick={() => set('badge', b)}
+                        className={`px-2.5 py-1 rounded-lg border text-xs font-semibold capitalize transition-all ${active ? pillCls + ' font-bold' : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-gray-400'}`}
+                      >
+                        {b}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </SideCard>
 
           {/* Product Flags ──────────────────────────────────────────────── */}
-          <SidebarCard title="Product Flags *" icon={NewReleasesIcon} accent="#f59e0b">
-            <Typography variant="caption" color="text.secondary" sx={{ mb: 1.25, display: 'block' }}>
-              Each flag creates a dedicated collection page (e.g. <code>/collection/new-arrivals</code>).
-              Products appear on that page automatically once flagged.
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
+          <SideCard title="Product Flags *" icon={Zap}>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">
+              Each flag creates a dedicated collection page (e.g. <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">/collection/new-arrivals</code>). Products appear on that page automatically once flagged.
+            </p>
+            <div className="flex flex-wrap gap-1.5">
               {PRODUCT_FLAGS.map(flag => {
                 const on = form.flags.includes(flag);
-                const iconMap = {
-                  'Today Deals':  <SellIcon style={{ fontSize: '0.75rem' }} />,
-                  'Gifting':      <CardGiftcardIcon style={{ fontSize: '0.75rem' }} />,
-                  'New Arrivals': <NewReleasesIcon style={{ fontSize: '0.75rem' }} />,
-                  'Best Seller':  <StarIcon style={{ fontSize: '0.75rem' }} />,
-                  'Trending':     <AutoAwesomeIcon style={{ fontSize: '0.75rem' }} />,
-                };
                 const col = FLAG_COLLECTIONS.find(c => c.flag === flag);
                 return (
-                  <Box key={flag} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Chip label={flag} size="small"
-                      icon={on ? iconMap[flag] : undefined}
-                      variant={on ? 'filled' : 'outlined'}
-                      color={on ? 'warning' : 'default'}
+                  <div key={flag} className="flex items-center gap-1">
+                    <button
+                      type="button"
                       onClick={() => set('flags', on ? form.flags.filter(f => f !== flag) : [...form.flags, flag])}
-                      sx={{
-                        cursor: 'pointer', fontWeight: on ? 700 : 400, fontSize: '0.72rem',
-                        borderColor: on ? undefined : (isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.14)'),
-                      }} />
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-xs font-medium transition-all duration-150 ${
+                        on
+                          ? 'bg-amber-500 border-amber-500 text-white font-semibold'
+                          : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-amber-300 dark:hover:border-amber-700'
+                      }`}
+                    >
+                      {on && <Check size={10} />}
+                      {flag}
+                    </button>
                     {col && (
-                      <Tooltip title={`View /collection/${col.slug}`}>
-                        <IconButton
-                          size="small"
-                          component="a"
-                          href={`/collection/${col.slug}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          sx={{ p: 0.25, opacity: 0.55, '&:hover': { opacity: 1 } }}
-                        >
-                          <OpenInNewIcon style={{ fontSize: '0.8rem' }} />
-                        </IconButton>
-                      </Tooltip>
+                      <a
+                        href={`/collection/${col.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={`View /collection/${col.slug}`}
+                        className="text-gray-300 dark:text-gray-600 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
+                      >
+                        <ExternalLink size={11} />
+                      </a>
                     )}
-                  </Box>
+                  </div>
                 );
               })}
-            </Box>
-            {formErrors.flags && (
-              <FormHelperText error sx={{ mt: 0.75 }}>{formErrors.flags}</FormHelperText>
-            )}
-          </SidebarCard>
+            </div>
+            {formErrors.flags && <p className="text-xs text-red-500 mt-2">{formErrors.flags}</p>}
+          </SideCard>
 
           {/* Category ───────────────────────────────────────────────────── */}
-          <SidebarCard title="Category" icon={CategoryIcon}>
-            <Stack spacing={1.5}>
-              <FormControl fullWidth size="small" error={!!formErrors.category}>
-                <InputLabel>Category *</InputLabel>
-                <Select label="Category *" value={form.category} onChange={e => setCategory(e.target.value)}>
-                  <MenuItem value=""><em>Select category</em></MenuItem>
-                  {CATEGORY_LIST.map(c => <MenuItem key={c} value={c}>{c}</MenuItem>)}
-                </Select>
-                {formErrors.category && <FormHelperText>{formErrors.category}</FormHelperText>}
-              </FormControl>
+          <SideCard title="Category" icon={FolderOpen}>
+            <div className="space-y-3">
+              <Select
+                label="Category"
+                required
+                value={form.category}
+                onChange={e => setCategory(e.target.value)}
+                error={formErrors.category}
+              >
+                <option value="">Select category</option>
+                {CATEGORY_LIST.map(c => <option key={c} value={c}>{c}</option>)}
+              </Select>
 
               {subcategoryOpts.length > 0 ? (
-                <FormControl fullWidth size="small">
-                  <InputLabel>Subcategory</InputLabel>
-                  <Select label="Subcategory" value={form.subcategory}
-                    onChange={e => set('subcategory', e.target.value)}>
-                    <MenuItem value=""><em>None</em></MenuItem>
-                    {subcategoryOpts.map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
-                  </Select>
-                </FormControl>
+                <Select
+                  label="Subcategory"
+                  value={form.subcategory}
+                  onChange={e => set('subcategory', e.target.value)}
+                >
+                  <option value="">None</option>
+                  {subcategoryOpts.map(s => <option key={s} value={s}>{s}</option>)}
+                </Select>
               ) : (
-                <TextField fullWidth size="small" label="Subcategory"
-                  value={form.subcategory} onChange={e => set('subcategory', e.target.value)}
-                  placeholder="e.g. Diamond Rings" />
+                <Input
+                  label="Subcategory"
+                  value={form.subcategory}
+                  onChange={e => set('subcategory', e.target.value)}
+                  placeholder="e.g. Diamond Rings"
+                />
               )}
-            </Stack>
-          </SidebarCard>
+            </div>
+          </SideCard>
 
           {/* Brand ──────────────────────────────────────────────────────── */}
-          <SidebarCard title="Brand" icon={DiamondIcon} accent="#967123">
-            <FormControl fullWidth size="small" error={!!formErrors.brand}>
-              <InputLabel>Brand *</InputLabel>
-              <Select label="Brand *" value={form.brand} onChange={e => set('brand', e.target.value)}>
-                <MenuItem value=""><em>Select brand</em></MenuItem>
-                {brandsList.map(b => <MenuItem key={b} value={b}>{b}</MenuItem>)}
-              </Select>
-              {formErrors.brand && <FormHelperText>{formErrors.brand}</FormHelperText>}
-            </FormControl>
-          </SidebarCard>
+          <SideCard title="Brand" icon={Diamond}>
+            <Select
+              label="Brand"
+              required
+              value={form.brand}
+              onChange={e => set('brand', e.target.value)}
+              error={formErrors.brand}
+            >
+              <option value="">Select brand</option>
+              {brandsList.map(b => <option key={b} value={b}>{b}</option>)}
+            </Select>
+          </SideCard>
 
           {/* Fulfillment ────────────────────────────────────────────────── */}
-          <SidebarCard title="Fulfillment" icon={LocalShippingIcon} accent="#e5780b">
-            <Stack spacing={1.5}>
-              <TextField fullWidth size="small" label="Fulfilled By"
-                value={form.fulfilledBy} onChange={e => set('fulfilledBy', e.target.value)}
-                placeholder="e.g. Jawhara" helperText="Who ships this product" />
-              <FormControl fullWidth size="small" error={!!formErrors.arrivesBy}>
-                <InputLabel>Delivery Time *</InputLabel>
-                <Select label="Delivery Time *" value={form.arrivesBy}
-                  onChange={e => set('arrivesBy', e.target.value)}>
-                  <MenuItem value=""><em>Select delivery time</em></MenuItem>
-                  {DELIVERY_OPTIONS.map(o => <MenuItem key={o} value={o}>{o}</MenuItem>)}
-                </Select>
-                {formErrors.arrivesBy && <FormHelperText>{formErrors.arrivesBy}</FormHelperText>}
-              </FormControl>
-            </Stack>
-          </SidebarCard>
+          <SideCard title="Fulfillment" icon={Truck}>
+            <div className="space-y-3">
+              <Input
+                label="Fulfilled By"
+                value={form.fulfilledBy}
+                onChange={e => set('fulfilledBy', e.target.value)}
+                placeholder="e.g. Jawhara"
+                helper="Who ships this product"
+              />
+              <Select
+                label="Delivery Time"
+                required
+                value={form.arrivesBy}
+                onChange={e => set('arrivesBy', e.target.value)}
+                error={formErrors.arrivesBy}
+              >
+                <option value="">Select delivery time</option>
+                {DELIVERY_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+              </Select>
+            </div>
+          </SideCard>
 
-        </Box>
+        </div>
         {/* ════ END RIGHT SIDEBAR ══════════════════════════════════════════ */}
 
-      </Box>
-    </Box>
+      </div>
+
+      {/* ── Floating save bar ─────────────────────────────────────────────── */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 bg-white/90 dark:bg-gray-900/90 backdrop-blur border-t border-gray-200 dark:border-gray-800 px-6 py-3 flex items-center justify-between gap-4">
+        <p className="text-xs text-gray-400 dark:text-gray-500 hidden sm:block">
+          {isEdit ? 'You are editing an existing product' : 'New product — fill all required fields to publish'}
+        </p>
+        <div className="flex items-center gap-2 ml-auto">
+          <button
+            type="button"
+            onClick={() => navigate('/admin/products')}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-xl px-4 h-9 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
+            Discard
+          </button>
+          <button
+            type="submit"
+            disabled={saving}
+            className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl px-5 h-9 shadow-sm shadow-indigo-200 dark:shadow-indigo-900/30 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {saving ? (
+              <svg className="animate-spin" width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+              </svg>
+            ) : (
+              <Save size={14} />
+            )}
+            {saving ? 'Saving…' : isEdit ? 'Save Changes' : 'Publish Product'}
+          </button>
+        </div>
+      </div>
+
+    </form>
   );
 }

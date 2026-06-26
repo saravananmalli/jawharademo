@@ -1,33 +1,16 @@
 import { useState, useEffect } from 'react';
 import { DirhamSymbol } from 'dirham/react';
 import {
-  Box, Card, CardContent, Typography, Button, TextField, Grid,
-  Divider, Switch, FormControlLabel, Alert, Tabs, Tab, Avatar,
-  InputAdornment, Stack, Chip, CircularProgress, Skeleton,
-} from '@mui/material';
-import SaveIcon          from '@mui/icons-material/Save';
-import StorefrontIcon    from '@mui/icons-material/Storefront';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import PaymentIcon       from '@mui/icons-material/Payment';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import PublicIcon        from '@mui/icons-material/Public';
-import PaletteIcon       from '@mui/icons-material/Palette';
+  Save, Store, Bell, CreditCard, Truck, Globe, Palette,
+  X, Plus, Shield,
+} from 'lucide-react';
+import {
+  Button, Card, CardBody, Input, Textarea, Toggle,
+  Badge, PageHeader, Skeleton, Spinner,
+} from '../../components/admin/ui/index.js';
+import ImageUploader from '../../components/admin/ImageUploader';
 import api from '../../services/api';
 import { getImageUrl } from '../../utils/imageUrl';
-import ImageUploader from '../../components/admin/ImageUploader';
-
-function TabPanel({ children, value, index }) {
-  return value === index ? <Box sx={{ pt: 3 }}>{children}</Box> : null;
-}
-
-const SectionLabel = ({ children }) => (
-  <Typography
-    variant="caption"
-    sx={{ display: 'block', textTransform: 'uppercase', letterSpacing: 0.8, fontWeight: 700, color: 'text.secondary', mb: 2, mt: 0.5 }}
-  >
-    {children}
-  </Typography>
-);
 
 const COUNTRY_PRESETS = [
   { code: 'AE', name: 'UAE' },
@@ -38,12 +21,30 @@ const COUNTRY_PRESETS = [
   { code: 'BH', name: 'Bahrain' },
 ];
 
+const TABS = [
+  { id: 'store',         label: 'Store',          icon: Store },
+  { id: 'notifications', label: 'Notifications',  icon: Bell },
+  { id: 'payment',       label: 'Payment',        icon: CreditCard },
+  { id: 'shipping',      label: 'Shipping',       icon: Truck },
+  { id: 'delivery',      label: 'Delivery Zones', icon: Globe },
+  { id: 'branding',      label: 'Branding',       icon: Palette },
+];
+
+function SectionLabel({ children }) {
+  return (
+    <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4 mt-1">
+      {children}
+    </p>
+  );
+}
+
 export default function Settings() {
-  const [tab, setTab]     = useState(0);
-  const [saved, setSaved] = useState(false);
+  const [activeTab, setActiveTab] = useState('store');
+  const [saved, setSaved]         = useState(false);
   const [deliveryLoading, setDeliveryLoading] = useState(false);
   const [deliverySaving, setDeliverySaving]   = useState(false);
   const [brandingSaving, setBrandingSaving]   = useState(false);
+
   const [branding, setBranding] = useState({ websiteLogo: '', mobileLogo: '', favicon: '' });
   const [delivery, setDelivery] = useState({
     enableInternationalDelivery: false,
@@ -53,6 +54,36 @@ export default function Settings() {
   });
   const [newCountryCode, setNewCountryCode] = useState('');
   const [newCountryName, setNewCountryName] = useState('');
+
+  const [store, setStore] = useState({
+    name: 'Jawhara Jewellery',
+    email: 'admin@jawhara.ae',
+    phone: '+971 4 123 4567',
+    address: 'Dubai, UAE',
+    currency: 'AED',
+    logo: '',
+  });
+
+  const [notif, setNotif] = useState({
+    newOrder: true,
+    lowStock: true,
+    newReview: false,
+    emailNotif: true,
+  });
+
+  const [payment, setPayment] = useState({
+    cod: true,
+    card: false,
+    bankTransfer: false,
+    minOrder: '50',
+  });
+
+  const [shipping, setShipping] = useState({
+    freeThreshold: '300',
+    standardFee: '15',
+    expressFee: '30',
+    sameDay: false,
+  });
 
   useEffect(() => {
     setDeliveryLoading(true);
@@ -117,343 +148,426 @@ export default function Settings() {
     finally { setBrandingSaving(false); }
   };
 
-  const [store, setStore] = useState({
-    name: 'Jawhara Jewellery',
-    email: 'admin@jawhara.ae',
-    phone: '+971 4 123 4567',
-    address: 'Dubai, UAE',
-    currency: 'AED',
-    logo: '',
-  });
-
-  const [notif, setNotif] = useState({
-    newOrder: true,
-    lowStock: true,
-    newReview: false,
-    emailNotif: true,
-  });
-
-  const [payment, setPayment] = useState({
-    cod: true,
-    card: false,
-    bankTransfer: false,
-    minOrder: '50',
-  });
-
-  const [shipping, setShipping] = useState({
-    freeThreshold: '300',
-    standardFee: '15',
-    expressFee: '30',
-    sameDay: false,
-  });
-
   const handleSave = () => {
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
 
-  return (
-    <Box>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h5" fontWeight={800}>Settings</Typography>
-        <Typography variant="body2" color="text.secondary">Configure your store preferences</Typography>
-      </Box>
+  const renderSaveButton = () => {
+    if (activeTab === 'delivery') {
+      return (
+        <Button onClick={saveDelivery} loading={deliverySaving} icon={deliverySaving ? undefined : Save}>
+          {deliverySaving ? 'Saving…' : 'Save Delivery Settings'}
+        </Button>
+      );
+    }
+    if (activeTab === 'branding') {
+      return (
+        <Button onClick={saveBranding} loading={brandingSaving} icon={brandingSaving ? undefined : Save}>
+          {brandingSaving ? 'Saving…' : 'Save Branding'}
+        </Button>
+      );
+    }
+    return (
+      <Button onClick={handleSave} icon={Save}>Save Settings</Button>
+    );
+  };
 
-      {saved && <Alert severity="success" sx={{ mb: 2 }}>Settings saved successfully.</Alert>}
+  return (
+    <div>
+      <PageHeader
+        title="Settings"
+        subtitle="Configure your store preferences"
+      />
+
+      {saved && (
+        <div className="mb-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300">
+          Settings saved successfully.
+        </div>
+      )}
 
       <Card>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs
-            value={tab}
-            onChange={(_, v) => setTab(v)}
-            variant="scrollable"
-            scrollButtons="auto"
-            sx={{ px: 1 }}
-          >
-            <Tab icon={<StorefrontIcon fontSize="small" />}    iconPosition="start" label="Store"         sx={{ minHeight: 52, fontSize: '0.875rem' }} />
-            <Tab icon={<NotificationsIcon fontSize="small" />} iconPosition="start" label="Notifications" sx={{ minHeight: 52, fontSize: '0.875rem' }} />
-            <Tab icon={<PaymentIcon fontSize="small" />}       iconPosition="start" label="Payment"       sx={{ minHeight: 52, fontSize: '0.875rem' }} />
-            <Tab icon={<LocalShippingIcon fontSize="small" />} iconPosition="start" label="Shipping"      sx={{ minHeight: 52, fontSize: '0.875rem' }} />
-            <Tab icon={<PublicIcon fontSize="small" />}       iconPosition="start" label="Delivery Zones" sx={{ minHeight: 52, fontSize: '0.875rem' }} />
-            <Tab icon={<PaletteIcon fontSize="small" />}     iconPosition="start" label="Branding"       sx={{ minHeight: 52, fontSize: '0.875rem' }} />
-          </Tabs>
-        </Box>
+        {/* Tab navigation */}
+        <div className="px-4 pt-4">
+          <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl mb-0 overflow-x-auto">
+            {TABS.map(tab => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-1.5 flex-shrink-0 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    activeTab === tab.id
+                      ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                  }`}
+                >
+                  <Icon size={14} />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
-        <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+        <CardBody>
 
           {/* ── Store ─────────────────────────────────────────── */}
-          <TabPanel value={tab} index={0}>
-            <SectionLabel>Store Identity</SectionLabel>
-            <Grid container spacing={2.5}>
-              <Grid item xs={12} sm={6}>
-                <TextField fullWidth label="Store Name" value={store.name} onChange={e => setStore(s => ({ ...s, name: e.target.value }))} />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField fullWidth label="Contact Email" type="email" value={store.email} onChange={e => setStore(s => ({ ...s, email: e.target.value }))} />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField fullWidth label="Phone Number" value={store.phone} onChange={e => setStore(s => ({ ...s, phone: e.target.value }))} />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField fullWidth label="Currency" value={store.currency} onChange={e => setStore(s => ({ ...s, currency: e.target.value }))} />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField fullWidth label="Store Address" value={store.address} onChange={e => setStore(s => ({ ...s, address: e.target.value }))} />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField fullWidth label="Logo URL" value={store.logo} onChange={e => setStore(s => ({ ...s, logo: e.target.value }))} placeholder="https://..." />
-                {store.logo && (
-                  <Box sx={{ mt: 1.5 }}>
-                    <Avatar src={getImageUrl(store.logo)} variant="rounded" sx={{ width: 80, height: 80 }} />
-                  </Box>
-                )}
-              </Grid>
-            </Grid>
-          </TabPanel>
+          {activeTab === 'store' && (
+            <div>
+              <SectionLabel>Store Identity</SectionLabel>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  label="Store Name"
+                  value={store.name}
+                  onChange={e => setStore(s => ({ ...s, name: e.target.value }))}
+                />
+                <Input
+                  label="Contact Email"
+                  type="email"
+                  value={store.email}
+                  onChange={e => setStore(s => ({ ...s, email: e.target.value }))}
+                />
+                <Input
+                  label="Phone Number"
+                  value={store.phone}
+                  onChange={e => setStore(s => ({ ...s, phone: e.target.value }))}
+                />
+                <Input
+                  label="Currency"
+                  value={store.currency}
+                  onChange={e => setStore(s => ({ ...s, currency: e.target.value }))}
+                />
+                <div className="sm:col-span-2">
+                  <Input
+                    label="Store Address"
+                    value={store.address}
+                    onChange={e => setStore(s => ({ ...s, address: e.target.value }))}
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <Input
+                    label="Logo URL"
+                    value={store.logo}
+                    onChange={e => setStore(s => ({ ...s, logo: e.target.value }))}
+                    placeholder="https://..."
+                  />
+                  {store.logo && (
+                    <div className="mt-3">
+                      <img
+                        src={getImageUrl(store.logo)}
+                        alt="Logo preview"
+                        className="w-20 h-20 object-cover rounded-xl border border-gray-200 dark:border-gray-700"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* ── Notifications ─────────────────────────────────── */}
-          <TabPanel value={tab} index={1}>
-            <SectionLabel>Alert Preferences</SectionLabel>
-            <Stack spacing={0.5}>
-              <FormControlLabel control={<Switch checked={notif.newOrder}  onChange={e => setNotif(n => ({ ...n, newOrder: e.target.checked }))}  color="primary" />} label="New Order Received" />
-              <FormControlLabel control={<Switch checked={notif.lowStock}  onChange={e => setNotif(n => ({ ...n, lowStock: e.target.checked }))}  color="primary" />} label="Low Stock Alert" />
-              <FormControlLabel control={<Switch checked={notif.newReview} onChange={e => setNotif(n => ({ ...n, newReview: e.target.checked }))} color="primary" />} label="New Customer Review" />
-              <Divider sx={{ my: 1.5 }} />
-              <FormControlLabel control={<Switch checked={notif.emailNotif} onChange={e => setNotif(n => ({ ...n, emailNotif: e.target.checked }))} color="primary" />} label="Email Notifications" />
-            </Stack>
-          </TabPanel>
+          {activeTab === 'notifications' && (
+            <div>
+              <SectionLabel>Alert Preferences</SectionLabel>
+              <div className="space-y-4">
+                <Toggle
+                  label="New Order Received"
+                  helper="Get notified when a new order is placed"
+                  checked={notif.newOrder}
+                  onChange={e => setNotif(n => ({ ...n, newOrder: e.target.checked }))}
+                />
+                <Toggle
+                  label="Low Stock Alert"
+                  helper="Get notified when a product runs low on stock"
+                  checked={notif.lowStock}
+                  onChange={e => setNotif(n => ({ ...n, lowStock: e.target.checked }))}
+                />
+                <Toggle
+                  label="New Customer Review"
+                  helper="Get notified when a customer leaves a review"
+                  checked={notif.newReview}
+                  onChange={e => setNotif(n => ({ ...n, newReview: e.target.checked }))}
+                />
+                <hr className="border-gray-100 dark:border-gray-800" />
+                <Toggle
+                  label="Email Notifications"
+                  helper="Receive all notifications via email"
+                  checked={notif.emailNotif}
+                  onChange={e => setNotif(n => ({ ...n, emailNotif: e.target.checked }))}
+                />
+              </div>
+            </div>
+          )}
 
           {/* ── Payment ───────────────────────────────────────── */}
-          <TabPanel value={tab} index={2}>
-            <SectionLabel>Payment Methods</SectionLabel>
-            <Stack spacing={0.5}>
-              <FormControlLabel control={<Switch checked={payment.cod}          onChange={e => setPayment(p => ({ ...p, cod: e.target.checked }))}          color="primary" />} label="Cash on Delivery (COD)" />
-              <FormControlLabel control={<Switch checked={payment.card}         onChange={e => setPayment(p => ({ ...p, card: e.target.checked }))}         color="primary" />} label="Credit / Debit Card" />
-              <FormControlLabel control={<Switch checked={payment.bankTransfer} onChange={e => setPayment(p => ({ ...p, bankTransfer: e.target.checked }))} color="primary" />} label="Bank Transfer" />
-            </Stack>
-            <Divider sx={{ my: 2.5 }} />
-            <SectionLabel>Order Limits</SectionLabel>
-            <TextField
-              label="Minimum Order Amount"
-              type="number"
-              value={payment.minOrder}
-              onChange={e => setPayment(p => ({ ...p, minOrder: e.target.value }))}
-              size="small"
-              sx={{ width: 220 }}
-              InputProps={{ startAdornment: <InputAdornment position="start"><DirhamSymbol size="0.9em" /></InputAdornment> }}
-            />
-          </TabPanel>
+          {activeTab === 'payment' && (
+            <div>
+              <SectionLabel>Payment Methods</SectionLabel>
+              <div className="space-y-4 mb-6">
+                <Toggle
+                  label="Cash on Delivery (COD)"
+                  helper="Allow customers to pay when they receive the order"
+                  checked={payment.cod}
+                  onChange={e => setPayment(p => ({ ...p, cod: e.target.checked }))}
+                />
+                <Toggle
+                  label="Credit / Debit Card"
+                  helper="Accept online card payments"
+                  checked={payment.card}
+                  onChange={e => setPayment(p => ({ ...p, card: e.target.checked }))}
+                />
+                <Toggle
+                  label="Bank Transfer"
+                  helper="Allow customers to pay via bank transfer"
+                  checked={payment.bankTransfer}
+                  onChange={e => setPayment(p => ({ ...p, bankTransfer: e.target.checked }))}
+                />
+              </div>
+              <hr className="border-gray-100 dark:border-gray-800 mb-6" />
+              <SectionLabel>Order Limits</SectionLabel>
+              <div className="w-56">
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Minimum Order Amount
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400 text-sm">
+                      AED
+                    </div>
+                    <input
+                      type="number"
+                      className="w-full pl-12 pr-4 py-2.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      value={payment.minOrder}
+                      onChange={e => setPayment(p => ({ ...p, minOrder: e.target.value }))}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* ── Shipping ──────────────────────────────────────── */}
-          <TabPanel value={tab} index={3}>
-            <SectionLabel>Shipping Rates</SectionLabel>
-            <Grid container spacing={2.5}>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  fullWidth label="Free Shipping Threshold" type="number"
-                  value={shipping.freeThreshold}
-                  onChange={e => setShipping(s => ({ ...s, freeThreshold: e.target.value }))}
-                  InputProps={{ startAdornment: <InputAdornment position="start"><DirhamSymbol size="0.9em" /></InputAdornment> }}
-                  helperText="Orders above this amount get free shipping"
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  fullWidth label="Standard Fee" type="number"
-                  value={shipping.standardFee}
-                  onChange={e => setShipping(s => ({ ...s, standardFee: e.target.value }))}
-                  InputProps={{ startAdornment: <InputAdornment position="start"><DirhamSymbol size="0.9em" /></InputAdornment> }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  fullWidth label="Express Fee" type="number"
-                  value={shipping.expressFee}
-                  onChange={e => setShipping(s => ({ ...s, expressFee: e.target.value }))}
-                  InputProps={{ startAdornment: <InputAdornment position="start"><DirhamSymbol size="0.9em" /></InputAdornment> }}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel control={<Switch checked={shipping.sameDay} onChange={e => setShipping(s => ({ ...s, sameDay: e.target.checked }))} color="primary" />} label="Enable Same-Day Delivery" />
-              </Grid>
-            </Grid>
-          </TabPanel>
+          {activeTab === 'shipping' && (
+            <div>
+              <SectionLabel>Shipping Rates</SectionLabel>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Free Shipping Threshold
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400 text-sm">AED</div>
+                    <input
+                      type="number"
+                      className="w-full pl-12 pr-4 py-2.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      value={shipping.freeThreshold}
+                      onChange={e => setShipping(s => ({ ...s, freeThreshold: e.target.value }))}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Orders above this amount get free shipping</p>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Standard Fee
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400 text-sm">AED</div>
+                    <input
+                      type="number"
+                      className="w-full pl-12 pr-4 py-2.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      value={shipping.standardFee}
+                      onChange={e => setShipping(s => ({ ...s, standardFee: e.target.value }))}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Express Fee
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400 text-sm">AED</div>
+                    <input
+                      type="number"
+                      className="w-full pl-12 pr-4 py-2.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      value={shipping.expressFee}
+                      onChange={e => setShipping(s => ({ ...s, expressFee: e.target.value }))}
+                    />
+                  </div>
+                </div>
+              </div>
+              <Toggle
+                label="Enable Same-Day Delivery"
+                helper="Offer same-day delivery as an option at checkout"
+                checked={shipping.sameDay}
+                onChange={e => setShipping(s => ({ ...s, sameDay: e.target.checked }))}
+              />
+            </div>
+          )}
 
           {/* ── Delivery Zones ────────────────────────────────── */}
-          <TabPanel value={tab} index={4}>
-            {deliveryLoading ? (
-              <Box>
-                <Skeleton width={180} height={20} sx={{ mb: 2 }} />
-                <Skeleton variant="rounded" height={40} sx={{ mb: 1.5 }} />
-                <Skeleton variant="rounded" height={40} sx={{ mb: 1.5 }} />
-                <Skeleton width={140} height={20} sx={{ mb: 1, mt: 2 }} />
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <Skeleton key={i} variant="rounded" height={36} sx={{ mb: 1 }} />
-                ))}
-                <Skeleton variant="rounded" width={120} height={36} sx={{ mt: 2 }} />
-              </Box>
-            ) : (
-              <>
-                <SectionLabel>Delivery Restriction</SectionLabel>
-                <Stack spacing={0.5} sx={{ mb: 3 }}>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={delivery.enableInternationalDelivery}
-                        onChange={e => setDelivery(d => ({ ...d, enableInternationalDelivery: e.target.checked }))}
-                        color="primary"
+          {activeTab === 'delivery' && (
+            <div>
+              {deliveryLoading ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-4 w-44" />
+                  <Skeleton className="h-10 w-full rounded-xl" />
+                  <Skeleton className="h-10 w-full rounded-xl" />
+                  <Skeleton className="h-4 w-36 mt-4" />
+                  {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-9 w-full rounded-xl" />)}
+                  <Skeleton className="h-9 w-28 rounded-xl mt-2" />
+                </div>
+              ) : (
+                <>
+                  <SectionLabel>Delivery Restriction</SectionLabel>
+                  <div className="mb-6 space-y-2">
+                    <Toggle
+                      label="Enable International Delivery (allow all countries)"
+                      helper="When off, only the countries listed below can place orders."
+                      checked={delivery.enableInternationalDelivery}
+                      onChange={e => setDelivery(d => ({ ...d, enableInternationalDelivery: e.target.checked }))}
+                    />
+                  </div>
+
+                  <hr className="border-gray-100 dark:border-gray-800 mb-6" />
+                  <SectionLabel>Supported Countries</SectionLabel>
+
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {delivery.supportedCountryCodes.map((code, i) => (
+                      <div
+                        key={code}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"
+                      >
+                        <span>{delivery.supportedCountryNames[i]} ({code})</span>
+                        {delivery.supportedCountryCodes.length > 1 && (
+                          <button
+                            onClick={() => removeCountry(i)}
+                            className="text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-200"
+                          >
+                            <X size={13} />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Quick add GCC countries:</p>
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {COUNTRY_PRESETS.map(p => (
+                      <button
+                        key={p.code}
+                        onClick={() => addPreset(p)}
+                        disabled={delivery.supportedCountryCodes.includes(p.code)}
+                        className="px-3 py-1 rounded-full text-xs font-medium border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-indigo-300 hover:text-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {p.name}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex items-end gap-2 mb-6">
+                    <div className="w-32">
+                      <Input
+                        label="Country Code"
+                        placeholder="e.g. SA"
+                        value={newCountryCode}
+                        onChange={e => setNewCountryCode(e.target.value.toUpperCase())}
+                        maxLength={3}
                       />
-                    }
-                    label="Enable International Delivery (allow all countries)"
-                  />
-                  <Typography variant="caption" color="text.secondary" sx={{ pl: 0.5 }}>
-                    When off, only the countries listed below can place orders.
-                  </Typography>
-                </Stack>
-
-                <Divider sx={{ mb: 3 }} />
-                <SectionLabel>Supported Countries</SectionLabel>
-
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-                  {delivery.supportedCountryCodes.map((code, i) => (
-                    <Chip
-                      key={code}
-                      label={`${delivery.supportedCountryNames[i]} (${code})`}
-                      onDelete={delivery.supportedCountryCodes.length > 1 ? () => removeCountry(i) : undefined}
-                      color="primary"
-                      variant="outlined"
-                      size="small"
-                    />
-                  ))}
-                </Box>
-
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5 }}>
-                  Quick add GCC countries:
-                </Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3 }}>
-                  {COUNTRY_PRESETS.map(p => (
-                    <Chip
-                      key={p.code}
-                      label={p.name}
-                      onClick={() => addPreset(p)}
-                      disabled={delivery.supportedCountryCodes.includes(p.code)}
-                      variant="outlined"
-                      size="small"
-                      sx={{ cursor: 'pointer' }}
-                    />
-                  ))}
-                </Box>
-
-                <Grid container spacing={1.5} alignItems="flex-end" sx={{ mb: 3 }}>
-                  <Grid item xs={4}>
-                    <TextField
-                      fullWidth size="small" label="Country Code (e.g. SA)"
-                      value={newCountryCode}
-                      onChange={e => setNewCountryCode(e.target.value.toUpperCase())}
-                      inputProps={{ maxLength: 3 }}
-                    />
-                  </Grid>
-                  <Grid item xs={5}>
-                    <TextField
-                      fullWidth size="small" label="Country Name (e.g. Saudi Arabia)"
-                      value={newCountryName}
-                      onChange={e => setNewCountryName(e.target.value)}
-                    />
-                  </Grid>
-                  <Grid item xs={3}>
-                    <Button fullWidth variant="outlined" onClick={addCountry} disabled={!newCountryCode || !newCountryName}>
+                    </div>
+                    <div className="flex-1">
+                      <Input
+                        label="Country Name"
+                        placeholder="e.g. Saudi Arabia"
+                        value={newCountryName}
+                        onChange={e => setNewCountryName(e.target.value)}
+                      />
+                    </div>
+                    <Button
+                      variant="secondary"
+                      icon={Plus}
+                      onClick={addCountry}
+                      disabled={!newCountryCode || !newCountryName}
+                    >
                       Add
                     </Button>
-                  </Grid>
-                </Grid>
+                  </div>
 
-                <Divider sx={{ mb: 3 }} />
-                <SectionLabel>Restriction Message</SectionLabel>
-                <TextField
-                  fullWidth multiline rows={2}
-                  label="Message shown to customers outside delivery zones"
-                  value={delivery.restrictionMessage}
-                  onChange={e => setDelivery(d => ({ ...d, restrictionMessage: e.target.value }))}
-                  helperText="Displayed on cart, product pages, and checkout when delivery is unavailable."
-                />
-              </>
-            )}
-          </TabPanel>
+                  <hr className="border-gray-100 dark:border-gray-800 mb-6" />
+                  <SectionLabel>Restriction Message</SectionLabel>
+                  <Textarea
+                    label="Message shown to customers outside delivery zones"
+                    value={delivery.restrictionMessage}
+                    onChange={e => setDelivery(d => ({ ...d, restrictionMessage: e.target.value }))}
+                    rows={2}
+                    helper="Displayed on cart, product pages, and checkout when delivery is unavailable."
+                  />
+                </>
+              )}
+            </div>
+          )}
 
           {/* ── Branding ──────────────────────────────────────── */}
-          <TabPanel value={tab} index={5}>
-            <SectionLabel>Website Logo</SectionLabel>
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
-              Used in the browser header and desktop navigation. Recommended: PNG, transparent background, min 200×60 px.
-            </Typography>
-            <ImageUploader
-              key={`website-${branding.websiteLogo}`}
-              images={branding.websiteLogo ? [branding.websiteLogo] : []}
-              onChange={([url] = []) => setBranding(b => ({ ...b, websiteLogo: url || '' }))}
-              maxImages={1}
-              single
-              category="branding"
-            />
+          {activeTab === 'branding' && (
+            <div className="space-y-8">
+              <div>
+                <SectionLabel>Website Logo</SectionLabel>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                  Used in the browser header and desktop navigation. Recommended: PNG, transparent background, min 200×60 px.
+                </p>
+                <ImageUploader
+                  key={`website-${branding.websiteLogo}`}
+                  images={branding.websiteLogo ? [branding.websiteLogo] : []}
+                  onChange={([url] = []) => setBranding(b => ({ ...b, websiteLogo: url || '' }))}
+                  maxImages={1}
+                  single
+                  category="branding"
+                />
+              </div>
 
-            <Divider sx={{ my: 3 }} />
-            <SectionLabel>Mobile App Logo</SectionLabel>
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
-              Displayed in the mobile header and splash screens. Recommended: PNG, square or wide, min 512×512 px.
-            </Typography>
-            <ImageUploader
-              key={`mobile-${branding.mobileLogo}`}
-              images={branding.mobileLogo ? [branding.mobileLogo] : []}
-              onChange={([url] = []) => setBranding(b => ({ ...b, mobileLogo: url || '' }))}
-              maxImages={1}
-              single
-              category="branding"
-            />
+              <hr className="border-gray-100 dark:border-gray-800" />
 
-            <Divider sx={{ my: 3 }} />
-            <SectionLabel>Favicon</SectionLabel>
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
-              Shown in browser tabs and bookmarks. Recommended: PNG, square, 32×32 or 64×64 px.
-            </Typography>
-            <ImageUploader
-              key={`favicon-${branding.favicon}`}
-              images={branding.favicon ? [branding.favicon] : []}
-              onChange={([url] = []) => setBranding(b => ({ ...b, favicon: url || '' }))}
-              maxImages={1}
-              single
-              category="branding"
-            />
-          </TabPanel>
+              <div>
+                <SectionLabel>Mobile App Logo</SectionLabel>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                  Displayed in the mobile header and splash screens. Recommended: PNG, square or wide, min 512×512 px.
+                </p>
+                <ImageUploader
+                  key={`mobile-${branding.mobileLogo}`}
+                  images={branding.mobileLogo ? [branding.mobileLogo] : []}
+                  onChange={([url] = []) => setBranding(b => ({ ...b, mobileLogo: url || '' }))}
+                  maxImages={1}
+                  single
+                  category="branding"
+                />
+              </div>
 
-          <Divider sx={{ mt: 3 }} />
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-            {tab === 4 ? (
-              <Button
-                variant="contained"
-                startIcon={deliverySaving ? <CircularProgress size={16} color="inherit" /> : <SaveIcon />}
-                onClick={saveDelivery}
-                disabled={deliverySaving}
-                sx={{ minWidth: 160 }}
-              >
-                {deliverySaving ? 'Saving…' : 'Save Delivery Settings'}
-              </Button>
-            ) : tab === 5 ? (
-              <Button
-                variant="contained"
-                startIcon={brandingSaving ? <CircularProgress size={16} color="inherit" /> : <SaveIcon />}
-                onClick={saveBranding}
-                disabled={brandingSaving}
-                sx={{ minWidth: 160 }}
-              >
-                {brandingSaving ? 'Saving…' : 'Save Branding'}
-              </Button>
-            ) : (
-              <Button variant="contained" startIcon={<SaveIcon />} onClick={handleSave} sx={{ minWidth: 140 }}>
-                Save Settings
-              </Button>
-            )}
-          </Box>
-        </CardContent>
+              <hr className="border-gray-100 dark:border-gray-800" />
+
+              <div>
+                <SectionLabel>Favicon</SectionLabel>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                  Shown in browser tabs and bookmarks. Recommended: PNG, square, 32×32 or 64×64 px.
+                </p>
+                <ImageUploader
+                  key={`favicon-${branding.favicon}`}
+                  images={branding.favicon ? [branding.favicon] : []}
+                  onChange={([url] = []) => setBranding(b => ({ ...b, favicon: url || '' }))}
+                  maxImages={1}
+                  single
+                  category="branding"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Save bar */}
+          <div className="flex justify-end mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
+            {renderSaveButton()}
+          </div>
+
+        </CardBody>
       </Card>
-    </Box>
+    </div>
   );
 }

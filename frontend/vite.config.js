@@ -2,10 +2,12 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import svgr from 'vite-plugin-svgr'
 import compression from 'vite-plugin-compression'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [
     react(),
+    tailwindcss(),
     svgr(),
     // Gzip for broad CDN/server support
     compression({ algorithm: 'gzip', ext: '.gz', threshold: 1024 }),

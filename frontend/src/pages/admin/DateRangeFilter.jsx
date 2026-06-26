@@ -1,10 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  Box, Select, MenuItem, TextField, Button,
-  FormControl, InputAdornment, useMediaQuery,
-} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import DateRangeIcon from '@mui/icons-material/DateRange';
+import { Calendar } from 'lucide-react';
 
 const PRESETS = [
   { label: 'Today',        value: 'today' },
@@ -60,19 +55,17 @@ export function computeDateRange(preset, customStart = '', customEnd = '') {
   }
 }
 
-// currentPreset: controlled prop so parent can restore the displayed preset after remount
-export default function DateRangeFilter({ onChange, currentPreset = 'today' }) {
-  const theme    = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+const SELECT_CLS = 'h-9 pl-8 pr-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer appearance-none';
+const INPUT_CLS  = 'h-9 px-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-36';
 
+export default function DateRangeFilter({ onChange, currentPreset = 'today' }) {
   const [preset,      setPreset] = useState(currentPreset);
   const [customStart, setCStart] = useState('');
   const [customEnd,   setCEnd]   = useState('');
 
-  // Sync displayed preset when parent value changes (e.g. filter remounts or resets)
   useEffect(() => {
     if (currentPreset !== preset) setPreset(currentPreset);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPreset]);
 
   const handlePresetChange = (e) => {
@@ -85,64 +78,42 @@ export default function DateRangeFilter({ onChange, currentPreset = 'today' }) {
     if (customStart && customEnd) onChange(computeDateRange('custom', customStart, customEnd));
   };
 
-  const inputSx = {
-    '& .MuiInputBase-root': { borderRadius: '8px', fontSize: '0.83rem' },
-  };
-
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-      <FormControl size="small" sx={{ minWidth: isMobile ? '100%' : 160 }}>
-        <Select
-          value={preset}
-          onChange={handlePresetChange}
-          startAdornment={
-            <InputAdornment position="start">
-              <DateRangeIcon sx={{ fontSize: '1rem', color: 'text.secondary', mr: -0.5 }} />
-            </InputAdornment>
-          }
-          sx={{ borderRadius: '8px', fontSize: '0.85rem' }}
-        >
-          {PRESETS.map((p) => (
-            <MenuItem key={p.value} value={p.value} sx={{ fontSize: '0.85rem' }}>
-              {p.label}
-            </MenuItem>
+    <div className="flex items-center gap-2 flex-wrap">
+      <div className="relative">
+        <Calendar size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+        <select value={preset} onChange={handlePresetChange} className={SELECT_CLS}>
+          {PRESETS.map(p => (
+            <option key={p.value} value={p.value}>{p.label}</option>
           ))}
-        </Select>
-      </FormControl>
+        </select>
+      </div>
 
       {preset === 'custom' && (
         <>
-          <TextField
+          <input
             type="date"
-            size="small"
             value={customStart}
-            onChange={(e) => setCStart(e.target.value)}
-            inputProps={{ max: customEnd || undefined }}
-            sx={{ width: isMobile ? '100%' : 148, ...inputSx }}
+            max={customEnd || undefined}
+            onChange={e => setCStart(e.target.value)}
+            className={INPUT_CLS}
           />
-          <TextField
+          <input
             type="date"
-            size="small"
             value={customEnd}
-            onChange={(e) => setCEnd(e.target.value)}
-            inputProps={{ min: customStart || undefined }}
-            sx={{ width: isMobile ? '100%' : 148, ...inputSx }}
+            min={customStart || undefined}
+            onChange={e => setCEnd(e.target.value)}
+            className={INPUT_CLS}
           />
-          <Button
-            variant="contained"
-            size="small"
+          <button
             onClick={handleApply}
             disabled={!customStart || !customEnd}
-            sx={{
-              borderRadius: '8px', height: 36,
-              bgcolor: '#967123', '&:hover': { bgcolor: '#7a5b1c' },
-              fontSize: '0.8rem', fontWeight: 700,
-            }}
+            className="h-9 px-4 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             Apply
-          </Button>
+          </button>
         </>
       )}
-    </Box>
+    </div>
   );
 }

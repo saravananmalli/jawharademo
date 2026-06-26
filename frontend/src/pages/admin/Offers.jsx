@@ -1,34 +1,56 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { DirhamSymbol } from 'dirham/react';
 import {
-  Box, Card, CardContent, Typography, Button, TextField, Grid,
-  IconButton, Stack, Dialog, DialogTitle, DialogContent, DialogActions,
-  Alert, Switch, FormControlLabel, LinearProgress, Divider, CircularProgress,
-  Chip, Avatar, Tooltip, List, ListItem, ListItemAvatar, ListItemText,
-  InputAdornment, Autocomplete, Skeleton,
-} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import AddIcon          from '@mui/icons-material/Add';
-import EditIcon         from '@mui/icons-material/Edit';
-import DeleteIcon       from '@mui/icons-material/Delete';
-import TimerIcon        from '@mui/icons-material/Timer';
-import LocalOfferIcon   from '@mui/icons-material/LocalOffer';
-import WhatshotIcon     from '@mui/icons-material/Whatshot';
-import StarIcon         from '@mui/icons-material/Star';
-import StarBorderIcon   from '@mui/icons-material/StarBorder';
-import ArrowUpwardIcon  from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import SearchIcon       from '@mui/icons-material/Search';
-import AddCircleIcon    from '@mui/icons-material/AddCircle';
-import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
-import VisibilityIcon   from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import { StatusChip }   from './adminUtils';
-import ImageUploader    from '../../components/admin/ImageUploader';
-import api              from '../../services/api';
+  Plus, Edit2, Trash2, Timer, Tag, Flame, Star,
+  ArrowUp, ArrowDown, Eye, EyeOff, Search, PlusCircle, MinusCircle,
+} from 'lucide-react';
+import {
+  Button, IconBtn, Card, Modal, Input, Textarea, Toggle,
+  Badge, PageHeader, Skeleton, Spinner,
+} from '../../components/admin/ui/index.js';
+import ImageUploader from '../../components/admin/ImageUploader';
+import api from '../../services/api';
 
-// ── Countdown display (used inside admin cards) ───────────────────────────────
+// ── Countdown display ─────────────────────────────────────────────────────────
 function CountdownTimer({ endDate }) {
+  const [parts, setParts] = useState([0, 0, 0, 0]);
+  const [expired, setExpired] = useState(false);
+
+  useEffect(() => {
+    const calc = () => {
+      const diff = new Date(endDate) - Date.now();
+      if (diff <= 0) { setExpired(true); setParts([0, 0, 0, 0]); return; }
+      setExpired(false);
+      setParts([
+        Math.floor(diff / 86400000),
+        Math.floor((diff % 86400000) / 3600000),
+        Math.floor((diff % 3600000) / 60000),
+        Math.floor((diff % 60000) / 1000),
+      ]);
+    };
+    calc();
+    const t = setInterval(calc, 1000);
+    return () => clearInterval(t);
+  }, [endDate]);
+
+  if (expired) {
+    return <span className="text-xs font-bold text-red-500 font-mono">Expired</span>;
+  }
+
+  return (
+    <div className="flex items-center gap-1.5 text-center">
+      {['Days', 'Hours', 'Mins', 'Secs'].map((unit, i) => (
+        <div key={unit} className="bg-gray-900 dark:bg-gray-800 text-white rounded-xl p-2.5 min-w-[52px]">
+          <div className="text-xl font-bold tabular-nums leading-none">{parts[i].toString().padStart(2, '0')}</div>
+          <div className="text-[10px] text-gray-400 uppercase tracking-wider mt-1">{unit}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Inline countdown for card (compact text) ──────────────────────────────────
+function CountdownInline({ endDate }) {
   const [timeLeft, setTimeLeft] = useState('');
   useEffect(() => {
     const calc = () => {
@@ -45,12 +67,7 @@ function CountdownTimer({ endDate }) {
     return () => clearInterval(t);
   }, [endDate]);
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-      <TimerIcon sx={{ fontSize: 14, color: 'warning.main' }} />
-      <Typography variant="caption" fontWeight={700} sx={{ fontFamily: 'monospace', color: 'warning.main' }}>
-        {timeLeft}
-      </Typography>
-    </Box>
+    <span className="font-mono text-xs font-bold text-amber-600 dark:text-amber-400">{timeLeft}</span>
   );
 }
 
@@ -65,8 +82,8 @@ function offerStatus(o) {
   return 'active';
 }
 
-const STATUS_LABEL = { active: 'Active', paused: 'Paused', scheduled: 'Scheduled', expired: 'Expired' };
-const STATUS_COLOR = { active: 'success', paused: 'default', scheduled: 'warning', expired: 'error' };
+const STATUS_BADGE  = { active: 'success', paused: 'default', scheduled: 'warning', expired: 'danger' };
+const STATUS_LABEL  = { active: 'Active', paused: 'Paused', scheduled: 'Scheduled', expired: 'Expired' };
 
 const EMPTY_FORM = {
   title: '', subtitle: '', viewAllLink: '/search?sale=true',
@@ -77,9 +94,6 @@ const EMPTY_FORM = {
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function Offers() {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
-
   const [offers, setOffers]           = useState([]);
   const [loading, setLoading]         = useState(false);
   const [saving, setSaving]           = useState(false);
@@ -91,17 +105,17 @@ export default function Offers() {
   const [editTarget, setEditTarget]   = useState(null);
   const [form, setForm]               = useState(EMPTY_FORM);
 
-  // Products dialog (attached to an offer being edited)
+  // Products dialog
   const [prodDialogOpen, setProdDialogOpen] = useState(false);
-  const [prodTarget, setProdTarget]   = useState(null);    // the offer whose products we're editing
-  const [assignedProducts, setAssignedProducts] = useState([]); // [{product, enabled, featured, displayOrder}]
+  const [prodTarget, setProdTarget]   = useState(null);
+  const [assignedProducts, setAssignedProducts] = useState([]);
 
   // Product search autocomplete
   const [productOptions, setProductOptions] = useState([]);
   const [prodSearch, setProdSearch]   = useState('');
   const searchTimer = useRef(null);
 
-  // Hot-deal suggestions (≥50% off)
+  // Hot-deal suggestions
   const [suggestions, setSuggestions]         = useState([]);
   const [loadingSuggestions, setLoadingSugg]  = useState(false);
 
@@ -132,7 +146,6 @@ export default function Offers() {
       try {
         const res = await api.get(`/products?search=${encodeURIComponent(prodSearch)}&limit=10`);
         const data = res.data.data || [];
-        // Exclude already-assigned
         const assignedIds = new Set(assignedProducts.map(p => p.product?._id || p.product));
         setProductOptions(data.filter(p => !assignedIds.has(p._id)));
       } catch {
@@ -217,7 +230,6 @@ export default function Offers() {
   // ── Product management dialog ────────────────────────────────────────────────
   const openProdDialog = async (o) => {
     setProdTarget(o);
-    // Build local product list from populated offer.products
     const list = (o.products || []).map((p, i) => ({
       product:      p.product || {},
       enabled:      p.enabled,
@@ -262,10 +274,7 @@ export default function Offers() {
   const toggleProductProp = (idx, key) => {
     setAssignedProducts(prev => prev.map((p, i) => {
       if (i !== idx) return p;
-      if (key === 'featured') {
-        // Only one featured at a time
-        return { ...p, featured: !p.featured };
-      }
+      if (key === 'featured') return { ...p, featured: !p.featured };
       return { ...p, [key]: !p[key] };
     }));
   };
@@ -304,61 +313,56 @@ export default function Offers() {
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap', gap: 2 }}>
-        <Box>
-          <Typography variant="h5" fontWeight={800}>Offers & Countdown</Typography>
-          <Typography variant="body2" color="text.secondary">
-            Manage limited-time offers, assign products, and configure countdown timers
-          </Typography>
-        </Box>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={openAdd}>New Offer</Button>
-      </Box>
+    <div>
+      <PageHeader
+        title="Offers & Countdown"
+        subtitle="Manage limited-time offers, assign products, and configure countdown timers"
+        action={<Button icon={Plus} onClick={openAdd}>New Offer</Button>}
+      />
 
-      {error   && <Alert severity="error"   sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
-      {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+      {/* Alerts */}
+      {error && (
+        <div className="mb-4 flex items-center gap-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-4 py-3 text-sm text-red-700 dark:text-red-300">
+          <span className="flex-1">{error}</span>
+          <button onClick={() => setError('')} className="text-red-400 hover:text-red-600 font-bold">✕</button>
+        </div>
+      )}
+      {success && (
+        <div className="mb-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300">
+          {success}
+        </div>
+      )}
 
+      {/* Offer Cards Grid */}
       {loading && offers.length === 0 ? (
-        <Grid container spacing={2.5}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Grid item xs={12} md={6} key={i}>
-              <Card sx={{ height: '100%' }}>
-                <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-                      <Skeleton variant="rounded" width={36} height={36} />
-                      <Box>
-                        <Skeleton width={140} height={18} />
-                        <Skeleton width={100} height={14} sx={{ mt: 0.5 }} />
-                      </Box>
-                    </Box>
-                    <Skeleton variant="rounded" width={64} height={22} />
-                  </Box>
-                  <Divider sx={{ mb: 2 }} />
-                  <Stack spacing={1}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Skeleton width="40%" height={16} />
-                      <Skeleton width="20%" height={16} />
-                    </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Skeleton width="30%" height={16} />
-                      <Skeleton width="35%" height={16} />
-                    </Box>
-                    <Skeleton variant="rounded" height={6} sx={{ mt: 1 }} />
-                  </Stack>
-                  <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
-                    <Skeleton variant="rounded" width={70} height={30} sx={{ flex: 1 }} />
-                    <Skeleton variant="rounded" width={90} height={30} sx={{ flex: 1 }} />
-                    <Skeleton variant="rounded" width={70} height={30} sx={{ flex: 1 }} />
-                    <Skeleton variant="circular" width={30} height={30} />
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Grid>
+            <div key={i} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 space-y-3">
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="w-9 h-9 rounded-xl" />
+                  <div className="space-y-1.5">
+                    <Skeleton className="h-4 w-36" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                </div>
+                <Skeleton className="h-5 w-16 rounded-full" />
+              </div>
+              <hr className="border-gray-100 dark:border-gray-800" />
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-4/5" />
+              <Skeleton className="h-2 w-full rounded-full mt-1" />
+              <div className="flex gap-2 pt-1">
+                <Skeleton className="h-8 flex-1 rounded-xl" />
+                <Skeleton className="h-8 flex-1 rounded-xl" />
+                <Skeleton className="h-8 flex-1 rounded-xl" />
+                <Skeleton className="h-8 w-8 rounded-xl" />
+              </div>
+            </div>
           ))}
-        </Grid>
+        </div>
       ) : (
-        <Grid container spacing={2.5} sx={{ opacity: loading ? 0.5 : 1, transition: 'opacity 0.15s' }}>
+        <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 transition-opacity ${loading ? 'opacity-50' : ''}`}>
           {offers.map(o => {
             const st = offerStatus(o);
             const now = Date.now();
@@ -368,361 +372,457 @@ export default function Offers() {
             const expired  = st === 'expired';
 
             return (
-              <Grid item xs={12} md={6} key={o._id}>
-                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <CardContent sx={{ flex: 1 }}>
+              <div key={o._id} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col">
+                <div className="flex-1 p-5">
+                  {/* Header */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+                        <Tag size={18} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{o.title}</p>
+                        {o.subtitle && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{o.subtitle}</p>
+                        )}
+                      </div>
+                    </div>
+                    <Badge variant={STATUS_BADGE[st]} className="shrink-0">{STATUS_LABEL[st]}</Badge>
+                  </div>
 
-                    {/* Header */}
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, minWidth: 0 }}>
-                        <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: 'rgba(150,113,35,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'primary.main', flexShrink: 0 }}>
-                          <LocalOfferIcon fontSize="small" />
-                        </Box>
-                        <Box sx={{ minWidth: 0 }}>
-                          <Typography variant="subtitle2" fontWeight={700} noWrap>{o.title}</Typography>
-                          {o.subtitle && (
-                            <Typography variant="caption" color="text.secondary" noWrap display="block">{o.subtitle}</Typography>
-                          )}
-                        </Box>
-                      </Box>
-                      <Chip label={STATUS_LABEL[st]} color={STATUS_COLOR[st]} size="small" variant="outlined" sx={{ flexShrink: 0 }} />
-                    </Box>
+                  <hr className="border-gray-100 dark:border-gray-800 mb-4" />
 
-                    <Divider sx={{ mb: 2 }} />
+                  <div className="space-y-2.5">
+                    {/* Products count */}
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-gray-500 dark:text-gray-400">Products assigned</span>
+                      <span className="font-bold text-indigo-600 dark:text-indigo-400">
+                        {(o.products || []).filter(p => p.enabled).length} / {(o.products || []).length}
+                      </span>
+                    </div>
 
-                    <Stack spacing={1}>
-                      {/* Products count */}
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="caption" color="text.secondary">Products assigned</Typography>
-                        <Typography variant="caption" fontWeight={700} color="primary.main">
-                          {(o.products || []).filter(p => p.enabled).length} / {(o.products || []).length}
-                        </Typography>
-                      </Box>
+                    {/* End date */}
+                    {o.endDate && (
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-gray-500 dark:text-gray-400">Ends</span>
+                        <span className="font-semibold text-gray-700 dark:text-gray-300">
+                          {new Date(o.endDate).toLocaleString()}
+                        </span>
+                      </div>
+                    )}
 
-                      {/* End date */}
-                      {o.endDate && (
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <Typography variant="caption" color="text.secondary">Ends</Typography>
-                          <Typography variant="caption" fontWeight={600}>{new Date(o.endDate).toLocaleString()}</Typography>
-                        </Box>
-                      )}
+                    {/* Countdown */}
+                    {o.showCountdown && o.endDate && !expired && (
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                          <Timer size={12} /> Countdown
+                        </span>
+                        <CountdownInline endDate={o.endDate} />
+                      </div>
+                    )}
 
-                      {/* Countdown */}
-                      {o.showCountdown && o.endDate && !expired && (
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <Typography variant="caption" color="text.secondary">Countdown</Typography>
-                          <CountdownTimer endDate={o.endDate} />
-                        </Box>
-                      )}
+                    {/* Badges */}
+                    <div className="flex gap-1.5 flex-wrap">
+                      {o.showCountdown && <Badge variant="warning">Countdown ON</Badge>}
+                      {o.autoExpire    && <Badge variant="info">Auto-Expire</Badge>}
+                    </div>
 
-                      {/* Auto-expire badge */}
-                      <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
-                        {o.showCountdown && <Chip label="Countdown ON" size="small" color="warning" variant="outlined" sx={{ fontSize: '0.65rem' }} />}
-                        {o.autoExpire    && <Chip label="Auto-Expire"  size="small" color="info"    variant="outlined" sx={{ fontSize: '0.65rem' }} />}
-                      </Box>
-
-                      {/* Progress bar */}
-                      {o.endDate && (
-                        <LinearProgress
-                          variant="determinate"
-                          value={progress}
-                          sx={{
-                            mt: 0.5,
-                            bgcolor: isDark ? 'rgba(255,255,255,0.08)' : '#f0f2f5',
-                            '& .MuiLinearProgress-bar': { bgcolor: expired ? 'error.main' : 'primary.main' },
-                          }}
+                    {/* Progress bar */}
+                    {o.endDate && (
+                      <div className="h-1.5 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden mt-1">
+                        <div
+                          className={`h-full rounded-full transition-all ${expired ? 'bg-red-500' : 'bg-indigo-500'}`}
+                          style={{ width: `${progress}%` }}
                         />
-                      )}
-                    </Stack>
+                      </div>
+                    )}
+                  </div>
 
-                    {/* Actions */}
-                    <Stack direction="row" spacing={1} sx={{ mt: 2, flexWrap: 'wrap', gap: 1 }}>
-                      <Button size="small" variant="outlined" startIcon={<EditIcon />} onClick={() => openEdit(o)} sx={{ flex: 1, minWidth: 80 }}>Edit</Button>
-                      <Button size="small" variant="outlined" color="secondary" onClick={() => openProdDialog(o)} sx={{ flex: 1, minWidth: 80 }}>
-                        Products ({(o.products || []).length})
-                      </Button>
-                      <Button
-                        size="small"
-                        variant={o.active ? 'outlined' : 'contained'}
-                        color={o.active ? 'warning' : 'success'}
-                        onClick={() => toggleActive(o)}
-                        sx={{ flex: 1, minWidth: 80 }}
-                      >
-                        {o.active ? 'Pause' : 'Activate'}
-                      </Button>
-                      <IconButton size="small" color="error" onClick={() => setDeleteTarget(o)}><DeleteIcon fontSize="small" /></IconButton>
-                    </Stack>
-                  </CardContent>
-                </Card>
-              </Grid>
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 mt-4 flex-wrap">
+                    <Button variant="secondary" size="sm" icon={Edit2} className="flex-1 min-w-[72px]" onClick={() => openEdit(o)}>
+                      Edit
+                    </Button>
+                    <Button variant="outline" size="sm" className="flex-1 min-w-[72px]" onClick={() => openProdDialog(o)}>
+                      Products ({(o.products || []).length})
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={o.active ? 'warning' : 'success'}
+                      className="flex-1 min-w-[72px]"
+                      onClick={() => toggleActive(o)}
+                    >
+                      {o.active ? 'Pause' : 'Activate'}
+                    </Button>
+                    <IconBtn
+                      icon={Trash2}
+                      label="Delete offer"
+                      variant="ghost"
+                      className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      onClick={() => setDeleteTarget(o)}
+                    />
+                  </div>
+                </div>
+              </div>
             );
           })}
 
           {offers.length === 0 && !loading && (
-            <Grid item xs={12}>
-              <Box sx={{ textAlign: 'center', py: 8, color: 'text.disabled' }}>
-                <LocalOfferIcon sx={{ fontSize: 56, mb: 1 }} />
-                <Typography>No offers yet. Click "New Offer" to create one.</Typography>
-              </Box>
-            </Grid>
+            <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-300 dark:text-gray-600">
+              <Tag size={52} />
+              <p className="mt-3 text-sm text-gray-400">No offers yet. Click "New Offer" to create one.</p>
+            </div>
           )}
-        </Grid>
+        </div>
       )}
 
-      {/* ── Create / Edit Offer Dialog ─────────────────────────────────────── */}
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{editTarget ? 'Edit Offer' : 'New Offer'}</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 0.5 }}>
-
-            <Grid item xs={12}>
-              <TextField fullWidth label="Offer Title *" value={form.title} onChange={e => setF('title', e.target.value)} autoFocus placeholder="Limited-Time Jewellery Offers" />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField fullWidth label="Subtitle" value={form.subtitle} onChange={e => setF('subtitle', e.target.value)} placeholder="Sale up to 50% off on selected items." />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField fullWidth label="View All Link" value={form.viewAllLink} onChange={e => setF('viewAllLink', e.target.value)} placeholder="/search?sale=true" />
-            </Grid>
-
-            <Grid item xs={12}>
-              <Divider><Typography variant="caption" color="text.secondary" fontWeight={600}>Countdown / Schedule</Typography></Divider>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField fullWidth type="datetime-local" label="Start Date & Time" value={form.startDate} onChange={e => setF('startDate', e.target.value)} InputLabelProps={{ shrink: true }} />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField fullWidth type="datetime-local" label="End Date & Time" value={form.endDate} onChange={e => setF('endDate', e.target.value)} InputLabelProps={{ shrink: true }} />
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <FormControlLabel control={<Switch checked={form.showCountdown} onChange={e => setF('showCountdown', e.target.checked)} color="warning" />} label="Show Countdown" />
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <FormControlLabel control={<Switch checked={form.autoExpire} onChange={e => setF('autoExpire', e.target.checked)} color="info" />} label="Auto Expire" />
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <FormControlLabel control={<Switch checked={form.active} onChange={e => setF('active', e.target.checked)} color="success" />} label="Active" />
-            </Grid>
-
-            {/* ── Promotional Banner (left card) ─────────────────────────── */}
-            <Grid item xs={12}>
-              <Divider><Typography variant="caption" color="text.secondary" fontWeight={600}>Promotional Banner (Left Card)</Typography></Divider>
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block', fontWeight: 600 }}>Banner Image</Typography>
-              <ImageUploader
-                images={form.bannerImage ? [form.bannerImage] : []}
-                onChange={urls => setF('bannerImage', urls[0] || '')}
-                maxImages={1}
-                category="banners"
-                single
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField fullWidth label="Banner Title" value={form.bannerTitle} onChange={e => setF('bannerTitle', e.target.value)} placeholder="Christmas Gifts" />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField fullWidth label="Banner Description" value={form.bannerDescription} onChange={e => setF('bannerDescription', e.target.value)} placeholder="Hurry to take advantage of the offer" />
-            </Grid>
-            <Grid item xs={12} sm={5}>
-              <TextField fullWidth label="CTA Button Text" value={form.bannerCtaText} onChange={e => setF('bannerCtaText', e.target.value)} placeholder="See More Product" />
-            </Grid>
-            <Grid item xs={12} sm={5}>
-              <TextField fullWidth label="CTA Link" value={form.bannerCtaLink} onChange={e => setF('bannerCtaLink', e.target.value)} placeholder="/category/rings" />
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <FormControlLabel control={<Switch checked={form.bannerActive} onChange={e => setF('bannerActive', e.target.checked)} color="primary" />} label="Show" />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSaveOffer} disabled={saving || !form.title.trim()}>
-            {saving ? 'Saving…' : editTarget ? 'Update' : 'Create'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* ── Product Assignment Dialog ──────────────────────────────────────── */}
-      <Dialog open={prodDialogOpen} onClose={() => setProdDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          Manage Products
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
-            {prodTarget?.title}
-          </Typography>
-        </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
-
-          {/* Search + add */}
-          <Autocomplete
-            freeSolo
-            options={productOptions}
-            getOptionLabel={p => typeof p === 'string' ? p : `${p.name} — AED ${p.price}`}
-            inputValue={prodSearch}
-            onInputChange={(_, v) => setProdSearch(v)}
-            onChange={(_, v) => { if (v && typeof v !== 'string') addProduct(v); }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Search & add product"
-                placeholder="Type product name…"
-                size="small"
-                InputProps={{ ...params.InputProps, startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment> }}
-              />
-            )}
-            renderOption={(props, option) => (
-              <Box component="li" {...props} key={option._id} sx={{ gap: 1.5 }}>
-                <Avatar src={option.images?.[0]} variant="rounded" sx={{ width: 36, height: 36, flexShrink: 0 }} />
-                <Box sx={{ minWidth: 0 }}>
-                  <Typography variant="body2" noWrap fontWeight={600}>{option.name}</Typography>
-                  <Typography variant="caption" color="text.secondary"><DirhamSymbol size="0.8em" /> {option.price} · {option.category}</Typography>
-                </Box>
-              </Box>
-            )}
-            sx={{ mb: 2 }}
+      {/* ── Create / Edit Offer Modal ─────────────────────────────────────── */}
+      <Modal
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        title={editTarget ? 'Edit Offer' : 'New Offer'}
+        size="lg"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveOffer} loading={saving} disabled={saving || !form.title.trim()}>
+              {editTarget ? 'Update' : 'Create'}
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <Input
+            label="Offer Title"
+            required
+            value={form.title}
+            onChange={e => setF('title', e.target.value)}
+            autoFocus
+            placeholder="Limited-Time Jewellery Offers"
+          />
+          <Input
+            label="Subtitle"
+            value={form.subtitle}
+            onChange={e => setF('subtitle', e.target.value)}
+            placeholder="Sale up to 50% off on selected items."
+          />
+          <Input
+            label="View All Link"
+            value={form.viewAllLink}
+            onChange={e => setF('viewAllLink', e.target.value)}
+            placeholder="/search?sale=true"
           />
 
-          {/* ── Hot-deal suggestions (≥50% off) ──────────────────────────── */}
+          {/* Countdown / Schedule */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="h-px flex-1 bg-gray-100 dark:bg-gray-800" />
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Countdown / Schedule</span>
+              <div className="h-px flex-1 bg-gray-100 dark:bg-gray-800" />
+            </div>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <Input
+                label="Start Date & Time"
+                type="datetime-local"
+                value={form.startDate}
+                onChange={e => setF('startDate', e.target.value)}
+              />
+              <Input
+                label="End Date & Time"
+                type="datetime-local"
+                value={form.endDate}
+                onChange={e => setF('endDate', e.target.value)}
+              />
+            </div>
+
+            {/* Live countdown preview */}
+            {form.endDate && (
+              <div className="rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 mb-4">
+                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-1.5">
+                  <Timer size={13} /> Countdown preview
+                </p>
+                <CountdownTimer endDate={form.endDate} />
+              </div>
+            )}
+
+            <div className="grid grid-cols-3 gap-4">
+              <Toggle
+                label="Show Countdown"
+                checked={form.showCountdown}
+                onChange={e => setF('showCountdown', e.target.checked)}
+              />
+              <Toggle
+                label="Auto Expire"
+                checked={form.autoExpire}
+                onChange={e => setF('autoExpire', e.target.checked)}
+              />
+              <Toggle
+                label="Active"
+                checked={form.active}
+                onChange={e => setF('active', e.target.checked)}
+              />
+            </div>
+          </div>
+
+          {/* Promotional Banner */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="h-px flex-1 bg-gray-100 dark:bg-gray-800" />
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Promotional Banner (Left Card)</span>
+              <div className="h-px flex-1 bg-gray-100 dark:bg-gray-800" />
+            </div>
+            <div className="space-y-3">
+              <div>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Banner Image</p>
+                <ImageUploader
+                  images={form.bannerImage ? [form.bannerImage] : []}
+                  onChange={urls => setF('bannerImage', urls[0] || '')}
+                  maxImages={1}
+                  category="banners"
+                  single
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Input
+                  label="Banner Title"
+                  value={form.bannerTitle}
+                  onChange={e => setF('bannerTitle', e.target.value)}
+                  placeholder="Christmas Gifts"
+                />
+                <Input
+                  label="Banner Description"
+                  value={form.bannerDescription}
+                  onChange={e => setF('bannerDescription', e.target.value)}
+                  placeholder="Hurry to take advantage of the offer"
+                />
+              </div>
+              <div className="grid grid-cols-5 gap-3 items-end">
+                <div className="col-span-2">
+                  <Input
+                    label="CTA Button Text"
+                    value={form.bannerCtaText}
+                    onChange={e => setF('bannerCtaText', e.target.value)}
+                    placeholder="See More Product"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <Input
+                    label="CTA Link"
+                    value={form.bannerCtaLink}
+                    onChange={e => setF('bannerCtaLink', e.target.value)}
+                    placeholder="/category/rings"
+                  />
+                </div>
+                <div className="pb-0.5">
+                  <Toggle
+                    label="Show"
+                    checked={form.bannerActive}
+                    onChange={e => setF('bannerActive', e.target.checked)}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ── Product Assignment Modal ────────────────────────────────────── */}
+      <Modal
+        open={prodDialogOpen}
+        onClose={() => setProdDialogOpen(false)}
+        title="Manage Products"
+        size="lg"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setProdDialogOpen(false)}>Cancel</Button>
+            <Button onClick={saveProdAssignment} loading={saving}>
+              {saving ? 'Saving…' : 'Save Products'}
+            </Button>
+          </>
+        }
+      >
+        <div>
+          {prodTarget && (
+            <p className="text-sm text-gray-500 dark:text-gray-400 -mt-2 mb-4">{prodTarget.title}</p>
+          )}
+
+          {/* Search input */}
+          <div className="relative mb-3">
+            <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-gray-400">
+              <Search size={15} />
+            </div>
+            <input
+              className="w-full pl-10 pr-4 py-2.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:text-gray-400"
+              placeholder="Type product name…"
+              value={prodSearch}
+              onChange={e => setProdSearch(e.target.value)}
+            />
+          </div>
+
+          {/* Autocomplete dropdown */}
+          {productOptions.length > 0 && (
+            <div className="mb-3 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-lg">
+              {productOptions.map(p => (
+                <button
+                  key={p._id}
+                  onClick={() => addProduct(p)}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 text-left transition-colors border-b last:border-0 border-gray-100 dark:border-gray-800"
+                >
+                  {p.images?.[0] && (
+                    <img src={p.images[0]} alt="" className="w-9 h-9 rounded-lg object-cover shrink-0" />
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{p.name}</p>
+                    <p className="text-xs text-gray-500">AED {p.price} · {p.category}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Hot-deal suggestions */}
           {(loadingSuggestions || suggestions.length > 0) && (
-            <Box sx={{ mb: 2 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
-                <WhatshotIcon sx={{ fontSize: 16, color: 'error.main' }} />
-                <Typography variant="caption" fontWeight={700} color="error.main">
-                  Suggested — 50%+ Discount
-                </Typography>
-                {loadingSuggestions && <CircularProgress size={12} sx={{ ml: 0.5 }} />}
-              </Box>
+            <div className="mb-4">
+              <div className="flex items-center gap-1.5 mb-2">
+                <Flame size={14} className="text-red-500" />
+                <span className="text-xs font-bold text-red-500">Suggested — 50%+ Discount</span>
+                {loadingSuggestions && <Spinner size="xs" className="ml-1" />}
+              </div>
               {!loadingSuggestions && (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+                <div className="space-y-1.5">
                   {suggestions.map(p => (
-                    <Box
+                    <div
                       key={p._id}
-                      sx={{
-                        display: 'flex', alignItems: 'center', gap: 1.25,
-                        px: 1.25, py: 0.75,
-                        border: '1px dashed', borderColor: 'error.light',
-                        borderRadius: 1.5,
-                        bgcolor: isDark ? 'rgba(211,47,47,0.06)' : 'rgba(211,47,47,0.04)',
-                      }}
+                      className="flex items-center gap-3 px-3 py-2 border border-dashed border-red-200 dark:border-red-800 rounded-xl bg-red-50/50 dark:bg-red-900/10"
                     >
-                      <Avatar src={p.images?.[0]} variant="rounded" sx={{ width: 34, height: 34, flexShrink: 0 }} />
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography variant="body2" fontWeight={600} noWrap>{p.name}</Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          <DirhamSymbol size="0.75em" /> {p.price}
+                      {p.images?.[0] && (
+                        <img src={p.images[0]} alt="" className="w-8 h-8 rounded-lg object-cover shrink-0" />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{p.name}</p>
+                        <p className="text-xs text-gray-500">
+                          AED {p.price}
                           {p.originalPrice && (
-                            <Box component="span" sx={{ textDecoration: 'line-through', ml: 0.5, color: 'text.disabled' }}>
-                              <DirhamSymbol size="0.75em" /> {p.originalPrice}
-                            </Box>
+                            <span className="line-through ml-1.5 text-gray-400">AED {p.originalPrice}</span>
                           )}
-                        </Typography>
-                      </Box>
-                      <Chip
-                        label={`-${p.discount}%`}
-                        size="small"
-                        color="error"
-                        sx={{ fontSize: '0.65rem', fontWeight: 700, flexShrink: 0 }}
+                        </p>
+                      </div>
+                      <Badge variant="danger" className="shrink-0">-{p.discount}%</Badge>
+                      <IconBtn
+                        icon={PlusCircle}
+                        label="Add to offer"
+                        size="sm"
+                        variant="ghost"
+                        className="text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                        onClick={() => addProduct(p)}
                       />
-                      <Tooltip title="Add to offer">
-                        <IconButton size="small" color="primary" onClick={() => addProduct(p)}>
-                          <AddCircleIcon sx={{ fontSize: 20 }} />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
+                    </div>
                   ))}
-                </Box>
+                </div>
               )}
-              <Divider sx={{ mt: 1.5 }} />
-            </Box>
+              <hr className="border-gray-100 dark:border-gray-800 mt-3" />
+            </div>
           )}
 
           {/* Assigned product list */}
           {assignedProducts.length === 0 ? (
-            <Typography variant="body2" color="text.disabled" sx={{ textAlign: 'center', py: 3 }}>
+            <p className="text-sm text-center text-gray-400 py-6">
               No products assigned yet. Search above to add.
-            </Typography>
+            </p>
           ) : (
-            <List dense disablePadding>
+            <div className="space-y-2">
               {assignedProducts.map((entry, idx) => {
                 const p = entry.product;
                 return (
-                  <ListItem
+                  <div
                     key={p._id || idx}
-                    disableGutters
-                    sx={{
-                      mb: 0.75,
-                      px: 1.25,
-                      py: 0.75,
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      borderRadius: 1.5,
-                      opacity: entry.enabled ? 1 : 0.45,
-                      bgcolor: entry.featured ? 'rgba(150,113,35,0.06)' : 'transparent',
-                    }}
+                    className={`flex items-center gap-2 px-3 py-2.5 border rounded-xl transition-opacity ${
+                      entry.enabled ? '' : 'opacity-40'
+                    } ${
+                      entry.featured
+                        ? 'border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10'
+                        : 'border-gray-200 dark:border-gray-700'
+                    }`}
                   >
                     {/* Reorder */}
-                    <Stack sx={{ mr: 0.5 }}>
-                      <IconButton size="small" onClick={() => moveProduct(idx, -1)} disabled={idx === 0} sx={{ p: 0.25 }}>
-                        <ArrowUpwardIcon sx={{ fontSize: 14 }} />
-                      </IconButton>
-                      <IconButton size="small" onClick={() => moveProduct(idx, 1)} disabled={idx === assignedProducts.length - 1} sx={{ p: 0.25 }}>
-                        <ArrowDownwardIcon sx={{ fontSize: 14 }} />
-                      </IconButton>
-                    </Stack>
+                    <div className="flex flex-col gap-0.5">
+                      <IconBtn
+                        icon={ArrowUp}
+                        label="Move up"
+                        size="xs"
+                        onClick={() => moveProduct(idx, -1)}
+                        disabled={idx === 0}
+                      />
+                      <IconBtn
+                        icon={ArrowDown}
+                        label="Move down"
+                        size="xs"
+                        onClick={() => moveProduct(idx, 1)}
+                        disabled={idx === assignedProducts.length - 1}
+                      />
+                    </div>
 
-                    <ListItemAvatar sx={{ minWidth: 44 }}>
-                      <Avatar src={p.images?.[0]} variant="rounded" sx={{ width: 36, height: 36 }} />
-                    </ListItemAvatar>
+                    {p.images?.[0] && (
+                      <img src={p.images[0]} alt="" className="w-9 h-9 rounded-lg object-cover shrink-0" />
+                    )}
 
-                    <ListItemText
-                      primary={<Typography variant="body2" fontWeight={600} noWrap>{p.name || '—'}</Typography>}
-                      secondary={<Typography variant="caption" color="text.secondary"><DirhamSymbol size="0.8em" /> {p.price} · #{idx + 1}</Typography>}
-                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{p.name || '—'}</p>
+                      <p className="text-xs text-gray-500">AED {p.price} · #{idx + 1}</p>
+                    </div>
 
                     {/* Controls */}
-                    <Stack direction="row" spacing={0.25} sx={{ ml: 0.5 }}>
-                      <Tooltip title={entry.featured ? 'Remove featured' : 'Mark as featured'}>
-                        <IconButton size="small" onClick={() => toggleProductProp(idx, 'featured')} color={entry.featured ? 'warning' : 'default'}>
-                          {entry.featured ? <StarIcon sx={{ fontSize: 18 }} /> : <StarBorderIcon sx={{ fontSize: 18 }} />}
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title={entry.enabled ? 'Hide product' : 'Show product'}>
-                        <IconButton size="small" onClick={() => toggleProductProp(idx, 'enabled')} color={entry.enabled ? 'primary' : 'default'}>
-                          {entry.enabled ? <VisibilityIcon sx={{ fontSize: 18 }} /> : <VisibilityOffIcon sx={{ fontSize: 18 }} />}
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Remove from offer">
-                        <IconButton size="small" color="error" onClick={() => removeProduct(idx)}>
-                          <RemoveCircleIcon sx={{ fontSize: 18 }} />
-                        </IconButton>
-                      </Tooltip>
-                    </Stack>
-                  </ListItem>
+                    <div className="flex items-center gap-0.5">
+                      <IconBtn
+                        icon={entry.featured ? Star : Star}
+                        label={entry.featured ? 'Remove featured' : 'Mark as featured'}
+                        size="sm"
+                        variant="ghost"
+                        className={entry.featured ? 'text-amber-500' : 'text-gray-400'}
+                        onClick={() => toggleProductProp(idx, 'featured')}
+                      />
+                      <IconBtn
+                        icon={entry.enabled ? Eye : EyeOff}
+                        label={entry.enabled ? 'Hide product' : 'Show product'}
+                        size="sm"
+                        variant="ghost"
+                        className={entry.enabled ? 'text-indigo-500' : 'text-gray-400'}
+                        onClick={() => toggleProductProp(idx, 'enabled')}
+                      />
+                      <IconBtn
+                        icon={MinusCircle}
+                        label="Remove from offer"
+                        size="sm"
+                        variant="ghost"
+                        className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        onClick={() => removeProduct(idx)}
+                      />
+                    </div>
+                  </div>
                 );
               })}
-            </List>
+            </div>
           )}
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setProdDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={saveProdAssignment} disabled={saving}>
-            {saving ? 'Saving…' : 'Save Products'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        </div>
+      </Modal>
 
-      {/* ── Delete Confirm ────────────────────────────────────────────────── */}
-      <Dialog open={Boolean(deleteTarget)} onClose={() => setDeleteTarget(null)} maxWidth="xs" fullWidth>
-        <DialogTitle>Delete Offer?</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2">Delete <strong>{deleteTarget?.title}</strong>? This cannot be undone.</Typography>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setDeleteTarget(null)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+      {/* ── Delete Confirm ────────────────────────────────────────────── */}
+      <Modal
+        open={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        title="Delete Offer?"
+        size="sm"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setDeleteTarget(null)}>Cancel</Button>
+            <Button variant="danger" onClick={handleDelete}>Delete</Button>
+          </>
+        }
+      >
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          Delete <strong className="text-gray-900 dark:text-white">{deleteTarget?.title}</strong>? This cannot be undone.
+        </p>
+      </Modal>
+    </div>
   );
 }

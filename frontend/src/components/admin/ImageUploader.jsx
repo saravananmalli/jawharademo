@@ -1,12 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import {
-  Box, Typography, IconButton, LinearProgress, Tooltip, alpha, Chip,
-} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import ErrorOutlinedIcon from '@mui/icons-material/ErrorOutlined';
+import { UploadCloud, X, GripVertical, AlertCircle, Loader2 } from 'lucide-react';
 import axios from 'axios';
 import { getImageUrl } from '../../utils/imageUrl';
 
@@ -52,12 +45,9 @@ export default function ImageUploader({
   category = 'products',
   single = false,
 }) {
-  const theme  = useTheme();
-  const isDark = theme.palette.mode === 'dark';
-
   const fileInputRef  = useRef(null);
   const dragIndexRef  = useRef(null);
-  const [isDraggingOver, setIsDraggingOver] = useState(false); // drop-zone drag
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [validationError, setValidationError] = useState('');
 
   // Internal list — initialised once from prop; parent drives via key= to remount on load
@@ -194,209 +184,156 @@ export default function ImageUploader({
   const hasItems = items.length > 0;
 
   return (
-    <Box>
+    <div>
       {/* ── Drop zone ───────────────────────────────────────────────────── */}
       {!atMax && (
-        <Box
+        <div
           onDragOver={handleDropZoneDragOver}
           onDragLeave={handleDropZoneDragLeave}
           onDrop={handleDropZoneDrop}
           onClick={() => fileInputRef.current?.click()}
-          sx={{
-            border: `2px dashed ${isDraggingOver
-              ? theme.palette.primary.main
-              : isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)'}`,
-            borderRadius: 2,
-            p: { xs: 3, sm: 4 },
-            textAlign: 'center',
-            cursor: 'pointer',
-            bgcolor: isDraggingOver
-              ? alpha(theme.palette.primary.main, 0.06)
-              : 'transparent',
-            transition: 'border-color 0.18s, background-color 0.18s',
-            '&:hover': {
-              borderColor: theme.palette.primary.main,
-              bgcolor: alpha(theme.palette.primary.main, 0.04),
-            },
-          }}
+          className={`
+            border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer
+            transition-colors duration-200
+            ${isDraggingOver
+              ? 'border-indigo-400 dark:border-indigo-500 bg-indigo-50 dark:bg-indigo-900/10'
+              : 'border-gray-200 dark:border-gray-700 hover:border-indigo-400 dark:hover:border-indigo-600 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/5'
+            }
+          `}
         >
-          <CloudUploadIcon sx={{
-            fontSize: 48,
-            color: isDraggingOver ? 'primary.main' : 'text.disabled',
-            mb: 1,
-            transition: 'color 0.18s',
-          }} />
-          <Typography variant="subtitle2" fontWeight={600} color={isDraggingOver ? 'primary.main' : 'text.primary'}>
+          <UploadCloud
+            size={44}
+            className={`mx-auto mb-3 transition-colors duration-200 ${
+              isDraggingOver ? 'text-indigo-500' : 'text-gray-300 dark:text-gray-600'
+            }`}
+          />
+          <p className={`text-sm font-semibold transition-colors duration-200 ${
+            isDraggingOver ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-700 dark:text-gray-300'
+          }`}>
             {isDraggingOver ? 'Release to upload' : 'Drag & drop images here'}
-          </Typography>
-          <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
-            or <Box component="span" sx={{ color: 'primary.main', fontWeight: 600 }}>browse files</Box>
+          </p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+            or{' '}
+            <span className="text-indigo-600 dark:text-indigo-400 font-semibold">browse files</span>
             {' '}· JPEG, PNG, WebP · max 10 MB
             {!single && ` · up to ${maxImages} images`}
-          </Typography>
+          </p>
           <input
             ref={fileInputRef}
             type="file"
             accept="image/jpeg,image/png,image/webp"
             multiple={!single}
-            hidden
+            className="hidden"
             onChange={e => { uploadFiles(e.target.files); e.target.value = ''; }}
           />
-        </Box>
+        </div>
       )}
 
       {/* ── Validation error ────────────────────────────────────────────── */}
       {validationError && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 1.25, color: 'error.main' }}>
-          <ErrorOutlinedIcon sx={{ fontSize: '1rem' }} />
-          <Typography variant="caption" color="error">{validationError}</Typography>
-        </Box>
+        <div className="flex items-center gap-1.5 mt-2 text-red-500">
+          <AlertCircle size={14} />
+          <span className="text-xs">{validationError}</span>
+        </div>
       )}
 
       {/* ── Image preview grid ──────────────────────────────────────────── */}
       {hasItems && (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mt: hasItems && !atMax ? 2 : 0 }}>
+        <div className={`flex flex-wrap gap-3 ${hasItems && !atMax ? 'mt-4' : ''}`}>
           {items.map((item, idx) => (
-            <Box
+            <div
               key={idx}
               draggable={!item.uploading && !item.error}
               onDragStart={() => handleItemDragStart(idx)}
               onDragOver={e => handleItemDragOver(e, idx)}
               onDragEnd={handleItemDragEnd}
-              sx={{
-                position: 'relative',
-                width: 100,
-                height: 100,
-                borderRadius: 2,
-                overflow: 'hidden',
-                flexShrink: 0,
-                border: `2px solid ${
-                  item.error
-                    ? theme.palette.error.main
-                    : idx === 0
-                    ? theme.palette.primary.main
-                    : isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.10)'
-                }`,
-                cursor: item.uploading ? 'default' : item.error ? 'default' : 'grab',
-                bgcolor: isDark ? 'rgba(255,255,255,0.04)' : '#f5f5f7',
-                '&:hover .img-actions': { opacity: 1 },
-              }}
+              className={`
+                relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0
+                border-2 transition-colors
+                ${item.error
+                  ? 'border-red-400 bg-red-50 dark:bg-red-900/10'
+                  : idx === 0
+                  ? 'border-indigo-400 dark:border-indigo-500 bg-gray-50 dark:bg-gray-800'
+                  : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800'
+                }
+                ${!item.uploading && !item.error ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}
+                group
+              `}
             >
               {/* Image */}
               {item.previewSrc && (
-                <Box
-                  component="img"
+                <img
                   src={item.previewSrc}
                   alt=""
-                  sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  className="w-full h-full object-cover block"
                 />
               )}
 
               {/* Upload progress overlay */}
               {item.uploading && (
-                <Box sx={{
-                  position: 'absolute', inset: 0,
-                  bgcolor: 'rgba(0,0,0,0.55)',
-                  display: 'flex', flexDirection: 'column',
-                  alignItems: 'center', justifyContent: 'center',
-                  gap: 0.75,
-                }}>
-                  <Typography variant="caption" color="white" fontWeight={700} sx={{ fontSize: '0.78rem' }}>
-                    {item.progress}%
-                  </Typography>
-                  <LinearProgress
-                    variant="determinate"
-                    value={item.progress}
-                    sx={{ width: '75%', borderRadius: 2, height: 4 }}
-                  />
-                </Box>
+                <div className="absolute inset-0 bg-black/55 flex flex-col items-center justify-center gap-2">
+                  <Loader2 size={18} className="text-white animate-spin" />
+                  <span className="text-white text-xs font-bold">{item.progress}%</span>
+                  <div className="w-3/4 h-1 bg-white/20 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-white rounded-full transition-all duration-200"
+                      style={{ width: `${item.progress}%` }}
+                    />
+                  </div>
+                </div>
               )}
 
               {/* Error overlay */}
               {item.error && (
-                <Box sx={{
-                  position: 'absolute', inset: 0,
-                  bgcolor: alpha(theme.palette.error.main, 0.82),
-                  display: 'flex', flexDirection: 'column',
-                  alignItems: 'center', justifyContent: 'center',
-                  p: 0.5,
-                }}>
-                  <ErrorOutlinedIcon sx={{ fontSize: '1.3rem', color: '#fff', mb: 0.25 }} />
-                  <Typography variant="caption" color="white" textAlign="center" sx={{ fontSize: '0.6rem', lineHeight: 1.3 }}>
+                <div className="absolute inset-0 bg-red-500/85 flex flex-col items-center justify-center p-1.5">
+                  <AlertCircle size={18} className="text-white mb-1" />
+                  <span className="text-white text-center leading-tight" style={{ fontSize: '0.6rem' }}>
                     {item.error}
-                  </Typography>
-                </Box>
+                  </span>
+                </div>
               )}
 
               {/* Primary badge */}
               {idx === 0 && !item.uploading && !item.error && (
-                <Chip
-                  label="Primary"
-                  size="small"
-                  color="primary"
-                  sx={{
-                    position: 'absolute', top: 4, left: 4,
-                    height: 16, fontSize: '0.52rem', fontWeight: 800,
-                    letterSpacing: 0.3, textTransform: 'uppercase',
-                    '& .MuiChip-label': { px: 0.75 },
-                  }}
-                />
+                <span className="absolute top-1 left-1 bg-indigo-600 text-white rounded px-1 py-px font-extrabold uppercase tracking-wide" style={{ fontSize: '0.52rem' }}>
+                  Primary
+                </span>
               )}
 
               {/* Hover/Secondary badge */}
               {idx === 1 && !item.uploading && !item.error && (
-                <Chip
-                  label="Hover"
-                  size="small"
-                  sx={{
-                    position: 'absolute', top: 4, left: 4,
-                    height: 16, fontSize: '0.52rem', fontWeight: 800,
-                    letterSpacing: 0.3, textTransform: 'uppercase',
-                    bgcolor: 'rgba(0,0,0,0.55)', color: '#fff',
-                    '& .MuiChip-label': { px: 0.75 },
-                  }}
-                />
+                <span className="absolute top-1 left-1 bg-black/55 text-white rounded px-1 py-px font-extrabold uppercase tracking-wide" style={{ fontSize: '0.52rem' }}>
+                  Hover
+                </span>
               )}
 
               {/* Hover actions: drag handle + remove */}
               {!item.uploading && (
-                <Box className="img-actions" sx={{
-                  position: 'absolute', bottom: 0, left: 0, right: 0,
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  bgcolor: 'rgba(0,0,0,0.52)',
-                  px: 0.5, py: 0.25,
-                  opacity: 0,
-                  transition: 'opacity 0.15s',
-                }}>
+                <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between bg-black/52 px-1 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                   {!item.error && (
-                    <DragIndicatorIcon sx={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.75)' }} />
+                    <GripVertical size={13} className="text-white/75 flex-shrink-0" />
                   )}
-                  <Tooltip title="Remove image">
-                    <IconButton
-                      size="small"
-                      onClick={() => handleRemove(idx)}
-                      sx={{
-                        ml: 'auto', p: '2px',
-                        color: '#fff',
-                        '&:hover': { color: theme.palette.error.light },
-                      }}
-                    >
-                      <DeleteOutlinedIcon sx={{ fontSize: '0.9rem' }} />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
+                  <button
+                    type="button"
+                    onClick={() => handleRemove(idx)}
+                    title="Remove image"
+                    className="ml-auto p-0.5 text-white hover:text-red-300 transition-colors"
+                  >
+                    <X size={13} />
+                  </button>
+                </div>
               )}
-            </Box>
+            </div>
           ))}
-        </Box>
+        </div>
       )}
 
       {/* ── Helper text ─────────────────────────────────────────────────── */}
       {hasItems && !single && (
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-          First image = <strong>Primary</strong> cover · Second = <strong>Hover</strong> view · Drag cards to reorder
-        </Typography>
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+          First image = <strong className="text-gray-600 dark:text-gray-300">Primary</strong> cover · Second = <strong className="text-gray-600 dark:text-gray-300">Hover</strong> view · Drag cards to reorder
+        </p>
       )}
-    </Box>
+    </div>
   );
 }

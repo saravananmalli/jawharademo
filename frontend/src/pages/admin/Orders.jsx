@@ -1,128 +1,178 @@
 import { useState, useEffect } from 'react';
-import {
-  Box, Card, CardContent, Typography, Select, MenuItem, FormControl,
-  InputLabel, Table, TableHead, TableBody, TableRow, TableCell,
-  TableContainer, TablePagination, Skeleton,
-} from '@mui/material';
+import { RefreshCw, ShoppingBag } from 'lucide-react';
 import { DirhamSymbol } from 'dirham/react';
 import api from '../../services/api';
 import { StatusChip } from './adminUtils';
+import {
+  PageHeader, Card, CardBody, Table, Th, Td, Tr,
+  Skeleton, EmptyState, Pagination, Select,
+} from '../../components/admin/ui/index.js';
 
 const STATUSES = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+const PER_PAGE = 15;
 
 export default function AdminOrders() {
   const [orders, setOrders]             = useState([]);
   const [total, setTotal]               = useState(0);
-  const [page, setPage]                 = useState(0);
-  const [rowsPerPage]                   = useState(15);
+  const [page, setPage]                 = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
   const [loading, setLoading]           = useState(false);
 
   const fetchOrders = (p = page, s = statusFilter) => {
     setLoading(true);
-    const params = new URLSearchParams({ page: p + 1, limit: rowsPerPage });
+    const params = new URLSearchParams({ page: p, limit: PER_PAGE });
     if (s) params.set('status', s);
     api.get(`/admin/orders?${params}`)
       .then(({ data }) => { setOrders(data.data); setTotal(data.total); })
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchOrders(0, ''); }, []);
+  useEffect(() => { fetchOrders(1, ''); }, []);
 
-  const handleFilterChange = (e) => { const v = e.target.value; setStatusFilter(v); setPage(0); fetchOrders(0, v); };
-  const handlePageChange   = (_, p) => { setPage(p); fetchOrders(p, statusFilter); };
+  const handleFilterChange = (e) => {
+    const v = e.target.value;
+    setStatusFilter(v);
+    setPage(1);
+    fetchOrders(1, v);
+  };
+
+  const handlePageChange = (p) => {
+    setPage(p);
+    fetchOrders(p, statusFilter);
+  };
 
   const updateStatus = async (id, status) => {
     await api.put(`/admin/orders/${id}`, { status });
     setOrders(prev => prev.map(o => o._id === id ? { ...o, status } : o));
   };
 
+  const totalPages = Math.ceil(total / PER_PAGE);
+
   return (
-    <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap', gap: 2 }}>
-        <Box>
-          <Typography variant="h5" fontWeight={800}>Orders</Typography>
-          <Typography variant="body2" color="text.secondary">{total} total orders</Typography>
-        </Box>
-        <FormControl size="small" sx={{ minWidth: 190 }}>
-          <InputLabel>Filter by Status</InputLabel>
-          <Select label="Filter by Status" value={statusFilter} onChange={handleFilterChange}>
-            <MenuItem value="">All Statuses</MenuItem>
-            {STATUSES.map(s => (
-              <MenuItem key={s} value={s} sx={{ textTransform: 'capitalize' }}>{s}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
+    <div>
+      <PageHeader
+        title="Orders"
+        subtitle={`${total} total order${total !== 1 ? 's' : ''}`}
+        action={
+          <div className="flex items-center gap-3">
+            <Select
+              value={statusFilter}
+              onChange={handleFilterChange}
+              className="min-w-[180px]"
+            >
+              <option value="">All Statuses</option>
+              {STATUSES.map(s => (
+                <option key={s} value={s} className="capitalize">{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+              ))}
+            </Select>
+            <button
+              onClick={() => fetchOrders(page, statusFilter)}
+              disabled={loading}
+              className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 transition-colors disabled:opacity-50"
+              title="Refresh"
+            >
+              <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
+            </button>
+          </div>
+        }
+      />
 
       <Card>
-        <TableContainer sx={{ overflowX: 'auto' }}>
-          <Table size="small" sx={{ minWidth: 820 }}>
-            <TableHead>
-              <TableRow>
-                <TableCell>Order ID</TableCell>
-                <TableCell>Customer</TableCell>
-                <TableCell>Items</TableCell>
-                <TableCell>Total</TableCell>
-                <TableCell>Order Status</TableCell>
-                <TableCell>Payment</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Update</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody sx={{ opacity: loading && orders.length > 0 ? 0.5 : 1, transition: 'opacity 0.15s' }}>
-              {loading && orders.length === 0 ? Array.from({ length: 8 }).map((_, i) => (
-                <TableRow key={i}>
-                  {[...Array(8)].map((__, j) => <TableCell key={j}><Skeleton height={20} /></TableCell>)}
-                </TableRow>
-              )) : orders.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ py: 7, color: 'text.secondary' }}>No orders found.</TableCell>
-                </TableRow>
+        <CardBody className="p-0">
+          <Table>
+            <thead>
+              <tr>
+                <Th>Order ID</Th>
+                <Th>Customer</Th>
+                <Th>Items</Th>
+                <Th>Total</Th>
+                <Th>Order Status</Th>
+                <Th>Payment</Th>
+                <Th>Date</Th>
+                <Th>Update Status</Th>
+              </tr>
+            </thead>
+            <tbody className={loading && orders.length > 0 ? 'opacity-50 transition-opacity duration-150' : ''}>
+              {loading && orders.length === 0 ? (
+                Array.from({ length: 8 }).map((_, i) => (
+                  <Tr key={i}>
+                    {Array.from({ length: 8 }).map((__, j) => (
+                      <Td key={j}><Skeleton className="h-4 w-full" /></Td>
+                    ))}
+                  </Tr>
+                ))
+              ) : orders.length === 0 ? (
+                <tr>
+                  <td colSpan={8}>
+                    <EmptyState
+                      icon={ShoppingBag}
+                      title="No orders found"
+                      description="Try adjusting the status filter to see more orders."
+                      className="py-16"
+                    />
+                  </td>
+                </tr>
               ) : orders.map(o => (
-                <TableRow key={o._id}>
-                  <TableCell sx={{ fontFamily: 'monospace', fontSize: '0.78rem', color: 'text.secondary', whiteSpace: 'nowrap' }}>
-                    #{o._id.slice(-8).toUpperCase()}
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" fontWeight={600} noWrap sx={{ maxWidth: 140 }}>{o.user?.name || '—'}</Typography>
-                    <Typography variant="caption" color="text.secondary" noWrap display="block" sx={{ maxWidth: 140 }}>{o.user?.email}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">{o.items?.length} item{o.items?.length !== 1 ? 's' : ''}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" fontWeight={700} noWrap><DirhamSymbol size="0.85em" /> {o.totalAmount?.toLocaleString()}</Typography>
-                  </TableCell>
-                  <TableCell><StatusChip status={o.status} /></TableCell>
-                  <TableCell><StatusChip status={o.paymentStatus} /></TableCell>
-                  <TableCell>
-                    <Typography variant="body2" color="text.secondary" noWrap>{new Date(o.createdAt).toLocaleDateString()}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <FormControl size="small" sx={{ minWidth: 130 }}>
-                      <Select value={o.status} onChange={e => updateStatus(o._id, e.target.value)} sx={{ fontSize: '0.82rem' }}>
-                        {STATUSES.map(s => (
-                          <MenuItem key={s} value={s} sx={{ textTransform: 'capitalize', fontSize: '0.85rem' }}>{s}</MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </TableCell>
-                </TableRow>
+                <Tr key={o._id}>
+                  <Td>
+                    <span className="font-mono text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">
+                      #{o._id.slice(-8).toUpperCase()}
+                    </span>
+                  </Td>
+                  <Td>
+                    <div className="max-w-[140px]">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{o.user?.name || '—'}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{o.user?.email}</p>
+                    </div>
+                  </Td>
+                  <Td>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      {o.items?.length} item{o.items?.length !== 1 ? 's' : ''}
+                    </span>
+                  </Td>
+                  <Td>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white whitespace-nowrap">
+                      <DirhamSymbol size="0.85em" /> {o.totalAmount?.toLocaleString()}
+                    </span>
+                  </Td>
+                  <Td><StatusChip status={o.status} /></Td>
+                  <Td><StatusChip status={o.paymentStatus} /></Td>
+                  <Td>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                      {new Date(o.createdAt).toLocaleDateString()}
+                    </span>
+                  </Td>
+                  <Td>
+                    <select
+                      value={o.status}
+                      onChange={e => updateStatus(o._id, e.target.value)}
+                      className="text-xs bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-2.5 py-1.5 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer min-w-[120px]"
+                    >
+                      {STATUSES.map(s => (
+                        <option key={s} value={s} className="capitalize">
+                          {s.charAt(0).toUpperCase() + s.slice(1)}
+                        </option>
+                      ))}
+                    </select>
+                  </Td>
+                </Tr>
               ))}
-            </TableBody>
+            </tbody>
           </Table>
-        </TableContainer>
 
-        <TablePagination
-          component="div"
-          count={total}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          rowsPerPageOptions={[15]}
-          onPageChange={handlePageChange}
-        />
+          {totalPages > 1 && (
+            <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800">
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                onPage={handlePageChange}
+                totalItems={total}
+                perPage={PER_PAGE}
+              />
+            </div>
+          )}
+        </CardBody>
       </Card>
-    </Box>
+    </div>
   );
 }

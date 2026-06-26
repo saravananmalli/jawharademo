@@ -1,9 +1,4 @@
-import { createContext, useContext, useState, useMemo, useEffect } from 'react';
-import { ThemeProvider, CssBaseline } from '@mui/material';
-import { createAdminTheme } from './theme';
-
-// Import admin SCSS system (themes + global base styles)
-import '../../styles/admin/index.scss';
+import { createContext, useContext, useState, useEffect } from 'react';
 
 const AdminThemeContext = createContext({ mode: 'light', toggleMode: () => {} });
 
@@ -19,10 +14,13 @@ export function AdminThemeProvider({ children }) {
     }
   });
 
-  // Sync [data-admin-theme] on <html> so CSS custom properties in _themes.scss activate
   useEffect(() => {
-    document.documentElement.setAttribute('data-admin-theme', mode);
-    return () => document.documentElement.removeAttribute('data-admin-theme');
+    const root = document.documentElement;
+    if (mode === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
   }, [mode]);
 
   const toggleMode = () => {
@@ -33,14 +31,9 @@ export function AdminThemeProvider({ children }) {
     });
   };
 
-  const theme = useMemo(() => createAdminTheme(mode), [mode]);
-
   return (
     <AdminThemeContext.Provider value={{ mode, toggleMode }}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline enableColorScheme />
-        {children}
-      </ThemeProvider>
+      {children}
     </AdminThemeContext.Provider>
   );
 }

@@ -1,79 +1,50 @@
-import { Chip } from '@mui/material';
-import { useTheme, alpha } from '@mui/material/styles';
-
-// ── Status colour map ─────────────────────────────────────────────────────────
+/* ── Status colour definitions ──────────────────────────────────── */
 const STATUS_DEF = {
-  // Order statuses
-  pending:    { light: { bg: '#fff7ed', color: '#c2410c' }, dark: { bg: alpha('#c2410c', 0.18), color: '#fb923c' } },
-  processing: { light: { bg: '#eff6ff', color: '#1d4ed8' }, dark: { bg: alpha('#1d4ed8', 0.18), color: '#60a5fa' } },
-  shipped:    { light: { bg: '#e0f2fe', color: '#0369a1' }, dark: { bg: alpha('#0369a1', 0.18), color: '#38bdf8' } },
-  delivered:  { light: { bg: '#f0fdf4', color: '#15803d' }, dark: { bg: alpha('#15803d', 0.18), color: '#4ade80' } },
-  cancelled:  { light: { bg: '#fef2f2', color: '#dc2626' }, dark: { bg: alpha('#dc2626', 0.18), color: '#f87171' } },
-  // Payment
-  paid:       { light: { bg: '#f0fdf4', color: '#15803d' }, dark: { bg: alpha('#15803d', 0.18), color: '#4ade80' } },
-  failed:     { light: { bg: '#fef2f2', color: '#dc2626' }, dark: { bg: alpha('#dc2626', 0.18), color: '#f87171' } },
-  unpaid:     { light: { bg: '#fff7ed', color: '#c2410c' }, dark: { bg: alpha('#c2410c', 0.18), color: '#fb923c' } },
-  // Users
-  active:     { light: { bg: '#f0fdf4', color: '#15803d' }, dark: { bg: alpha('#15803d', 0.18), color: '#4ade80' } },
-  blocked:    { light: { bg: '#fef2f2', color: '#dc2626' }, dark: { bg: alpha('#dc2626', 0.18), color: '#f87171' } },
-  // Roles
-  admin:      { light: { bg: 'rgba(150,113,35,0.1)', color: '#967123' }, dark: { bg: 'rgba(150,113,35,0.22)', color: '#d4a839' } },
-  customer:   { light: { bg: '#f3f4f6', color: '#4b5563' }, dark: { bg: 'rgba(255,255,255,0.08)', color: '#9ca3af' } },
-  // Review
-  approved:   { light: { bg: '#f0fdf4', color: '#15803d' }, dark: { bg: alpha('#15803d', 0.18), color: '#4ade80' } },
-  rejected:   { light: { bg: '#fef2f2', color: '#dc2626' }, dark: { bg: alpha('#dc2626', 0.18), color: '#f87171' } },
-  // Stock
-  inStock:    { light: { bg: '#f0fdf4', color: '#15803d' }, dark: { bg: alpha('#15803d', 0.18), color: '#4ade80' } },
-  outOfStock: { light: { bg: '#fef2f2', color: '#dc2626' }, dark: { bg: alpha('#dc2626', 0.18), color: '#f87171' } },
-  // Badge
-  'Best Seller': { light: { bg: '#fff7ed', color: '#c2410c' }, dark: { bg: alpha('#c2410c', 0.18), color: '#fb923c' } },
-  new:           { light: { bg: '#eff6ff', color: '#1d4ed8' }, dark: { bg: alpha('#1d4ed8', 0.18), color: '#60a5fa' } },
-  sale:          { light: { bg: '#fef2f2', color: '#dc2626' }, dark: { bg: alpha('#dc2626', 0.18), color: '#f87171' } },
+  pending:    { bg: 'bg-orange-50 dark:bg-orange-900/20',  text: 'text-orange-700 dark:text-orange-400' },
+  processing: { bg: 'bg-blue-50 dark:bg-blue-900/20',     text: 'text-blue-700 dark:text-blue-400' },
+  shipped:    { bg: 'bg-sky-50 dark:bg-sky-900/20',       text: 'text-sky-700 dark:text-sky-400' },
+  delivered:  { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-700 dark:text-emerald-400' },
+  cancelled:  { bg: 'bg-red-50 dark:bg-red-900/20',       text: 'text-red-700 dark:text-red-400' },
+  paid:       { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-700 dark:text-emerald-400' },
+  failed:     { bg: 'bg-red-50 dark:bg-red-900/20',       text: 'text-red-700 dark:text-red-400' },
+  unpaid:     { bg: 'bg-orange-50 dark:bg-orange-900/20', text: 'text-orange-700 dark:text-orange-400' },
+  active:     { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-700 dark:text-emerald-400' },
+  blocked:    { bg: 'bg-red-50 dark:bg-red-900/20',       text: 'text-red-700 dark:text-red-400' },
+  admin:      { bg: 'bg-amber-50 dark:bg-amber-900/20',   text: 'text-amber-700 dark:text-amber-400' },
+  customer:   { bg: 'bg-gray-100 dark:bg-gray-800',       text: 'text-gray-600 dark:text-gray-400' },
+  approved:   { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-700 dark:text-emerald-400' },
+  rejected:   { bg: 'bg-red-50 dark:bg-red-900/20',       text: 'text-red-700 dark:text-red-400' },
+  inStock:    { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-700 dark:text-emerald-400' },
+  outOfStock: { bg: 'bg-red-50 dark:bg-red-900/20',       text: 'text-red-700 dark:text-red-400' },
+  'Best Seller': { bg: 'bg-orange-50 dark:bg-orange-900/20', text: 'text-orange-700 dark:text-orange-400' },
+  new:        { bg: 'bg-blue-50 dark:bg-blue-900/20',     text: 'text-blue-700 dark:text-blue-400' },
+  sale:       { bg: 'bg-red-50 dark:bg-red-900/20',       text: 'text-red-700 dark:text-red-400' },
 };
 
-const FALLBACK = {
-  light: { bg: '#f3f4f6', color: '#374151' },
-  dark:  { bg: 'rgba(255,255,255,0.08)', color: '#9ca3af' },
-};
+const FALLBACK = { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-600 dark:text-gray-400' };
 
 /**
- * Theme-aware status chip. Works in both light and dark mode.
- * Usage: <StatusChip status="pending" />  or  <StatusChip status={inStock ? 'inStock' : 'outOfStock'} label="In Stock" />
+ * Status chip — Tailwind version, no MUI dependency.
  */
-export function StatusChip({ status, label, size = 'small', clickable = false, onClick }) {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
+export function StatusChip({ status, label }) {
   const def = STATUS_DEF[status] || FALLBACK;
-  const colors = isDark ? def.dark : def.light;
-
   return (
-    <Chip
-      label={label ?? status}
-      size={size}
-      clickable={clickable}
-      onClick={onClick}
-      sx={{
-        bgcolor: colors.bg,
-        color: colors.color,
-        fontWeight: 700,
-        textTransform: 'capitalize',
-        fontSize: '0.72rem',
-        border: 'none',
-        '&:hover': clickable ? { bgcolor: colors.bg, opacity: 0.85 } : undefined,
-      }}
-    />
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${def.bg} ${def.text}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${def.text.replace('text-', 'bg-').split(' ')[0]}`} />
+      {label ?? status}
+    </span>
   );
 }
 
 /**
- * KPI card icon backgrounds — theme-aware.
+ * KPI icon background — kept for any legacy references.
  */
-export function getKpiColors(variant, isDark) {
+export function getKpiColors(variant) {
   const map = {
-    gold:   { bg: isDark ? 'rgba(150,113,35,0.2)'  : 'rgba(150,113,35,0.12)',  color: '#967123' },
-    maroon: { bg: isDark ? 'rgba(139,21,56,0.2)'   : 'rgba(139,21,56,0.1)',    color: '#8B1538' },
-    green:  { bg: isDark ? 'rgba(22,163,74,0.2)'   : 'rgba(52,199,89,0.12)',   color: isDark ? '#4ade80' : '#15803d' },
-    blue:   { bg: isDark ? 'rgba(37,99,235,0.2)'   : 'rgba(0,122,255,0.1)',    color: isDark ? '#60a5fa' : '#1d4ed8' },
+    gold:   { bg: 'bg-amber-100 dark:bg-amber-900/30',   text: 'text-amber-600 dark:text-amber-400' },
+    maroon: { bg: 'bg-rose-100 dark:bg-rose-900/30',     text: 'text-rose-600 dark:text-rose-400' },
+    green:  { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-600 dark:text-emerald-400' },
+    blue:   { bg: 'bg-blue-100 dark:bg-blue-900/30',     text: 'text-blue-600 dark:text-blue-400' },
   };
   return map[variant] || map.gold;
 }

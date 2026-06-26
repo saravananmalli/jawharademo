@@ -2,44 +2,19 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { DirhamSymbol } from 'dirham/react';
 import DateRangeFilter, { computeDateRange } from './DateRangeFilter';
 import {
-  Box, Card, CardContent, Typography, Skeleton, Chip,
-  Stack, Divider,
-} from '@mui/material';
-import { useTheme, alpha } from '@mui/material/styles';
-import TrendingUpIcon    from '@mui/icons-material/TrendingUp';
-import DonutLargeIcon    from '@mui/icons-material/DonutLarge';
-import BarChartIcon      from '@mui/icons-material/BarChart';
-import EmojiEventsIcon   from '@mui/icons-material/EmojiEvents';
-import PeopleIcon        from '@mui/icons-material/People';
-import PhoneAndroidIcon  from '@mui/icons-material/PhoneAndroid';
-import TrafficIcon       from '@mui/icons-material/Traffic';
-import CategoryIcon      from '@mui/icons-material/Category';
-import DiamondIcon       from '@mui/icons-material/Diamond';
-import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
-import FunnelIcon        from '@mui/icons-material/FilterAlt';
-import ShowChartIcon     from '@mui/icons-material/ShowChart';
-import AttachMoneyIcon   from '@mui/icons-material/AttachMoney';
-import {
-  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
-  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  CartesianGrid, Legend,
-} from 'recharts';
+  TrendingUp, BarChart2, PieChart, Trophy,
+  Users, Smartphone, Gauge, Layers, Gem,
+  ArrowRightLeft, Filter, LineChart as LineChartIcon,
+} from 'lucide-react';
+import ReactApexChart from 'react-apexcharts';
 import api from '../../services/api';
+import { useAdminTheme } from './AdminThemeContext';
+import { StatCard } from '../../components/admin/ui/StatCard';
+import { Card, CardHeader, CardBody } from '../../components/admin/ui/Card';
 
 // ── Palette ───────────────────────────────────────────────────────────────────
-const C = {
-  gold:   '#967123',
-  maroon: '#8B1538',
-  green:  '#16a34a',
-  blue:   '#2563eb',
-  orange: '#ea580c',
-  teal:   '#0891b2',
-  purple: '#7c3aed',
-  pink:   '#db2777',
-};
-
-const PIE_PALETTE = [C.gold, C.maroon, C.green, C.blue, C.orange, C.teal];
-const BAR_PALETTE = [C.gold, C.maroon, C.green, C.blue, C.orange, C.teal, C.purple, C.pink];
+const PIE_PALETTE = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#0ea5e9'];
+const BAR_PALETTE = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#0ea5e9', '#ec4899', '#14b8a6'];
 
 // ── Static mock datasets ──────────────────────────────────────────────────────
 const DEVICE_MOCK = [
@@ -69,158 +44,80 @@ const CUSTOMER_MOCK = [
   { name: 'VIP',       value: 12 },
 ];
 
-// ── Sub-components ────────────────────────────────────────────────────────────
-function SectionCard({ icon, title, subtitle, badge, children, minH = 300 }) {
-  return (
-    <Card sx={{ height: '100%' }}>
-      <CardContent>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2.5 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box sx={{ color: 'primary.main', display: 'flex', alignItems: 'center' }}>{icon}</Box>
-            <Box>
-              <Typography variant="subtitle1" fontWeight={700} lineHeight={1.2}>{title}</Typography>
-              {subtitle && (
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                  {subtitle}
-                </Typography>
-              )}
-            </Box>
-          </Box>
-          {badge && (
-            <Chip label={badge} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />
-          )}
-        </Box>
-        <Box sx={{ minHeight: minH }}>{children}</Box>
-      </CardContent>
-    </Card>
-  );
-}
-
-function StatBar({ items, loading }) {
-  const theme  = useTheme();
-  const isDark = theme.palette.mode === 'dark';
-
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', gap: 2, mb: 2.5, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
-        {[1, 2, 3, 4].map((i) => (
-          <Box key={i} sx={{ flex: { xs: '1 1 calc(50% - 8px)', sm: 1 }, minWidth: 0 }}>
-            <Card>
-              <CardContent sx={{ py: 2, px: 2.5, '&:last-child': { pb: 2 } }}>
-                <Skeleton variant="text" width="55%" sx={{ mb: 0.75 }} />
-                <Skeleton variant="text" width="80%" height={32} />
-              </CardContent>
-            </Card>
-          </Box>
-        ))}
-      </Box>
-    );
-  }
-
-  return (
-    <Box sx={{ display: 'flex', gap: 2, mb: 2.5, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
-      {items.map(({ label, value, color, icon: Icon }) => (
-        <Box key={label} sx={{ flex: { xs: '1 1 calc(50% - 8px)', sm: 1 }, minWidth: 0 }}>
-          <Card>
-            <CardContent sx={{ py: 2, px: 2.5, '&:last-child': { pb: 2 } }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.75 }}>
-                <Typography
-                  variant="caption" color="text.secondary"
-                  sx={{ textTransform: 'uppercase', letterSpacing: 0.8, fontWeight: 700, fontSize: '0.63rem' }}
-                >
-                  {label}
-                </Typography>
-                <Box sx={{
-                  width: 30, height: 30, borderRadius: '8px', display: 'flex',
-                  alignItems: 'center', justifyContent: 'center',
-                  bgcolor: alpha(color, isDark ? 0.18 : 0.1),
-                }}>
-                  <Icon sx={{ fontSize: '0.95rem', color }} />
-                </Box>
-              </Box>
-              <Typography variant="h6" fontWeight={800}>{value}</Typography>
-            </CardContent>
-          </Card>
-        </Box>
-      ))}
-    </Box>
-  );
-}
-
-function DonutCard({ icon, title, data, colors }) {
-  const theme  = useTheme();
-  const isDark = theme.palette.mode === 'dark';
-  const tooltipSx = {
-    backgroundColor: isDark ? '#1e2433' : '#fff',
-    border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,
-    borderRadius: 8,
-  };
-  const renderLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
-    if (percent < 0.07) return null;
-    const RADIAN = Math.PI / 180;
-    const r = innerRadius + (outerRadius - innerRadius) * 0.55;
-    return (
-      <text
-        x={cx + r * Math.cos(-midAngle * RADIAN)}
-        y={cy + r * Math.sin(-midAngle * RADIAN)}
-        fill="#fff" textAnchor="middle" dominantBaseline="central"
-        style={{ fontSize: '0.7rem', fontWeight: 700 }}
-      >
-        {`${(percent * 100).toFixed(0)}%`}
-      </text>
-    );
-  };
-
-  return (
-    <Card sx={{ height: '100%' }}>
-      <CardContent>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-          <Box sx={{ color: 'primary.main', display: 'flex' }}>{icon}</Box>
-          <Typography variant="subtitle1" fontWeight={700}>{title}</Typography>
-        </Box>
-        <ResponsiveContainer width="100%" height={160}>
-          <PieChart>
-            <Pie data={data} dataKey="value" nameKey="name"
-              cx="50%" cy="50%" innerRadius={44} outerRadius={72}
-              labelLine={false} label={renderLabel}>
-              {data.map((_, i) => <Cell key={i} fill={colors[i % colors.length]} />)}
-            </Pie>
-            <Tooltip contentStyle={tooltipSx} />
-          </PieChart>
-        </ResponsiveContainer>
-        <Stack spacing={0.6} sx={{ mt: 1 }}>
-          {data.map((d, i) => (
-            <Box key={d.name} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: colors[i % colors.length], flexShrink: 0 }} />
-                <Typography variant="caption">{d.name}</Typography>
-              </Box>
-              <Typography variant="caption" fontWeight={700}>
-                {d.value}{typeof d.value === 'number' && d.value <= 100 ? '%' : ''}
-              </Typography>
-            </Box>
-          ))}
-        </Stack>
-      </CardContent>
-    </Card>
-  );
-}
-
+// ── ChartSkeleton ─────────────────────────────────────────────────────────────
 function ChartSkeleton({ height = 300 }) {
   return (
-    <Card sx={{ height: '100%' }}>
-      <CardContent>
-        <Skeleton variant="text" width="45%" height={24} sx={{ mb: 2 }} />
-        <Skeleton variant="rectangular" height={height} sx={{ borderRadius: 2 }} />
-      </CardContent>
+    <Card className="h-full">
+      <CardBody>
+        <div className="h-5 w-2/5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-4" />
+        <div
+          className="bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse"
+          style={{ height }}
+        />
+      </CardBody>
+    </Card>
+  );
+}
+
+// ── DonutWidget ───────────────────────────────────────────────────────────────
+function DonutWidget({ icon: Icon, iconColor, title, data, colors, isDark }) {
+  const labels = data.map(d => d.name);
+  const values = data.map(d => d.value);
+
+  const options = {
+    chart: { type: 'donut', background: 'transparent', fontFamily: 'Inter, sans-serif' },
+    theme: { mode: isDark ? 'dark' : 'light' },
+    labels,
+    colors,
+    legend: { show: false },
+    plotOptions: { pie: { donut: { size: '62%' } } },
+    dataLabels: {
+      enabled: true,
+      formatter: (val) => `${val.toFixed(0)}%`,
+      style: { fontSize: '11px', fontWeight: 700, colors: ['#fff'] },
+      dropShadow: { enabled: false },
+    },
+    tooltip: { theme: isDark ? 'dark' : 'light' },
+    stroke: { width: 0 },
+  };
+
+  return (
+    <Card className="h-full">
+      <CardHeader
+        title={title}
+        action={
+          <span className="flex items-center gap-1" style={{ color: iconColor }}>
+            <Icon size={14} />
+          </span>
+        }
+      />
+      <CardBody>
+        <ReactApexChart type="donut" series={values} options={options} height={160} />
+        <div className="mt-3 space-y-1.5">
+          {data.map((d, i) => (
+            <div key={d.name} className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span
+                  className="w-2 h-2 rounded-full shrink-0"
+                  style={{ backgroundColor: colors[i % colors.length] }}
+                />
+                <span className="text-xs text-gray-600 dark:text-gray-300">{d.name}</span>
+              </div>
+              <span className="text-xs font-bold text-gray-900 dark:text-white">
+                {d.value}{typeof d.value === 'number' && d.value <= 100 ? '%' : ''}
+              </span>
+            </div>
+          ))}
+        </div>
+      </CardBody>
     </Card>
   );
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function Analytics() {
-  const theme  = useTheme();
-  const isDark = theme.palette.mode === 'dark';
+  const { mode } = useAdminTheme();
+  const isDark = mode === 'dark';
 
   const [sales,       setSales]       = useState([]);
   const [statusData,  setStatusData]  = useState([]);
@@ -229,7 +126,6 @@ export default function Analytics() {
   const [loading,     setLoading]     = useState(false);
   const [dateRange,   setDateRange]   = useState(() => computeDateRange('today'));
 
-  // stable callback — never changes identity, safe in useEffect deps
   const handleFilterChange = useCallback((range) => setDateRange(range), []);
 
   useEffect(() => {
@@ -286,355 +182,652 @@ export default function Analytics() {
     return { rev, orders, avgOV, convRate, topCategories, topBrands, monthlyCompare };
   }, [summary, topProducts, sales]);
 
-  const gridColor = isDark ? 'rgba(255,255,255,0.06)' : '#f0f2f5';
-  const axisColor = isDark ? '#6b7280' : '#9ca3af';
-  const tt = {
-    backgroundColor: isDark ? '#1e2433' : '#fff',
-    border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,
-    borderRadius: 8,
-    color: isDark ? '#f9fafb' : '#111827',
-  };
-  const labelSx = { color: isDark ? '#f9fafb' : '#111827', fontWeight: 600 };
-
   const periodLabel = dateRange.label || 'Today';
 
+  // ── Shared chart config helpers ───────────────────────────────────────────
+  const axisLabelStyle = { colors: isDark ? '#6b7280' : '#9ca3af', fontSize: '11px' };
+  const gridBorderColor = isDark ? '#1f2937' : '#f1f5f9';
+
+  const baseChartConfig = {
+    toolbar: { show: false },
+    background: 'transparent',
+    fontFamily: 'Inter, sans-serif',
+  };
+
+  // ── Row 1: Sales Overview area chart ─────────────────────────────────────
+  const salesLabels = sales.map(s => s.month);
+
+  const salesOverviewOptions = {
+    chart: { ...baseChartConfig, type: 'area' },
+    theme: { mode: isDark ? 'dark' : 'light' },
+    colors: ['#6366f1', '#8b5cf6'],
+    dataLabels: { enabled: false },
+    stroke: { curve: 'smooth', width: [2.5, 2] },
+    fill: {
+      type: 'gradient',
+      gradient: { shadeIntensity: 1, opacityFrom: 0.25, opacityTo: 0.0, stops: [0, 100] },
+    },
+    grid: { borderColor: gridBorderColor, strokeDashArray: 4, padding: { left: -4 } },
+    xaxis: {
+      categories: salesLabels,
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      labels: { style: axisLabelStyle },
+    },
+    yaxis: [
+      {
+        labels: {
+          style: axisLabelStyle,
+          formatter: (v) => `AED ${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`,
+        },
+      },
+      {
+        opposite: true,
+        labels: { style: axisLabelStyle },
+      },
+    ],
+    legend: { position: 'top', fontSize: '12px', labels: { colors: isDark ? '#9ca3af' : '#6b7280' } },
+    tooltip: {
+      theme: isDark ? 'dark' : 'light',
+      y: [
+        { formatter: (v) => `AED ${v.toLocaleString()}` },
+        { formatter: (v) => `${v} orders` },
+      ],
+    },
+    markers: { size: [4, 3], strokeWidth: 0 },
+  };
+
+  // ── Row 1: Order Status donut ─────────────────────────────────────────────
+  const statusDonutData = statusData.length > 0
+    ? statusData.map(d => ({ name: d.status, value: d.count }))
+    : [{ name: 'No data', value: 1 }];
+
+  // ── Row 2: Revenue Growth bar chart ──────────────────────────────────────
+  const revenueBarOptions = {
+    chart: { ...baseChartConfig, type: 'bar' },
+    theme: { mode: isDark ? 'dark' : 'light' },
+    colors: ['#6366f1'],
+    plotOptions: { bar: { borderRadius: 5, columnWidth: '55%' } },
+    dataLabels: { enabled: false },
+    grid: { borderColor: gridBorderColor, strokeDashArray: 4 },
+    xaxis: {
+      categories: salesLabels,
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      labels: { style: axisLabelStyle },
+    },
+    yaxis: {
+      labels: {
+        style: axisLabelStyle,
+        formatter: (v) => `AED ${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`,
+      },
+    },
+    tooltip: {
+      theme: isDark ? 'dark' : 'light',
+      y: { formatter: (v) => `AED ${v.toLocaleString()}` },
+    },
+  };
+
+  // ── Row 2: Order Analytics line chart ────────────────────────────────────
+  const orderLineOptions = {
+    chart: { ...baseChartConfig, type: 'line' },
+    theme: { mode: isDark ? 'dark' : 'light' },
+    colors: ['#8b5cf6'],
+    dataLabels: { enabled: false },
+    stroke: { curve: 'smooth', width: 2.5 },
+    grid: { borderColor: gridBorderColor, strokeDashArray: 4 },
+    xaxis: {
+      categories: salesLabels,
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      labels: { style: axisLabelStyle },
+    },
+    yaxis: { labels: { style: axisLabelStyle } },
+    tooltip: { theme: isDark ? 'dark' : 'light' },
+    markers: { size: 4, strokeWidth: 0 },
+  };
+
+  // ── Row 4: Product Performance bar ───────────────────────────────────────
+  const productBarOptions = {
+    chart: { ...baseChartConfig, type: 'bar' },
+    theme: { mode: isDark ? 'dark' : 'light' },
+    colors: BAR_PALETTE,
+    plotOptions: {
+      bar: { horizontal: true, borderRadius: 5, barHeight: '65%', distributed: true },
+    },
+    legend: { show: false },
+    dataLabels: {
+      enabled: true,
+      style: { fontSize: '10px', colors: [isDark ? '#d1d5db' : '#6b7280'] },
+      offsetX: 6,
+      textAnchor: 'start',
+    },
+    grid: {
+      borderColor: gridBorderColor,
+      strokeDashArray: 4,
+      xaxis: { lines: { show: true } },
+      yaxis: { lines: { show: false } },
+    },
+    xaxis: {
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      labels: { style: axisLabelStyle },
+    },
+    yaxis: {
+      labels: {
+        style: { colors: isDark ? '#9ca3af' : '#4b5563', fontSize: '10px' },
+        maxWidth: 130,
+      },
+    },
+    tooltip: { theme: isDark ? 'dark' : 'light' },
+  };
+
+  const productBarLabels = topProducts.map(p =>
+    p.name?.length > 20 ? p.name.slice(0, 20) + '…' : p.name
+  );
+  const productBarData = topProducts.map(p => p.sold || 0);
+
+  // ── Row 5: Category bar ───────────────────────────────────────────────────
+  const catBarOptions = {
+    chart: { ...baseChartConfig, type: 'bar' },
+    theme: { mode: isDark ? 'dark' : 'light' },
+    colors: PIE_PALETTE,
+    plotOptions: {
+      bar: { horizontal: true, borderRadius: 5, barHeight: '65%', distributed: true },
+    },
+    legend: { show: false },
+    dataLabels: { enabled: false },
+    grid: {
+      borderColor: gridBorderColor,
+      strokeDashArray: 4,
+      xaxis: { lines: { show: true } },
+      yaxis: { lines: { show: false } },
+    },
+    xaxis: {
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      labels: {
+        style: axisLabelStyle,
+        formatter: (v) => `AED ${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`,
+      },
+    },
+    yaxis: {
+      labels: {
+        style: { colors: isDark ? '#9ca3af' : '#4b5563', fontSize: '10px' },
+        maxWidth: 100,
+      },
+    },
+    tooltip: {
+      theme: isDark ? 'dark' : 'light',
+      y: { formatter: (v) => `AED ${v.toLocaleString()}` },
+    },
+  };
+
+  // ── Row 5: Brand bar ──────────────────────────────────────────────────────
+  const brandBarOptions = {
+    chart: { ...baseChartConfig, type: 'bar' },
+    theme: { mode: isDark ? 'dark' : 'light' },
+    colors: BAR_PALETTE,
+    plotOptions: {
+      bar: { horizontal: true, borderRadius: 5, barHeight: '65%', distributed: true },
+    },
+    legend: { show: false },
+    dataLabels: { enabled: false },
+    grid: {
+      borderColor: gridBorderColor,
+      strokeDashArray: 4,
+      xaxis: { lines: { show: true } },
+      yaxis: { lines: { show: false } },
+    },
+    xaxis: {
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      labels: { style: axisLabelStyle },
+    },
+    yaxis: {
+      labels: {
+        style: { colors: isDark ? '#9ca3af' : '#4b5563', fontSize: '10px' },
+        maxWidth: 100,
+      },
+    },
+    tooltip: { theme: isDark ? 'dark' : 'light' },
+  };
+
+  // ── Row 6: Funnel bar ─────────────────────────────────────────────────────
+  const funnelColors = FUNNEL_MOCK.map((_, i) => {
+    const opacity = 1 - i * 0.15;
+    return `rgba(99,102,241,${opacity})`;
+  });
+
+  const funnelOptions = {
+    chart: { ...baseChartConfig, type: 'bar' },
+    theme: { mode: isDark ? 'dark' : 'light' },
+    colors: funnelColors,
+    plotOptions: {
+      bar: { horizontal: true, borderRadius: 5, barHeight: '65%', distributed: true },
+    },
+    legend: { show: false },
+    dataLabels: {
+      enabled: true,
+      style: { fontSize: '10px', colors: [isDark ? '#d1d5db' : '#6b7280'] },
+      formatter: (v) => v.toLocaleString(),
+      offsetX: 6,
+      textAnchor: 'start',
+    },
+    grid: {
+      borderColor: gridBorderColor,
+      strokeDashArray: 4,
+      xaxis: { lines: { show: true } },
+      yaxis: { lines: { show: false } },
+    },
+    xaxis: {
+      categories: FUNNEL_MOCK.map(f => f.stage),
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      labels: { style: axisLabelStyle },
+    },
+    yaxis: {
+      labels: {
+        style: { colors: isDark ? '#9ca3af' : '#4b5563', fontSize: '10px' },
+        maxWidth: 110,
+      },
+    },
+    tooltip: { theme: isDark ? 'dark' : 'light' },
+  };
+
+  // ── Row 6: Period comparison bar ──────────────────────────────────────────
+  const compareColors = ['#f59e0b', '#6366f1'];
+  const compareOptions = {
+    chart: { ...baseChartConfig, type: 'bar' },
+    theme: { mode: isDark ? 'dark' : 'light' },
+    colors: compareColors,
+    plotOptions: {
+      bar: { borderRadius: 5, columnWidth: '50%', distributed: true },
+    },
+    legend: { show: false },
+    dataLabels: { enabled: false },
+    grid: { borderColor: gridBorderColor, strokeDashArray: 4 },
+    xaxis: {
+      categories: derived.monthlyCompare.map(m => m.period),
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      labels: { style: axisLabelStyle },
+    },
+    yaxis: {
+      labels: {
+        style: axisLabelStyle,
+        formatter: (v) => `AED ${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`,
+      },
+    },
+    tooltip: {
+      theme: isDark ? 'dark' : 'light',
+      y: { formatter: (v) => `AED ${v.toLocaleString()}` },
+    },
+  };
+
   return (
-    <Box>
-      {/* ── Header — always visible so DateRangeFilter never unmounts ── */}
-      <Box sx={{ mb: 3, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-        <Box>
-          <Typography variant="h5" fontWeight={800}>Analytics</Typography>
-          <Typography variant="body2" color="text.secondary">
+    <div>
+      {/* ── Header ─────────────────────────────────────────────────────── */}
+      <div className="mb-6 flex items-start justify-between flex-wrap gap-4">
+        <div>
+          <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white">Analytics</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
             Sales performance, customer insights &amp; product analytics
-          </Typography>
-        </Box>
+          </p>
+        </div>
         <DateRangeFilter currentPreset={dateRange.preset || 'today'} onChange={handleFilterChange} />
-      </Box>
+      </div>
 
-      {/* ── Summary stat bar — shows skeleton while loading ─────────── */}
-      <StatBar
-        loading={loading}
-        items={[
-          { label: `Revenue · ${periodLabel}`, value: <><DirhamSymbol size="0.82em" /> {derived.rev.toLocaleString()}</>,   color: C.gold,   icon: AttachMoneyIcon },
-          { label: `Orders · ${periodLabel}`,  value: derived.orders.toLocaleString(),                                          color: C.maroon, icon: BarChartIcon },
-          { label: 'Avg Order Value',           value: <><DirhamSymbol size="0.82em" /> {derived.avgOV.toLocaleString()}</>,   color: C.green,  icon: ShowChartIcon },
-          { label: 'Conv. Rate',                value: `${derived.convRate}%`,                  color: C.blue,   icon: TrendingUpIcon },
-        ]}
-      />
+      {/* ── KPI stat bar ───────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {loading ? (
+          [1, 2, 3, 4].map(i => (
+            <div key={i} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm">
+              <div className="h-4 w-3/5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-3" />
+              <div className="h-8 w-4/5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            </div>
+          ))
+        ) : (
+          <>
+            <StatCard
+              color="indigo"
+              title={`Revenue · ${periodLabel}`}
+              value={<span className="flex items-center gap-1"><DirhamSymbol size="0.82em" /> {derived.rev.toLocaleString()}</span>}
+              icon={TrendingUp}
+            />
+            <StatCard
+              color="violet"
+              title={`Orders · ${periodLabel}`}
+              value={derived.orders.toLocaleString()}
+              icon={BarChart2}
+            />
+            <StatCard
+              color="emerald"
+              title="Avg Order Value"
+              value={<span className="flex items-center gap-1"><DirhamSymbol size="0.82em" /> {derived.avgOV.toLocaleString()}</span>}
+              icon={LineChartIcon}
+            />
+            <StatCard
+              color="sky"
+              title="Conv. Rate"
+              value={`${derived.convRate}%`}
+              icon={Gauge}
+            />
+          </>
+        )}
+      </div>
 
-      {/* ── Chart content: skeleton grid while loading ───────────────── */}
+      {/* ── Chart content: skeleton while loading ──────────────────────── */}
       {loading ? (
-        <Box sx={{ display: 'flex', gap: 2.5, flexWrap: 'wrap' }}>
+        <div className="flex flex-wrap gap-5">
           {[300, 280, 280, 280, 240, 240, 280, 260].map((h, i) => (
-            <Box key={i} sx={{ flex: { xs: '1 1 100%', md: '1 1 calc(50% - 10px)' }, minWidth: 0 }}>
+            <div key={i} className="flex-1 min-w-0 basis-full md:basis-[calc(50%-10px)]">
               <ChartSkeleton height={h} />
-            </Box>
+            </div>
           ))}
-        </Box>
+        </div>
       ) : (
         <>
-          {/* ── Row 1: Sales Overview + Order Status Donut ────────────── */}
-          <Box sx={{ display: 'flex', gap: 2.5, mb: 2.5, flexWrap: { xs: 'wrap', lg: 'nowrap' } }}>
-            <Box sx={{ flex: { xs: '1 1 100%', lg: '2 1 0' }, minWidth: 0 }}>
-              <SectionCard
-                icon={<TrendingUpIcon sx={{ fontSize: '1.2rem' }} />}
-                title="Sales Overview"
-                subtitle={`Revenue and orders — ${periodLabel}`}
-                badge={periodLabel}
-                minH={250}
-              >
-                {sales.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={260}>
-                    <AreaChart data={sales} margin={{ top: 4, right: 8, left: -10, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="salesAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%"  stopColor={C.gold}   stopOpacity={0.28} />
-                          <stop offset="95%" stopColor={C.gold}   stopOpacity={0} />
-                        </linearGradient>
-                        <linearGradient id="ordersAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%"  stopColor={C.maroon} stopOpacity={0.22} />
-                          <stop offset="95%" stopColor={C.maroon} stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
-                      <XAxis dataKey="month" tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
-                      <YAxis yAxisId="rev" tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
-                      <YAxis yAxisId="ord" orientation="right" tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
-                      <Tooltip contentStyle={tt} labelStyle={labelSx}
-                        formatter={(v, n) => n === 'revenue' ? [`AED ${v.toLocaleString()}`, 'Revenue'] : [v, 'Orders']} />
-                      <Legend wrapperStyle={{ fontSize: '0.8rem', color: axisColor }} />
-                      <Area yAxisId="rev" type="monotone" dataKey="revenue" name="revenue" stroke={C.gold}
-                        strokeWidth={2.5} fill="url(#salesAreaGrad)"
-                        dot={{ r: 4, fill: C.gold, strokeWidth: 0 }} activeDot={{ r: 6 }} />
-                      <Area yAxisId="ord" type="monotone" dataKey="orders" name="orders" stroke={C.maroon}
-                        strokeWidth={2} fill="url(#ordersAreaGrad)"
-                        dot={{ r: 3, fill: C.maroon, strokeWidth: 0 }} activeDot={{ r: 5 }} />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <Box sx={{ height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Typography variant="body2" color="text.disabled">No sales data for this period.</Typography>
-                  </Box>
-                )}
-              </SectionCard>
-            </Box>
+          {/* ── Row 1: Sales Overview area + Order Status donut ────────── */}
+          <div className="flex gap-5 mb-5 flex-wrap lg:flex-nowrap">
+            <div className="flex-1 min-w-0 lg:flex-[2_1_0]">
+              <Card className="h-full">
+                <CardHeader
+                  title="Sales Overview"
+                  subtitle={`Revenue and orders — ${periodLabel}`}
+                  action={
+                    <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
+                      <TrendingUp size={11} /> {periodLabel}
+                    </span>
+                  }
+                />
+                <CardBody>
+                  {sales.length > 0 ? (
+                    <ReactApexChart
+                      type="area"
+                      series={[
+                        { name: 'Revenue', data: sales.map(s => s.revenue) },
+                        { name: 'Orders',  data: sales.map(s => s.orders) },
+                      ]}
+                      options={salesOverviewOptions}
+                      height={260}
+                    />
+                  ) : (
+                    <div className="h-64 flex items-center justify-center">
+                      <p className="text-sm text-gray-400 dark:text-gray-500">No sales data for this period.</p>
+                    </div>
+                  )}
+                </CardBody>
+              </Card>
+            </div>
 
-            <Box sx={{ flex: { xs: '1 1 100%', lg: '1 1 0' }, minWidth: 0 }}>
-              <DonutCard
-                icon={<DonutLargeIcon sx={{ fontSize: '1.2rem', color: C.maroon }} />}
+            <div className="flex-1 min-w-0 lg:flex-[1_1_0]">
+              <DonutWidget
+                icon={PieChart}
+                iconColor="#8b5cf6"
                 title="Order Status"
-                data={statusData.length > 0
-                  ? statusData.map(d => ({ name: d.status, value: d.count }))
-                  : [{ name: 'No data', value: 1 }]}
+                data={statusDonutData}
                 colors={PIE_PALETTE}
+                isDark={isDark}
               />
-            </Box>
-          </Box>
+            </div>
+          </div>
 
-          {/* ── Row 2: Revenue Growth + Order Analytics ───────────────── */}
-          <Box sx={{ display: 'flex', gap: 2.5, mb: 2.5, flexWrap: { xs: 'wrap', md: 'nowrap' } }}>
-            <Box sx={{ flex: { xs: '1 1 100%', md: 1 }, minWidth: 0 }}>
-              <SectionCard
-                icon={<BarChartIcon sx={{ fontSize: '1.2rem', color: C.gold }} />}
-                title="Revenue Growth"
-                subtitle={`AED revenue — ${periodLabel}`}
-                minH={260}
-              >
-                {sales.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={260}>
-                    <BarChart data={sales} margin={{ top: 4, right: 8, left: -10, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
-                      <XAxis dataKey="month" tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
-                      <Tooltip contentStyle={tt} labelStyle={labelSx}
-                        formatter={v => [`AED ${v.toLocaleString()}`, 'Revenue']} />
-                      <Bar dataKey="revenue" fill={C.gold} radius={[5, 5, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <Box sx={{ height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Typography variant="body2" color="text.disabled">No data for this period.</Typography>
-                  </Box>
-                )}
-              </SectionCard>
-            </Box>
+          {/* ── Row 2: Revenue Growth bar + Order Analytics line ─────── */}
+          <div className="flex gap-5 mb-5 flex-wrap md:flex-nowrap">
+            <div className="flex-1 min-w-0">
+              <Card className="h-full">
+                <CardHeader
+                  title="Revenue Growth"
+                  subtitle={`AED revenue — ${periodLabel}`}
+                  action={
+                    <span className="text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
+                      <BarChart2 size={11} /> Revenue
+                    </span>
+                  }
+                />
+                <CardBody>
+                  {sales.length > 0 ? (
+                    <ReactApexChart
+                      type="bar"
+                      series={[{ name: 'Revenue', data: sales.map(s => s.revenue) }]}
+                      options={revenueBarOptions}
+                      height={260}
+                    />
+                  ) : (
+                    <div className="h-64 flex items-center justify-center">
+                      <p className="text-sm text-gray-400 dark:text-gray-500">No data for this period.</p>
+                    </div>
+                  )}
+                </CardBody>
+              </Card>
+            </div>
 
-            <Box sx={{ flex: { xs: '1 1 100%', md: 1 }, minWidth: 0 }}>
-              <SectionCard
-                icon={<CompareArrowsIcon sx={{ fontSize: '1.2rem', color: C.blue }} />}
-                title="Order Analytics"
-                subtitle={`Order count trend — ${periodLabel}`}
-                minH={260}
-              >
-                {sales.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={260}>
-                    <LineChart data={sales} margin={{ top: 4, right: 8, left: -10, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
-                      <XAxis dataKey="month" tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
-                      <Tooltip contentStyle={tt} labelStyle={labelSx} />
-                      <Line type="monotone" dataKey="orders" stroke={C.maroon} strokeWidth={2.5}
-                        dot={{ r: 4, fill: C.maroon, strokeWidth: 0 }} activeDot={{ r: 6 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <Box sx={{ height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Typography variant="body2" color="text.disabled">No data for this period.</Typography>
-                  </Box>
-                )}
-              </SectionCard>
-            </Box>
-          </Box>
+            <div className="flex-1 min-w-0">
+              <Card className="h-full">
+                <CardHeader
+                  title="Order Analytics"
+                  subtitle={`Order count trend — ${periodLabel}`}
+                  action={
+                    <span className="text-xs font-medium text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
+                      <ArrowRightLeft size={11} /> Orders
+                    </span>
+                  }
+                />
+                <CardBody>
+                  {sales.length > 0 ? (
+                    <ReactApexChart
+                      type="line"
+                      series={[{ name: 'Orders', data: sales.map(s => s.orders) }]}
+                      options={orderLineOptions}
+                      height={260}
+                    />
+                  ) : (
+                    <div className="h-64 flex items-center justify-center">
+                      <p className="text-sm text-gray-400 dark:text-gray-500">No data for this period.</p>
+                    </div>
+                  )}
+                </CardBody>
+              </Card>
+            </div>
+          </div>
 
-          {/* ── Row 3: 3 Donut charts (mock — no date dependency) ─────── */}
-          <Box sx={{ display: 'flex', gap: 2.5, mb: 2.5, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
-            <Box sx={{ flex: { xs: '1 1 100%', sm: 1 }, minWidth: 0 }}>
-              <DonutCard
-                icon={<PeopleIcon sx={{ fontSize: '1.2rem', color: C.teal }} />}
+          {/* ── Row 3: Three donut charts (mock) ─────────────────────── */}
+          <div className="flex gap-5 mb-5 flex-wrap sm:flex-nowrap">
+            <div className="flex-1 min-w-0 basis-full sm:basis-auto">
+              <DonutWidget
+                icon={Users}
+                iconColor="#0ea5e9"
                 title="Customer Segments"
                 data={CUSTOMER_MOCK}
-                colors={[C.teal, C.blue, C.gold]}
+                colors={['#0ea5e9', '#6366f1', '#f59e0b']}
+                isDark={isDark}
               />
-            </Box>
-            <Box sx={{ flex: { xs: '1 1 100%', sm: 1 }, minWidth: 0 }}>
-              <DonutCard
-                icon={<PhoneAndroidIcon sx={{ fontSize: '1.2rem', color: C.purple }} />}
+            </div>
+            <div className="flex-1 min-w-0 basis-full sm:basis-auto">
+              <DonutWidget
+                icon={Smartphone}
+                iconColor="#8b5cf6"
                 title="Device Analytics"
                 data={DEVICE_MOCK}
-                colors={[C.purple, C.maroon, C.orange]}
+                colors={['#8b5cf6', '#8b5cf6cc', '#8b5cf680']}
+                isDark={isDark}
               />
-            </Box>
-            <Box sx={{ flex: { xs: '1 1 100%', sm: 1 }, minWidth: 0 }}>
-              <DonutCard
-                icon={<TrafficIcon sx={{ fontSize: '1.2rem', color: C.green }} />}
+            </div>
+            <div className="flex-1 min-w-0 basis-full sm:basis-auto">
+              <DonutWidget
+                icon={Layers}
+                iconColor="#10b981"
                 title="Traffic Sources"
                 data={TRAFFIC_MOCK}
-                colors={[C.green, C.blue, C.orange, C.pink]}
+                colors={['#10b981', '#6366f1', '#f59e0b', '#ec4899']}
+                isDark={isDark}
               />
-            </Box>
-          </Box>
+            </div>
+          </div>
 
-          {/* ── Row 4: Product Performance ───────────────────────────── */}
-          <Box sx={{ mb: 2.5 }}>
-            <SectionCard
-              icon={<EmojiEventsIcon sx={{ fontSize: '1.2rem', color: C.gold }} />}
-              title="Product Performance"
-              subtitle={`Top 10 best-selling products — ${periodLabel}`}
-              minH={280}
-            >
-              {topProducts.length > 0 ? (
-                <ResponsiveContainer width="100%" height={280}>
-                  <BarChart data={topProducts} layout="vertical"
-                    margin={{ top: 0, right: 40, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={gridColor} horizontal={false} />
-                    <XAxis type="number" tick={{ fontSize: 10, fill: axisColor }} axisLine={false} tickLine={false} />
-                    <YAxis type="category" dataKey="name" width={130}
-                      tick={{ fontSize: 10, fill: axisColor }} axisLine={false} tickLine={false} />
-                    <Tooltip contentStyle={tt} labelStyle={labelSx} />
-                    <Bar dataKey="sold" radius={[0, 5, 5, 0]}
-                      label={{ position: 'right', fontSize: 10, fill: axisColor }}>
-                      {topProducts.map((_, i) => <Cell key={i} fill={BAR_PALETTE[i % BAR_PALETTE.length]} />)}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <Box sx={{ height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Typography variant="body2" color="text.disabled">No product sales for this period.</Typography>
-                </Box>
-              )}
-            </SectionCard>
-          </Box>
-
-          {/* ── Row 5: Top Categories + Top Brands ───────────────────── */}
-          <Box sx={{ display: 'flex', gap: 2.5, mb: 2.5, flexWrap: { xs: 'wrap', md: 'nowrap' } }}>
-            <Box sx={{ flex: { xs: '1 1 100%', md: 1 }, minWidth: 0 }}>
-              <SectionCard
-                icon={<CategoryIcon sx={{ fontSize: '1.2rem', color: C.teal }} />}
-                title="Top Performing Categories"
-                subtitle={`By estimated revenue (sold × price) — ${periodLabel}`}
-                minH={220}
-              >
-                {derived.topCategories.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={derived.topCategories} layout="vertical"
-                      margin={{ top: 0, right: 30, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke={gridColor} horizontal={false} />
-                      <XAxis type="number" tick={{ fontSize: 10, fill: axisColor }} axisLine={false} tickLine={false}
-                        tickFormatter={v => `AED ${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`} />
-                      <YAxis type="category" dataKey="name" width={90}
-                        tick={{ fontSize: 10, fill: axisColor }} axisLine={false} tickLine={false} />
-                      <Tooltip contentStyle={tt} labelStyle={labelSx}
-                        formatter={v => [`AED ${v.toLocaleString()}`, 'Revenue']} />
-                      <Bar dataKey="value" radius={[0, 5, 5, 0]}>
-                        {derived.topCategories.map((_, i) => (
-                          <Cell key={i} fill={PIE_PALETTE[i % PIE_PALETTE.length]} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
+          {/* ── Row 4: Product Performance ──────────────────────────── */}
+          <div className="mb-5">
+            <Card>
+              <CardHeader
+                title="Product Performance"
+                subtitle={`Top 10 best-selling products — ${periodLabel}`}
+                action={
+                  <span className="text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
+                    <Trophy size={11} /> Top 10
+                  </span>
+                }
+              />
+              <CardBody>
+                {topProducts.length > 0 ? (
+                  <ReactApexChart
+                    type="bar"
+                    series={[{ name: 'Units Sold', data: productBarData }]}
+                    options={{
+                      ...productBarOptions,
+                      xaxis: {
+                        ...productBarOptions.xaxis,
+                        categories: productBarLabels,
+                      },
+                    }}
+                    height={280}
+                  />
                 ) : (
-                  <Box sx={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Typography variant="body2" color="text.disabled">No category data for this period.</Typography>
-                  </Box>
+                  <div className="h-72 flex items-center justify-center">
+                    <p className="text-sm text-gray-400 dark:text-gray-500">No product sales for this period.</p>
+                  </div>
                 )}
-              </SectionCard>
-            </Box>
+              </CardBody>
+            </Card>
+          </div>
 
-            <Box sx={{ flex: { xs: '1 1 100%', md: 1 }, minWidth: 0 }}>
-              <SectionCard
-                icon={<DiamondIcon sx={{ fontSize: '1.2rem', color: C.gold }} />}
-                title="Top Performing Brands"
-                subtitle={`By total units sold — ${periodLabel}`}
-                minH={220}
-              >
-                {derived.topBrands.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={derived.topBrands} layout="vertical"
-                      margin={{ top: 0, right: 30, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke={gridColor} horizontal={false} />
-                      <XAxis type="number" tick={{ fontSize: 10, fill: axisColor }} axisLine={false} tickLine={false} />
-                      <YAxis type="category" dataKey="name" width={90}
-                        tick={{ fontSize: 10, fill: axisColor }} axisLine={false} tickLine={false} />
-                      <Tooltip contentStyle={tt} labelStyle={labelSx} />
-                      <Bar dataKey="value" radius={[0, 5, 5, 0]}>
-                        {derived.topBrands.map((_, i) => (
-                          <Cell key={i} fill={BAR_PALETTE[i % BAR_PALETTE.length]} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <Box sx={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Typography variant="body2" color="text.disabled">No brand data for this period.</Typography>
-                  </Box>
-                )}
-              </SectionCard>
-            </Box>
-          </Box>
+          {/* ── Row 5: Top Categories + Top Brands ──────────────────── */}
+          <div className="flex gap-5 mb-5 flex-wrap md:flex-nowrap">
+            <div className="flex-1 min-w-0">
+              <Card className="h-full">
+                <CardHeader
+                  title="Top Performing Categories"
+                  subtitle={`By estimated revenue (sold × price) — ${periodLabel}`}
+                  action={
+                    <span className="text-xs font-medium text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
+                      <Layers size={11} /> Categories
+                    </span>
+                  }
+                />
+                <CardBody>
+                  {derived.topCategories.length > 0 ? (
+                    <ReactApexChart
+                      type="bar"
+                      series={[{ name: 'Revenue', data: derived.topCategories.map(c => c.value) }]}
+                      options={{
+                        ...catBarOptions,
+                        xaxis: {
+                          ...catBarOptions.xaxis,
+                          categories: derived.topCategories.map(c => c.name),
+                        },
+                      }}
+                      height={220}
+                    />
+                  ) : (
+                    <div className="h-56 flex items-center justify-center">
+                      <p className="text-sm text-gray-400 dark:text-gray-500">No category data for this period.</p>
+                    </div>
+                  )}
+                </CardBody>
+              </Card>
+            </div>
 
-          {/* ── Row 6: Conversion Funnel + Monthly Comparison ────────── */}
-          <Box sx={{ display: 'flex', gap: 2.5, flexWrap: { xs: 'wrap', md: 'nowrap' } }}>
-            <Box sx={{ flex: { xs: '1 1 100%', md: 1 }, minWidth: 0 }}>
-              <SectionCard
-                icon={<FunnelIcon sx={{ fontSize: '1.2rem', color: C.purple }} />}
-                title="Conversion Funnel"
-                subtitle="Visitor → Purchase journey"
-                badge="Sample data"
-                minH={240}
-              >
-                <ResponsiveContainer width="100%" height={240}>
-                  <BarChart data={FUNNEL_MOCK} layout="vertical"
-                    margin={{ top: 0, right: 50, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={gridColor} horizontal={false} />
-                    <XAxis type="number" tick={{ fontSize: 10, fill: axisColor }} axisLine={false} tickLine={false} />
-                    <YAxis type="category" dataKey="stage" width={100}
-                      tick={{ fontSize: 10, fill: axisColor }} axisLine={false} tickLine={false} />
-                    <Tooltip contentStyle={tt} labelStyle={labelSx} />
-                    <Bar dataKey="value" radius={[0, 5, 5, 0]}
-                      label={{ position: 'right', fontSize: 10, fill: axisColor, formatter: v => v.toLocaleString() }}>
-                      {FUNNEL_MOCK.map((_, i) => (
-                        <Cell key={i} fill={C.purple} fillOpacity={1 - i * 0.15} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </SectionCard>
-            </Box>
+            <div className="flex-1 min-w-0">
+              <Card className="h-full">
+                <CardHeader
+                  title="Top Performing Brands"
+                  subtitle={`By total units sold — ${periodLabel}`}
+                  action={
+                    <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
+                      <Gem size={11} /> Brands
+                    </span>
+                  }
+                />
+                <CardBody>
+                  {derived.topBrands.length > 0 ? (
+                    <ReactApexChart
+                      type="bar"
+                      series={[{ name: 'Units Sold', data: derived.topBrands.map(b => b.value) }]}
+                      options={{
+                        ...brandBarOptions,
+                        xaxis: {
+                          ...brandBarOptions.xaxis,
+                          categories: derived.topBrands.map(b => b.name),
+                        },
+                      }}
+                      height={220}
+                    />
+                  ) : (
+                    <div className="h-56 flex items-center justify-center">
+                      <p className="text-sm text-gray-400 dark:text-gray-500">No brand data for this period.</p>
+                    </div>
+                  )}
+                </CardBody>
+              </Card>
+            </div>
+          </div>
 
-            <Box sx={{ flex: { xs: '1 1 100%', md: 1 }, minWidth: 0 }}>
-              <SectionCard
-                icon={<CompareArrowsIcon sx={{ fontSize: '1.2rem', color: C.orange }} />}
-                title="Period Comparison"
-                subtitle={`Revenue: last 2 data points in ${periodLabel}`}
-                minH={240}
-              >
-                {derived.monthlyCompare.length >= 2 ? (
-                  <ResponsiveContainer width="100%" height={240}>
-                    <BarChart data={derived.monthlyCompare} margin={{ top: 4, right: 8, left: -10, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
-                      <XAxis dataKey="period" tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
-                      <Tooltip contentStyle={tt} labelStyle={labelSx}
-                        formatter={v => [`AED ${v.toLocaleString()}`, 'Revenue']} />
-                      <Bar dataKey="revenue" radius={[5, 5, 0, 0]}>
-                        {derived.monthlyCompare.map((_, i) => (
-                          <Cell key={i} fill={i === 0 ? C.orange : C.gold} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <Box sx={{ height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Typography variant="body2" color="text.disabled">
-                      Need at least 2 data points for this period.
-                    </Typography>
-                  </Box>
-                )}
-              </SectionCard>
-            </Box>
-          </Box>
+          {/* ── Row 6: Conversion Funnel + Period Comparison ─────────── */}
+          <div className="flex gap-5 flex-wrap md:flex-nowrap">
+            <div className="flex-1 min-w-0">
+              <Card className="h-full">
+                <CardHeader
+                  title="Conversion Funnel"
+                  subtitle="Visitor → Purchase journey"
+                  action={
+                    <span className="text-xs font-medium text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
+                      <Filter size={11} /> Sample data
+                    </span>
+                  }
+                />
+                <CardBody>
+                  <ReactApexChart
+                    type="bar"
+                    series={[{ name: 'Count', data: FUNNEL_MOCK.map(f => f.value) }]}
+                    options={funnelOptions}
+                    height={240}
+                  />
+                </CardBody>
+              </Card>
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <Card className="h-full">
+                <CardHeader
+                  title="Period Comparison"
+                  subtitle={`Revenue: last 2 data points in ${periodLabel}`}
+                  action={
+                    <span className="text-xs font-medium text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
+                      <ArrowRightLeft size={11} /> Compare
+                    </span>
+                  }
+                />
+                <CardBody>
+                  {derived.monthlyCompare.length >= 2 ? (
+                    <ReactApexChart
+                      type="bar"
+                      series={[{ name: 'Revenue', data: derived.monthlyCompare.map(m => m.revenue) }]}
+                      options={compareOptions}
+                      height={240}
+                    />
+                  ) : (
+                    <div className="h-60 flex items-center justify-center">
+                      <p className="text-sm text-gray-400 dark:text-gray-500">
+                        Need at least 2 data points for this period.
+                      </p>
+                    </div>
+                  )}
+                </CardBody>
+              </Card>
+            </div>
+          </div>
         </>
       )}
-    </Box>
+    </div>
   );
 }

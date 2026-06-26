@@ -1,252 +1,252 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
-  Box, Drawer, AppBar, Toolbar, Typography, List, ListItem, ListItemButton,
-  ListItemIcon, ListItemText, Divider, IconButton, Avatar, Chip, Tooltip,
-  Menu, MenuItem, useMediaQuery, useTheme, InputBase, Badge, Popover, Paper,
-  Collapse,
-} from '@mui/material';
-import DashboardIcon       from '@mui/icons-material/Dashboard';
-import InventoryIcon       from '@mui/icons-material/Inventory2';
-import ShoppingBagIcon     from '@mui/icons-material/ShoppingBag';
-import PeopleIcon          from '@mui/icons-material/People';
-import BarChartIcon        from '@mui/icons-material/BarChart';
-import CategoryIcon        from '@mui/icons-material/Category';
-import BrandingWatermarkIcon from '@mui/icons-material/BrandingWatermark';
-import StarIcon            from '@mui/icons-material/Star';
-import ImageIcon           from '@mui/icons-material/Image';
-import LocalOfferIcon      from '@mui/icons-material/LocalOffer';
-import SettingsIcon        from '@mui/icons-material/Settings';
-import PhoneAndroidIcon    from '@mui/icons-material/PhoneAndroid';
-import ViewCarouselIcon    from '@mui/icons-material/ViewCarousel';
-import ViewQuiltIcon       from '@mui/icons-material/ViewQuilt';
-import LogoutIcon          from '@mui/icons-material/Logout';
-import MenuIcon            from '@mui/icons-material/Menu';
-import DiamondIcon         from '@mui/icons-material/Diamond';
-import DarkModeIcon           from '@mui/icons-material/DarkMode';
-import LightModeIcon          from '@mui/icons-material/LightMode';
-import SearchIcon             from '@mui/icons-material/Search';
-import NotificationsIcon      from '@mui/icons-material/Notifications';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlined';
-import ExpandLessIcon         from '@mui/icons-material/ExpandLess';
-import ExpandMoreIcon         from '@mui/icons-material/ExpandMore';
-import { useAuth }            from '../../context/AuthContext';
-import api                    from '../../services/api';
+  LayoutDashboard, BarChart2, Package, Tag, Award, ShoppingBag,
+  Users, Star, Image, Ticket, Smartphone, Monitor, PlayCircle,
+  Layers, Settings, LogOut, Diamond, Bell, Sun, Moon, Menu,
+  ChevronDown, ChevronLeft, ChevronRight, CheckCheck, Search,
+  X, AlertCircle,
+} from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../services/api';
 import { AdminThemeProvider, useAdminTheme } from './AdminThemeContext';
+import { Toast } from '../../components/admin/ui/Toast';
+import '../../styles/admin/admin-tailwind.css';
 
-const DRAWER_WIDTH = 252;
-
+/* ── Nav configuration ─────────────────────────────────────────── */
 const NAV = [
   { section: 'Main' },
-  { to: '/admin',            icon: <DashboardIcon />,          label: 'Dashboard',          end: true },
-  { to: '/admin/analytics',  icon: <BarChartIcon />,           label: 'Analytics' },
+  { to: '/admin',            icon: LayoutDashboard, label: 'Dashboard',   end: true },
+  { to: '/admin/analytics',  icon: BarChart2,       label: 'Analytics' },
   { section: 'Catalog' },
-  { to: '/admin/products',   icon: <InventoryIcon />,          label: 'Products' },
-  { to: '/admin/categories', icon: <CategoryIcon />,           label: 'Categories' },
-  { to: '/admin/brands',     icon: <BrandingWatermarkIcon />,  label: 'Brands' },
+  { to: '/admin/products',   icon: Package,         label: 'Products' },
+  { to: '/admin/categories', icon: Tag,             label: 'Categories' },
+  { to: '/admin/brands',     icon: Award,           label: 'Brands' },
   { section: 'Commerce' },
-  { to: '/admin/orders',     icon: <ShoppingBagIcon />,        label: 'Orders' },
-  { to: '/admin/customers',  icon: <PeopleIcon />,             label: 'Customers' },
-  { to: '/admin/reviews',    icon: <StarIcon />,               label: 'Reviews' },
+  { to: '/admin/orders',     icon: ShoppingBag,     label: 'Orders' },
+  { to: '/admin/customers',  icon: Users,           label: 'Customers' },
+  { to: '/admin/reviews',    icon: Star,            label: 'Reviews' },
   { section: 'Content' },
-  { to: '/admin/banners',    icon: <ImageIcon />,              label: 'Banners' },
-  { to: '/admin/offers',     icon: <LocalOfferIcon />,         label: 'Offers & Countdown' },
+  { to: '/admin/banners',    icon: Image,           label: 'Banners' },
+  { to: '/admin/offers',     icon: Ticket,          label: 'Offers & Countdown' },
   {
     accordion: 'mobile',
     label: 'Mobile Apps',
-    icon: <PhoneAndroidIcon />,
+    icon: Smartphone,
     children: [
-      { to: '/admin/mobile/dashboard',   icon: <ViewQuiltIcon />,    label: 'Dashboard' },
-      { to: '/admin/mobile/onboarding',  icon: <PhoneAndroidIcon />, label: 'Onboarding Screens' },
-      { to: '/admin/mobile/home-banner', icon: <ViewCarouselIcon />, label: 'Home Banner' },
+      { to: '/admin/mobile/dashboard',   icon: Monitor,     label: 'Dashboard' },
+      { to: '/admin/mobile/onboarding',  icon: PlayCircle,  label: 'Onboarding Screens' },
+      { to: '/admin/mobile/home-banner', icon: Layers,      label: 'Home Banner' },
     ],
   },
   { section: 'System' },
-  { to: '/admin/settings',   icon: <SettingsIcon />,           label: 'Settings' },
+  { to: '/admin/settings',   icon: Settings,        label: 'Settings' },
 ];
 
-function SidebarContent({ onClose }) {
+/* ── Sidebar ────────────────────────────────────────────────────── */
+function Sidebar({ collapsed, onToggle, onClose, mobileOpen }) {
   const location = useLocation();
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  // Track which accordions are open; auto-open if a child route is active
   const [openAccordions, setOpenAccordions] = useState(() => {
-    const initial = {};
+    const init = {};
     NAV.forEach(item => {
       if (item.accordion) {
-        initial[item.accordion] = item.children.some(c => location.pathname.startsWith(c.to));
+        init[item.accordion] = item.children.some(c => location.pathname.startsWith(c.to));
       }
     });
-    return initial;
+    return init;
   });
 
-  const toggleAccordion = (key) => setOpenAccordions(prev => ({ ...prev, [key]: !prev[key] }));
+  const toggleAccordion = (key) =>
+    setOpenAccordions(p => ({ ...p, [key]: !p[key] }));
 
   const handleLogout = () => { logout(); navigate('/login'); };
 
-  const navItemSx = (isActive) => ({
-    borderRadius: '9px',
-    py: 0.9,
-    px: 1.5,
-    color: isActive ? '#ffffff' : 'rgba(255,255,255,0.52)',
-    backgroundColor: isActive ? 'rgba(255,255,255,0.10)' : 'transparent',
-    minHeight: 40,
-    transition: 'background-color 0.15s, color 0.15s',
-    '&:hover': {
-      backgroundColor: isActive ? 'rgba(255,255,255,0.13)' : 'rgba(255,255,255,0.07)',
-      color: '#ffffff',
-    },
-  });
+  const isActive = (item) =>
+    item.end ? location.pathname === item.to : location.pathname.startsWith(item.to);
 
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-      {/* Logo */}
-      <Box sx={{ px: 2.5, py: 2.25, borderBottom: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-          <DiamondIcon sx={{ color: '#967123', fontSize: 26, flexShrink: 0 }} />
-          <Box sx={{ minWidth: 0 }}>
-            <Typography
-              variant="subtitle1"
-              sx={{ color: '#967123', letterSpacing: 2.5, lineHeight: 1.2, fontWeight: 800, fontSize: '0.95rem' }}
-              noWrap
-            >
-              JAWHARA
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{ color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', fontSize: '0.6rem', display: 'block' }}
-            >
-              Admin Panel
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
+  /* ── Inner content (shared between desktop & mobile) ─────────── */
+  const Content = () => (
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* Logo row */}
+      <div className="flex items-center gap-3 px-4 py-5 border-b border-white/[0.06] shrink-0">
+        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shrink-0">
+          <Diamond size={16} className="text-white" />
+        </div>
+        {!collapsed && (
+          <div className="min-w-0 overflow-hidden">
+            <p className="text-sm font-bold text-white tracking-widest truncate leading-tight">JAWHARA</p>
+            <p className="text-[10px] text-white/30 tracking-widest uppercase leading-tight">Admin Panel</p>
+          </div>
+        )}
+        {/* Collapse toggle (desktop only) */}
+        <button
+          onClick={onToggle}
+          className="hidden md:flex ml-auto w-6 h-6 items-center justify-center rounded-lg text-white/30 hover:text-white/70 hover:bg-white/08 transition-colors shrink-0"
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
+        </button>
+      </div>
 
-      {/* Nav — scrollable */}
-      <Box sx={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', py: 1, '&::-webkit-scrollbar': { width: 4 }, '&::-webkit-scrollbar-track': { background: 'transparent' }, '&::-webkit-scrollbar-thumb': { background: 'rgba(255,255,255,0.12)', borderRadius: 4 } }}>
-        <List dense disablePadding>
-          {NAV.map((item, idx) => {
-            // Section label
-            if (item.section) {
-              return (
-                <Typography
-                  key={idx}
-                  variant="caption"
-                  sx={{ px: 2.5, pt: idx === 0 ? 1.5 : 2.25, pb: 0.75, display: 'block', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.4, fontSize: '0.6rem', fontWeight: 700 }}
-                >
-                  {item.section}
-                </Typography>
-              );
-            }
-
-            // Accordion group
-            if (item.accordion) {
-              const isOpen = openAccordions[item.accordion];
-              const anyChildActive = item.children.some(c => location.pathname.startsWith(c.to));
-              return (
-                <Box key={item.accordion}>
-                  <ListItem disablePadding sx={{ px: 1.25, mb: 0.25 }}>
-                    <ListItemButton
-                      onClick={() => toggleAccordion(item.accordion)}
-                      sx={navItemSx(anyChildActive && !isOpen)}
-                    >
-                      <ListItemIcon sx={{ minWidth: 34, color: 'inherit', '& svg': { fontSize: '1.1rem' } }}>
-                        {item.icon}
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={item.label}
-                        primaryTypographyProps={{ fontSize: '0.845rem', fontWeight: anyChildActive ? 600 : 400, lineHeight: 1.3 }}
-                      />
-                      {isOpen ? <ExpandLessIcon sx={{ fontSize: '1rem', opacity: 0.6 }} /> : <ExpandMoreIcon sx={{ fontSize: '1rem', opacity: 0.6 }} />}
-                    </ListItemButton>
-                  </ListItem>
-                  <Collapse in={isOpen} timeout="auto" unmountOnExit>
-                    <List dense disablePadding>
-                      {item.children.map(child => {
-                        const isActive = location.pathname.startsWith(child.to);
-                        return (
-                          <ListItem key={child.to} disablePadding sx={{ px: 1.25, mb: 0.25, pl: 2.5 }}>
-                            <ListItemButton
-                              component={NavLink}
-                              to={child.to}
-                              onClick={onClose}
-                              sx={navItemSx(isActive)}
-                            >
-                              <ListItemIcon sx={{ minWidth: 30, color: 'inherit', '& svg': { fontSize: '1rem' } }}>
-                                {child.icon}
-                              </ListItemIcon>
-                              <ListItemText
-                                primary={child.label}
-                                primaryTypographyProps={{ fontSize: '0.8rem', fontWeight: isActive ? 600 : 400, lineHeight: 1.3 }}
-                              />
-                            </ListItemButton>
-                          </ListItem>
-                        );
-                      })}
-                    </List>
-                  </Collapse>
-                </Box>
-              );
-            }
-
-            // Regular nav item
-            const isActive = item.end
-              ? location.pathname === item.to
-              : location.pathname.startsWith(item.to);
-
+      {/* Nav */}
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-2 admin-scroll">
+        {NAV.map((item, idx) => {
+          /* Section label */
+          if (item.section) {
+            if (collapsed) return <div key={idx} className="my-2 mx-3 h-px bg-white/[0.06]" />;
             return (
-              <ListItem key={item.to} disablePadding sx={{ px: 1.25, mb: 0.25 }}>
-                <ListItemButton
-                  component={NavLink}
-                  to={item.to}
-                  onClick={onClose}
-                  sx={navItemSx(isActive)}
-                >
-                  <ListItemIcon sx={{ minWidth: 34, color: 'inherit', '& svg': { fontSize: '1.1rem' } }}>
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={item.label}
-                    primaryTypographyProps={{ fontSize: '0.845rem', fontWeight: isActive ? 600 : 400, lineHeight: 1.3 }}
-                  />
-                </ListItemButton>
-              </ListItem>
+              <p key={idx} className="px-4 pt-4 pb-1.5 text-[10px] font-semibold text-white/25 uppercase tracking-[0.12em]">
+                {item.section}
+              </p>
             );
-          })}
-        </List>
-      </Box>
+          }
+
+          /* Accordion group */
+          if (item.accordion) {
+            const isOpen = openAccordions[item.accordion];
+            const anyActive = item.children.some(c => location.pathname.startsWith(c.to));
+            const Icon = item.icon;
+            return (
+              <div key={item.accordion}>
+                <button
+                  onClick={() => toggleAccordion(item.accordion)}
+                  title={collapsed ? item.label : undefined}
+                  className={`flex items-center gap-3 w-full mx-2 my-0.5 px-2.5 py-2 rounded-xl text-sm transition-all duration-150 group
+                    ${anyActive && !isOpen ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white hover:bg-white/[0.06]'}
+                    ${collapsed ? 'justify-center w-10 h-10 mx-auto' : 'w-[calc(100%-16px)]'}`}
+                >
+                  <Icon size={16} className="shrink-0" />
+                  {!collapsed && (
+                    <>
+                      <span className="flex-1 text-left font-medium">{item.label}</span>
+                      <ChevronDown
+                        size={13}
+                        className={`text-white/40 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                      />
+                    </>
+                  )}
+                </button>
+                {!collapsed && isOpen && (
+                  <div className="ml-5 my-0.5 border-l border-white/[0.06] pl-3 space-y-0.5">
+                    {item.children.map(child => {
+                      const active = location.pathname.startsWith(child.to);
+                      const CIcon = child.icon;
+                      return (
+                        <NavLink
+                          key={child.to}
+                          to={child.to}
+                          onClick={onClose}
+                          className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-sm transition-all duration-150
+                            ${active ? 'bg-indigo-500/15 text-indigo-300 font-medium' : 'text-white/40 hover:text-white/80 hover:bg-white/[0.04]'}`}
+                        >
+                          <CIcon size={14} className="shrink-0" />
+                          <span>{child.label}</span>
+                        </NavLink>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          }
+
+          /* Regular nav item */
+          const active = isActive(item);
+          const Icon = item.icon;
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              onClick={onClose}
+              title={collapsed ? item.label : undefined}
+              className={`flex items-center gap-3 my-0.5 px-2.5 py-2 rounded-xl text-sm transition-all duration-150
+                ${active
+                  ? 'bg-indigo-500/15 text-indigo-300 font-semibold'
+                  : 'text-white/50 hover:text-white hover:bg-white/[0.06]'
+                }
+                ${collapsed ? 'justify-center w-10 h-10 mx-auto' : 'mx-2 w-[calc(100%-16px)]'}`}
+            >
+              <Icon size={16} className="shrink-0" />
+              {!collapsed && <span>{item.label}</span>}
+              {active && !collapsed && (
+                <span className="ml-auto w-1 h-4 rounded-full bg-indigo-400" />
+              )}
+            </NavLink>
+          );
+        })}
+      </nav>
 
       {/* Sign out */}
-      <Box sx={{ px: 1.25, pb: 2, pt: 1, borderTop: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 }}>
-        <ListItemButton
+      <div className="px-2 pb-4 pt-2 border-t border-white/[0.06] shrink-0">
+        <button
           onClick={handleLogout}
-          sx={{ borderRadius: '9px', py: 0.9, px: 1.5, color: 'rgba(255,255,255,0.38)', minHeight: 40, transition: 'background-color 0.15s, color 0.15s', '&:hover': { color: '#fff', backgroundColor: 'rgba(255,255,255,0.07)' } }}
+          title={collapsed ? 'Sign Out' : undefined}
+          className={`flex items-center gap-3 w-full px-2.5 py-2 rounded-xl text-sm text-white/35 hover:text-white hover:bg-white/[0.06] transition-all duration-150 ${collapsed ? 'justify-center w-10 h-10 mx-auto' : ''}`}
         >
-          <ListItemIcon sx={{ minWidth: 34, color: 'inherit', '& svg': { fontSize: '1.1rem' } }}>
-            <LogoutIcon />
-          </ListItemIcon>
-          <ListItemText primary="Sign Out" primaryTypographyProps={{ fontSize: '0.845rem', fontWeight: 400 }} />
-        </ListItemButton>
-      </Box>
-    </Box>
+          <LogOut size={15} className="shrink-0" />
+          {!collapsed && <span>Sign Out</span>}
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside
+        className={`hidden md:flex flex-col fixed top-0 left-0 h-screen bg-[#0f1117] border-r border-white/[0.05] z-30 transition-all duration-250 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden ${collapsed ? 'w-[68px]' : 'w-[240px]'}`}
+      >
+        <Content />
+      </aside>
+
+      {/* Mobile sidebar overlay */}
+      {mobileOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
+            onClick={onClose}
+          />
+          <aside className="fixed top-0 left-0 h-screen w-[240px] bg-[#0f1117] border-r border-white/[0.05] z-50 md:hidden flex flex-col"
+            style={{ animation: 'slideInLeft 0.22s ease-out both' }}
+          >
+            <Content />
+          </aside>
+          <style>{`@keyframes slideInLeft { from { transform: translateX(-100%) } to { transform: translateX(0) } }`}</style>
+        </>
+      )}
+    </>
   );
 }
 
-function AdminShell() {
+/* ── Header ─────────────────────────────────────────────────────── */
+function Header({ collapsed, onMenuClick }) {
   const { user, logout } = useAuth();
   const { mode, toggleMode } = useAdminTheme();
   const navigate = useNavigate();
-  const muiTheme = useTheme();
-  const isMd = useMediaQuery(muiTheme.breakpoints.up('md'));
+  const location = useLocation();
 
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [anchorEl, setAnchorEl]     = useState(null);
+  const [userMenuOpen, setUserMenuOpen]   = useState(false);
+  const [notifOpen, setNotifOpen]         = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount]     = useState(0);
+  const [searchOpen, setSearchOpen]       = useState(false);
 
-  // Notification bell state
-  const [notifications, setNotifications]   = useState([]);
-  const [unreadCount, setUnreadCount]       = useState(0);
-  const [notifAnchor, setNotifAnchor]       = useState(null);
+  const userMenuRef = useRef(null);
+  const notifRef    = useRef(null);
+
+  /* Close dropdowns on outside click */
+  useEffect(() => {
+    const handler = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) setUserMenuOpen(false);
+      if (notifRef.current    && !notifRef.current.contains(e.target))    setNotifOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const fetchNotifications = useCallback(() => {
     api.get('/admin/notifications?limit=10')
@@ -263,280 +263,208 @@ function AdminShell() {
     return () => clearInterval(interval);
   }, [fetchNotifications]);
 
-  const handleNotifOpen  = (e) => { setNotifAnchor(e.currentTarget); fetchNotifications(); };
-  const handleNotifClose = () => setNotifAnchor(null);
-
   const markAllRead = () => {
     api.put('/admin/notifications/read-all')
-      .then(() => { setUnreadCount(0); setNotifications(p => p.map(n => ({ ...n, read: true }))); })
+      .then(() => {
+        setUnreadCount(0);
+        setNotifications(p => p.map(n => ({ ...n, read: true })));
+      })
       .catch(() => {});
   };
 
-  const handleDrawerToggle = () => setMobileOpen(p => !p);
-  const handleMenuOpen     = (e) => setAnchorEl(e.currentTarget);
-  const handleMenuClose    = () => setAnchorEl(null);
-  const handleLogout       = () => { handleMenuClose(); logout(); navigate('/login'); };
+  const handleReadNotif = (n) => {
+    if (!n.read) {
+      api.put(`/admin/notifications/${n._id}/read`)
+        .then(() => {
+          setNotifications(p => p.map(x => x._id === n._id ? { ...x, read: true } : x));
+          setUnreadCount(c => Math.max(0, c - 1));
+        }).catch(() => {});
+    }
+    setNotifOpen(false);
+    navigate(n.link || '/admin/reviews');
+  };
+
+  /* Breadcrumb */
+  const crumb = (() => {
+    const p = location.pathname;
+    if (p === '/admin') return 'Dashboard';
+    const parts = p.replace('/admin/', '').split('/');
+    return parts.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' › ');
+  })();
+
+  const sidebarW = collapsed ? 68 : 240;
+
+  const iconBtn = 'w-8 h-8 flex items-center justify-center rounded-xl border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-150';
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+    <header
+      className="fixed top-0 right-0 z-20 flex items-center gap-3 px-4 md:px-6 h-[60px] bg-white/90 dark:bg-gray-950/90 backdrop-blur border-b border-gray-100 dark:border-gray-800 transition-all duration-250"
+      style={{ left: `${sidebarW}px` }}
+    >
+      {/* Mobile hamburger */}
+      <button onClick={onMenuClick} className="md:hidden w-8 h-8 flex items-center justify-center rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+        <Menu size={18} />
+      </button>
 
-      {/* ── Permanent sidebar (desktop) ───────────────────────── */}
-      <Box
-        component="nav"
-        sx={{ width: { md: DRAWER_WIDTH }, flexShrink: { md: 0 } }}
-        aria-label="admin navigation"
-      >
-        {/* Mobile temp drawer */}
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': { width: DRAWER_WIDTH, boxSizing: 'border-box' },
-          }}
-        >
-          <SidebarContent onClose={handleDrawerToggle} />
-        </Drawer>
+      {/* Breadcrumb */}
+      <div className="hidden sm:flex items-center text-sm">
+        <span className="text-gray-400 dark:text-gray-500 text-xs font-medium">{crumb}</span>
+      </div>
 
-        {/* Desktop permanent drawer */}
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': {
-              width: DRAWER_WIDTH,
-              boxSizing: 'border-box',
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              height: '100vh',
-            },
-          }}
-          open
-        >
-          <SidebarContent onClose={() => {}} />
-        </Drawer>
-      </Box>
+      <div className="flex-1" />
 
-      {/* ── Main content area ─────────────────────────────────── */}
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          minWidth: 0,
-          minHeight: '100vh',
-          // No extra ml needed — the nav Box above reserves the width in flex layout
-        }}
-      >
-        {/* AppBar */}
-        <AppBar position="sticky" elevation={0}>
-          <Toolbar sx={{ gap: 1.5, minHeight: { xs: 56, sm: 64 }, px: { xs: 2, md: 3 } }}>
-            {/* Mobile hamburger */}
-            <IconButton
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ display: { md: 'none' }, mr: 0.5, color: 'text.primary' }}
-              aria-label="open drawer"
-            >
-              <MenuIcon />
-            </IconButton>
+      {/* Search (mobile icon + desktop bar) */}
+      {searchOpen ? (
+        <div className="flex items-center gap-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-1.5 min-w-[200px]">
+          <Search size={14} className="text-gray-400 shrink-0" />
+          <input
+            autoFocus
+            type="text"
+            placeholder="Quick search..."
+            className="flex-1 text-sm bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
+            onBlur={() => setSearchOpen(false)}
+          />
+          <button onClick={() => setSearchOpen(false)} className="text-gray-400 hover:text-gray-600"><X size={13} /></button>
+        </div>
+      ) : (
+        <>
+          <div className="hidden sm:flex items-center gap-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-1.5 w-48 lg:w-64 cursor-text" onClick={() => setSearchOpen(true)}>
+            <Search size={13} className="text-gray-400 shrink-0" />
+            <span className="text-sm text-gray-400 dark:text-gray-500 select-none">Quick search...</span>
+          </div>
+          <button onClick={() => setSearchOpen(true)} className={`sm:hidden ${iconBtn}`}>
+            <Search size={15} />
+          </button>
+        </>
+      )}
 
-            {/* Rounded search bar — matches reference */}
-            <Box
-              sx={{
-                display: { xs: 'none', sm: 'flex' },
-                alignItems: 'center',
-                gap: 1,
-                bgcolor: mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-                border: '1px solid',
-                borderColor: mode === 'dark' ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)',
-                borderRadius: '24px',
-                px: 2,
-                py: 0.6,
-                flex: 1,
-                maxWidth: 320,
-              }}
-            >
-              <SearchIcon sx={{ fontSize: '1.05rem', color: 'text.secondary', flexShrink: 0 }} />
-              <InputBase
-                placeholder="Quick Search..."
-                inputProps={{ 'aria-label': 'search' }}
-                sx={{
-                  flex: 1,
-                  fontSize: '0.865rem',
-                  color: 'text.primary',
-                  '& input::placeholder': { color: 'text.secondary', opacity: 1 },
-                }}
-              />
-            </Box>
+      {/* Notifications */}
+      <div className="relative" ref={notifRef}>
+        <button onClick={() => setNotifOpen(p => !p)} className={`${iconBtn} relative`}>
+          <Bell size={15} />
+          {unreadCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 flex items-center justify-center text-[9px] font-bold bg-red-500 text-white rounded-full">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </button>
 
-            <Box sx={{ flex: 1 }} />
-
-            {/* Notification bell */}
-            <Tooltip title="Notifications">
-              <IconButton
-                size="small"
-                onClick={handleNotifOpen}
-                sx={{
-                  width: 36, height: 36,
-                  color: 'text.secondary',
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  borderRadius: '9px',
-                  '&:hover': { color: 'primary.main', borderColor: 'primary.main', bgcolor: 'action.hover' },
-                }}
-              >
-                <Badge badgeContent={unreadCount} color="error" max={9}>
-                  <NotificationsIcon fontSize="small" />
-                </Badge>
-              </IconButton>
-            </Tooltip>
-
-            <Popover
-              open={Boolean(notifAnchor)}
-              anchorEl={notifAnchor}
-              onClose={handleNotifClose}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-              PaperProps={{ sx: { width: 340, mt: 0.5, borderRadius: 2 } }}
-            >
-              <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid', borderColor: 'divider' }}>
-                <Typography variant="subtitle2" fontWeight={700}>Notifications</Typography>
-                {unreadCount > 0 && (
-                  <Tooltip title="Mark all as read">
-                    <IconButton size="small" onClick={markAllRead}>
-                      <CheckCircleOutlineIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                )}
-              </Box>
-              <Box sx={{ maxHeight: 360, overflowY: 'auto' }}>
-                {notifications.length === 0 ? (
-                  <Box sx={{ py: 3, textAlign: 'center' }}>
-                    <Typography variant="body2" color="text.secondary">No notifications</Typography>
-                  </Box>
-                ) : (
-                  notifications.map(n => (
-                    <Box
-                      key={n._id}
-                      sx={{
-                        px: 2, py: 1.25,
-                        borderBottom: '1px solid',
-                        borderColor: 'divider',
-                        bgcolor: n.read ? 'transparent' : 'action.hover',
-                        cursor: 'pointer',
-                        '&:hover': { bgcolor: 'action.selected' },
-                      }}
-                      onClick={() => {
-                        if (!n.read) {
-                          api.put(`/admin/notifications/${n._id}/read`)
-                            .then(() => {
-                              setNotifications(p => p.map(x => x._id === n._id ? { ...x, read: true } : x));
-                              setUnreadCount(c => Math.max(0, c - 1));
-                            }).catch(() => {});
-                        }
-                        handleNotifClose();
-                        navigate(n.link || '/admin/reviews');
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                        {!n.read && (
-                          <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'primary.main', mt: 0.7, flexShrink: 0 }} />
-                        )}
-                        <Box sx={{ flex: 1, pl: n.read ? 1.5 : 0 }}>
-                          <Typography variant="body2" fontWeight={n.read ? 400 : 600} sx={{ lineHeight: 1.4 }}>
-                            {n.message}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {new Date(n.createdAt).toLocaleDateString('en-AE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Box>
-                  ))
-                )}
-              </Box>
-            </Popover>
-
-            {/* Dark / Light toggle */}
-            <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
-              <IconButton
-                onClick={toggleMode}
-                size="small"
-                sx={{
-                  width: 36,
-                  height: 36,
-                  color: 'text.secondary',
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  borderRadius: '9px',
-                  '&:hover': { color: 'primary.main', borderColor: 'primary.main', bgcolor: 'action.hover' },
-                }}
-              >
-                {mode === 'dark' ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
-              </IconButton>
-            </Tooltip>
-
-            {/* Admin chip */}
-            <Chip
-              label="Admin"
-              size="small"
-              color="primary"
-              variant="outlined"
-              sx={{ fontWeight: 700, height: 28, fontSize: '0.72rem', display: { xs: 'none', sm: 'flex' } }}
-            />
-
-            {/* Avatar menu */}
-            <Tooltip title="Account settings">
-              <IconButton onClick={handleMenuOpen} size="small" sx={{ p: 0.5 }}>
-                <Avatar
-                  sx={{
-                    width: 34,
-                    height: 34,
-                    bgcolor: 'primary.main',
-                    fontSize: '0.875rem',
-                    fontWeight: 700,
-                  }}
+        {notifOpen && (
+          <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden z-50"
+            style={{ animation: 'fadeDown 0.15s ease-out both' }}>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800">
+              <span className="text-sm font-semibold text-gray-900 dark:text-white">Notifications</span>
+              {unreadCount > 0 && (
+                <button onClick={markAllRead} className="flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 font-medium">
+                  <CheckCheck size={12} /> Mark all read
+                </button>
+              )}
+            </div>
+            <div className="max-h-72 overflow-y-auto admin-scroll">
+              {notifications.length === 0 ? (
+                <div className="py-10 text-center">
+                  <Bell size={24} className="mx-auto text-gray-300 dark:text-gray-600 mb-2" />
+                  <p className="text-sm text-gray-400 dark:text-gray-500">No notifications</p>
+                </div>
+              ) : notifications.map(n => (
+                <button
+                  key={n._id}
+                  onClick={() => handleReadNotif(n)}
+                  className={`w-full text-left flex items-start gap-3 px-4 py-3 border-b border-gray-50 dark:border-gray-800/60 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${!n.read ? 'bg-indigo-50/50 dark:bg-indigo-900/10' : ''}`}
                 >
-                  {user?.name?.[0]?.toUpperCase() || 'A'}
-                </Avatar>
-              </IconButton>
-            </Tooltip>
+                  <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${n.read ? 'bg-transparent' : 'bg-indigo-500'}`} />
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-sm leading-snug ${n.read ? 'text-gray-600 dark:text-gray-300' : 'text-gray-900 dark:text-white font-medium'}`}>
+                      {n.message}
+                    </p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                      {new Date(n.createdAt).toLocaleDateString('en-AE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-              PaperProps={{ sx: { minWidth: 200, mt: 0.5 } }}
-            >
-              <Box sx={{ px: 2, py: 1.5 }}>
-                <Typography variant="body2" fontWeight={700} noWrap>{user?.name}</Typography>
-                <Typography variant="caption" color="text.secondary" noWrap display="block">{user?.email}</Typography>
-              </Box>
-              <Divider />
-              <MenuItem onClick={handleLogout} sx={{ gap: 1.5, py: 1 }}>
-                <ListItemIcon sx={{ minWidth: 'auto' }}><LogoutIcon fontSize="small" /></ListItemIcon>
-                <Typography variant="body2" fontWeight={600}>Sign Out</Typography>
-              </MenuItem>
-            </Menu>
-          </Toolbar>
-        </AppBar>
+      {/* Theme toggle */}
+      <button onClick={toggleMode} className={iconBtn} title={mode === 'dark' ? 'Light mode' : 'Dark mode'}>
+        {mode === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+      </button>
 
-        {/* Page content */}
-        <Box sx={{ flex: 1, p: { xs: 2, sm: 2.5, md: 3 }, overflow: 'auto' }}>
-          <Outlet />
-        </Box>
-      </Box>
-    </Box>
+      {/* User avatar */}
+      <div className="relative" ref={userMenuRef}>
+        <button
+          onClick={() => setUserMenuOpen(p => !p)}
+          className="flex items-center gap-2 pl-1 pr-2 h-8 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        >
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white text-xs font-bold">
+            {user?.name?.[0]?.toUpperCase() || 'A'}
+          </div>
+          <span className="hidden sm:block text-xs font-medium text-gray-700 dark:text-gray-300 max-w-[80px] truncate">
+            {user?.name || 'Admin'}
+          </span>
+          <ChevronDown size={12} className="hidden sm:block text-gray-400" />
+        </button>
+
+        {userMenuOpen && (
+          <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden z-50"
+            style={{ animation: 'fadeDown 0.15s ease-out both' }}>
+            <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800">
+              <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{user?.name}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
+            </div>
+            <div className="p-1.5">
+              <button
+                onClick={() => { setUserMenuOpen(false); logout(); navigate('/login'); }}
+                className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-medium transition-colors"
+              >
+                <LogOut size={14} />
+                Sign Out
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <style>{`@keyframes fadeDown { from { opacity:0; transform:translateY(-6px) } to { opacity:1; transform:translateY(0) } }`}</style>
+    </header>
   );
 }
 
+/* ── Shell ──────────────────────────────────────────────────────── */
+function AdminShell() {
+  const [collapsed, setCollapsed]     = useState(false);
+  const [mobileOpen, setMobileOpen]   = useState(false);
+  const sidebarW = collapsed ? 68 : 240;
+
+  return (
+    <div className="admin-root min-h-screen bg-gray-50 dark:bg-gray-950">
+      <Sidebar
+        collapsed={collapsed}
+        onToggle={() => setCollapsed(p => !p)}
+        onClose={() => setMobileOpen(false)}
+        mobileOpen={mobileOpen}
+      />
+      <Header
+        collapsed={collapsed}
+        onMenuClick={() => setMobileOpen(p => !p)}
+      />
+      <main
+        className="transition-all duration-250 ease-[cubic-bezier(0.4,0,0.2,1)]"
+        style={{ marginLeft: `${sidebarW}px`, paddingTop: '60px' }}
+      >
+        <div className="p-4 md:p-6 lg:p-8 min-h-[calc(100vh-60px)] page-enter">
+          <Outlet />
+        </div>
+      </main>
+      <Toast />
+    </div>
+  );
+}
+
+/* ── Layout entry point ─────────────────────────────────────────── */
 export default function AdminLayout() {
   return (
     <AdminThemeProvider>

@@ -1,14 +1,10 @@
 import { useState } from 'react';
+import { Plus, Pencil, Trash2, LayoutGrid } from 'lucide-react';
 import {
-  Box, Card, CardContent, Typography, Button, TextField, Grid,
-  Table, TableHead, TableBody, TableRow, TableCell, TableContainer,
-  IconButton, Tooltip, Stack, Dialog, DialogTitle, DialogContent,
-  DialogActions, Alert,
-} from '@mui/material';
-import AddIcon    from '@mui/icons-material/Add';
-import EditIcon   from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import CategoryIcon from '@mui/icons-material/Category';
+  PageHeader, Button, IconBtn, Input,
+  Table, Th, Td, Tr, EmptyState,
+  Modal, Toast, useToast, Tooltip,
+} from '../../components/admin/ui/index.js';
 import { StatusChip } from './adminUtils';
 
 const INITIAL = [
@@ -23,139 +19,203 @@ const INITIAL = [
 const EMPTY = { name: '', slug: '' };
 
 export default function Categories() {
-  const [categories, setCategories]   = useState(INITIAL);
-  const [dialogOpen, setDialogOpen]   = useState(false);
-  const [editTarget, setEditTarget]   = useState(null);
-  const [form, setForm]               = useState(EMPTY);
-  const [deleteTarget, setDeleteTarget] = useState(null);
-  const [saved, setSaved]             = useState(false);
+  const toast = useToast();
 
-  const openAdd  = () => { setEditTarget(null); setForm(EMPTY); setDialogOpen(true); };
-  const openEdit = (c) => { setEditTarget(c); setForm({ name: c.name, slug: c.slug }); setDialogOpen(true); };
+  const [categories, setCategories]     = useState(INITIAL);
+  const [dialogOpen, setDialogOpen]     = useState(false);
+  const [editTarget, setEditTarget]     = useState(null);
+  const [form, setForm]                 = useState(EMPTY);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
+  const openAdd = () => {
+    setEditTarget(null);
+    setForm(EMPTY);
+    setDialogOpen(true);
+  };
+
+  const openEdit = (c) => {
+    setEditTarget(c);
+    setForm({ name: c.name, slug: c.slug });
+    setDialogOpen(true);
+  };
 
   const handleSave = () => {
     if (!form.name.trim()) return;
     const slug = form.slug || form.name.toLowerCase().replace(/\s+/g, '-');
     if (editTarget) {
       setCategories(prev => prev.map(c => c.id === editTarget.id ? { ...c, name: form.name, slug } : c));
+      toast.success('Category updated.');
     } else {
       setCategories(prev => [...prev, { id: Date.now(), name: form.name, slug, active: true }]);
+      toast.success('Category added.');
     }
     setDialogOpen(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
   };
 
   const handleDelete = () => {
     setCategories(prev => prev.filter(c => c.id !== deleteTarget.id));
+    toast.success(`"${deleteTarget.name}" deleted.`);
     setDeleteTarget(null);
   };
 
-  const toggleActive = (id) => setCategories(prev => prev.map(c => c.id === id ? { ...c, active: !c.active } : c));
+  const toggleActive = (id) =>
+    setCategories(prev => prev.map(c => c.id === id ? { ...c, active: !c.active } : c));
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap', gap: 2 }}>
-        <Box>
-          <Typography variant="h5" fontWeight={800}>Categories</Typography>
-          <Typography variant="body2" color="text.secondary">{categories.length} product categories</Typography>
-        </Box>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={openAdd}>Add Category</Button>
-      </Box>
+    <div>
+      <Toast />
 
-      {saved && <Alert severity="success" sx={{ mb: 2 }}>Category saved.</Alert>}
+      <PageHeader
+        title="Categories"
+        subtitle={`${categories.length} product categories`}
+        action={
+          <Button icon={Plus} onClick={openAdd}>Add Category</Button>
+        }
+      />
 
-      <Card>
-        <TableContainer>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ width: 52 }}></TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Slug</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="center">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {categories.map(cat => (
-                <TableRow key={cat.id}>
-                  <TableCell>
-                    <Box sx={{ width: 34, height: 34, borderRadius: 2, bgcolor: 'rgba(150,113,35,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'primary.main' }}>
-                      <CategoryIcon sx={{ fontSize: '1.1rem' }} />
-                    </Box>
-                  </TableCell>
-                  <TableCell><Typography variant="body2" fontWeight={600}>{cat.name}</Typography></TableCell>
-                  <TableCell>
-                    <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>{cat.slug}</Typography>
-                  </TableCell>
-                  <TableCell>
+      {/* Card */}
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+        <Table className="rounded-none border-0">
+          <thead>
+            <tr>
+              <Th className="w-14"></Th>
+              <Th>Name</Th>
+              <Th>Slug</Th>
+              <Th>Status</Th>
+              <Th className="text-center">Actions</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {categories.length === 0 && (
+              <tr>
+                <td colSpan={5}>
+                  <EmptyState
+                    icon={LayoutGrid}
+                    title="No categories yet"
+                    description="Create your first category to organise products."
+                    action={<Button icon={Plus} size="sm" onClick={openAdd}>Add Category</Button>}
+                  />
+                </td>
+              </tr>
+            )}
+
+            {categories.map(cat => (
+              <Tr key={cat.id}>
+                {/* Icon */}
+                <Td>
+                  <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+                    <LayoutGrid size={16} />
+                  </div>
+                </Td>
+
+                {/* Name */}
+                <Td>
+                  <span className="font-semibold text-gray-900 dark:text-white">{cat.name}</span>
+                </Td>
+
+                {/* Slug */}
+                <Td>
+                  <code className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 px-2 py-0.5 rounded-md">
+                    {cat.slug}
+                  </code>
+                </Td>
+
+                {/* Status — clickable toggle */}
+                <Td>
+                  <button onClick={() => toggleActive(cat.id)} className="cursor-pointer">
                     <StatusChip
                       status={cat.active ? 'active' : 'blocked'}
                       label={cat.active ? 'Active' : 'Inactive'}
-                      clickable
-                      onClick={() => toggleActive(cat.id)}
                     />
-                  </TableCell>
-                  <TableCell align="center">
-                    <Stack direction="row" spacing={0.5} justifyContent="center">
-                      <Tooltip title="Edit">
-                        <IconButton size="small" color="primary" onClick={() => openEdit(cat)}><EditIcon fontSize="small" /></IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete">
-                        <IconButton size="small" color="error" onClick={() => setDeleteTarget(cat)}><DeleteIcon fontSize="small" /></IconButton>
-                      </Tooltip>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Card>
+                  </button>
+                </Td>
 
-      {/* Add/Edit dialog */}
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>{editTarget ? 'Edit Category' : 'Add Category'}</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 0.5 }}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Category Name *"
-                value={form.name}
-                onChange={e => setForm(f => ({ ...f, name: e.target.value, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') }))}
-                autoFocus
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Slug"
-                value={form.slug}
-                onChange={e => setForm(f => ({ ...f, slug: e.target.value }))}
-                helperText="URL-friendly identifier"
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave} disabled={!form.name.trim()}>{editTarget ? 'Update' : 'Add'}</Button>
-        </DialogActions>
-      </Dialog>
+                {/* Actions */}
+                <Td className="text-center">
+                  <div className="flex items-center justify-center gap-1">
+                    <Tooltip content="Edit">
+                      <IconBtn
+                        icon={Pencil}
+                        label="Edit"
+                        onClick={() => openEdit(cat)}
+                        className="text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                      />
+                    </Tooltip>
+                    <Tooltip content="Delete">
+                      <IconBtn
+                        icon={Trash2}
+                        label="Delete"
+                        onClick={() => setDeleteTarget(cat)}
+                        className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      />
+                    </Tooltip>
+                  </div>
+                </Td>
+              </Tr>
+            ))}
+          </tbody>
+        </Table>
+      </div>
 
-      {/* Delete confirm */}
-      <Dialog open={Boolean(deleteTarget)} onClose={() => setDeleteTarget(null)} maxWidth="xs" fullWidth>
-        <DialogTitle>Delete Category?</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2">Are you sure you want to delete <strong>{deleteTarget?.name}</strong>?</Typography>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setDeleteTarget(null)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+      {/* Add / Edit modal */}
+      <Modal
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        title={editTarget ? 'Edit Category' : 'Add Category'}
+        size="sm"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button
+              onClick={handleSave}
+              disabled={!form.name.trim()}
+            >
+              {editTarget ? 'Update' : 'Add'}
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <Input
+            label="Category Name"
+            required
+            placeholder="e.g. Rings"
+            value={form.name}
+            onChange={e => setForm(f => ({
+              ...f,
+              name: e.target.value,
+              slug: e.target.value.toLowerCase().replace(/\s+/g, '-'),
+            }))}
+            autoFocus
+          />
+          <Input
+            label="Slug"
+            placeholder="url-friendly-name"
+            value={form.slug}
+            onChange={e => setForm(f => ({ ...f, slug: e.target.value }))}
+            helper="URL-friendly identifier"
+          />
+        </div>
+      </Modal>
+
+      {/* Delete confirm modal */}
+      <Modal
+        open={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        title="Delete Category?"
+        size="sm"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setDeleteTarget(null)}>Cancel</Button>
+            <Button variant="danger" onClick={handleDelete}>Delete</Button>
+          </>
+        }
+      >
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Are you sure you want to delete{' '}
+          <strong className="text-gray-900 dark:text-white">{deleteTarget?.name}</strong>?
+        </p>
+      </Modal>
+    </div>
   );
 }
