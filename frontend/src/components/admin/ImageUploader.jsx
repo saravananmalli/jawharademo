@@ -1,28 +1,20 @@
 import { useState, useRef, useCallback } from 'react';
 import { UploadCloud, X, GripVertical, AlertCircle, Loader2 } from 'lucide-react';
+import { Box, Typography } from '@mui/material';
 import axios from 'axios';
 import { getImageUrl } from '../../utils/imageUrl';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_SIZE_BYTES = 10 * 1024 * 1024;
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
-// Derive thumbnail path from a stored webp path
 function toThumbUrl(webpUrl) {
   if (!webpUrl) return '';
   return webpUrl.replace('/webp/', '/thumbnails/');
 }
 
-// Normalise a saved URL string into the internal item shape
 function fromUrl(url) {
-  return {
-    url,
-    previewSrc: getImageUrl(toThumbUrl(url) || url),
-    filename: url.split('/').pop()?.replace('.webp', '') || '',
-    uploading: false,
-    progress: 100,
-    error: '',
-  };
+  return { url, previewSrc: getImageUrl(toThumbUrl(url) || url), filename: url.split('/').pop()?.replace('.webp', '') || '', uploading: false, progress: 100, error: '' };
 }
 
 function validateFile(file) {
@@ -31,26 +23,11 @@ function validateFile(file) {
   return null;
 }
 
-// ── ImageUploader ──────────────────────────────────────────────────────────────
-// Props:
-//   images     – string[]   current image URLs (webp paths from backend)
-//   onChange   – (urls: string[]) => void  called whenever the list changes
-//   maxImages  – number     upper limit (default 10)
-//   category   – string     upload bucket: 'products' | 'categories' | 'banners' | 'brands'
-//   single     – bool       allow only one image (replaces instead of appending)
-export default function ImageUploader({
-  images = [],
-  onChange,
-  maxImages = 10,
-  category = 'products',
-  single = false,
-}) {
+export default function ImageUploader({ images = [], onChange, maxImages = 10, category = 'products', single = false }) {
   const fileInputRef  = useRef(null);
   const dragIndexRef  = useRef(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [validationError, setValidationError] = useState('');
-
-  // Internal list — initialised once from prop; parent drives via key= to remount on load
   const [items, setItems] = useState(() => images.map(fromUrl));
 
   const notifyParent = useCallback((nextItems) => {
@@ -58,75 +35,40 @@ export default function ImageUploader({
     onChange?.(urls);
   }, [onChange]);
 
-  // ── Upload a batch of File objects ─────────────────────────────────────────
   const uploadFiles = useCallback(async (fileList) => {
     setValidationError('');
     const files = Array.from(fileList);
-
-    // Validate every file first
     for (const f of files) {
       const err = validateFile(f);
       if (err) { setValidationError(err); return; }
     }
-
-    // Build placeholder items (one per file), capped to available slots
     const effectiveMax = single ? 1 : maxImages;
     const placeholders = files.slice(0, effectiveMax).map(f => ({
-      url: '',
-      previewSrc: URL.createObjectURL(f),
-      filename: '',
-      uploading: true,
-      progress: 0,
-      error: '',
-      _file: f,
+      url: '', previewSrc: URL.createObjectURL(f), filename: '',
+      uploading: true, progress: 0, error: '', _file: f,
     }));
-
     if (!placeholders.length) return;
-
     setItems(prev => {
       const base = single ? [] : prev.filter(it => !it.error);
       return [...base, ...placeholders].slice(0, single ? 1 : maxImages);
     });
-
-    // Upload each placeholder file sequentially (avoids race on setItems)
     for (const placeholder of placeholders) {
       const file = placeholder._file;
       const formData = new FormData();
       formData.append('images', file);
-
       const token = localStorage.getItem('jawhara-token');
-
       try {
-        const res = await axios.post(
-          `${API_BASE}/upload/${category}`,
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            },
-            onUploadProgress: (e) => {
-              const pct = Math.round((e.loaded * 100) / (e.total || 1));
-              setItems(prev => prev.map(it =>
-                it._file === file ? { ...it, progress: pct } : it
-              ));
-            },
-          }
-        );
-
+        const res = await axios.post(`${API_BASE}/upload/${category}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+          onUploadProgress: (e) => {
+            const pct = Math.round((e.loaded * 100) / (e.total || 1));
+            setItems(prev => prev.map(it => it._file === file ? { ...it, progress: pct } : it));
+          },
+        });
         const uploaded = res.data.data[0];
         setItems(prev => {
           const next = prev.map(it =>
-            it._file === file
-              ? {
-                  url: uploaded.webp,
-                  previewSrc: uploaded.thumbnail,
-                  filename: uploaded.filename,
-                  uploading: false,
-                  progress: 100,
-                  error: '',
-                }
-              : it
+            it._file === file ? { url: uploaded.webp, previewSrc: uploaded.thumbnail, filename: uploaded.filename, uploading: false, progress: 100, error: '' } : it
           );
           notifyParent(next);
           return next;
@@ -134,9 +76,7 @@ export default function ImageUploader({
       } catch (err) {
         const msg = err.response?.data?.error || 'Upload failed';
         setItems(prev => {
-          const next = prev.map(it =>
-            it._file === file ? { ...it, uploading: false, error: msg } : it
-          );
+          const next = prev.map(it => it._file === file ? { ...it, uploading: false, error: msg } : it);
           notifyParent(next);
           return next;
         });
@@ -144,29 +84,13 @@ export default function ImageUploader({
     }
   }, [category, maxImages, single, notifyParent]);
 
-  // ── Drag-over-dropzone handlers ────────────────────────────────────────────
-  const handleDropZoneDragOver = (e) => { e.preventDefault(); setIsDraggingOver(true); };
+  const handleDropZoneDragOver  = (e) => { e.preventDefault(); setIsDraggingOver(true); };
   const handleDropZoneDragLeave = () => setIsDraggingOver(false);
-  const handleDropZoneDrop = (e) => {
-    e.preventDefault();
-    setIsDraggingOver(false);
-    uploadFiles(e.dataTransfer.files);
-  };
-
-  // ── Remove an item ─────────────────────────────────────────────────────────
-  const handleRemove = (idx) => {
-    setItems(prev => {
-      const next = prev.filter((_, i) => i !== idx);
-      notifyParent(next);
-      return next;
-    });
-  };
-
-  // ── Drag-to-reorder handlers ───────────────────────────────────────────────
-  const handleItemDragStart = (idx) => { dragIndexRef.current = idx; };
-  const handleItemDragOver  = (e, idx) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleDropZoneDrop      = (e) => { e.preventDefault(); setIsDraggingOver(false); uploadFiles(e.dataTransfer.files); };
+  const handleRemove            = (idx) => { setItems(prev => { const next = prev.filter((_, i) => i !== idx); notifyParent(next); return next; }); };
+  const handleItemDragStart     = (idx) => { dragIndexRef.current = idx; };
+  const handleItemDragOver      = (e, idx) => {
+    e.preventDefault(); e.stopPropagation();
     const from = dragIndexRef.current;
     if (from === null || from === idx) return;
     setItems(prev => {
@@ -184,156 +108,136 @@ export default function ImageUploader({
   const hasItems = items.length > 0;
 
   return (
-    <div>
-      {/* ── Drop zone ───────────────────────────────────────────────────── */}
+    <Box>
+      {/* Drop zone */}
       {!atMax && (
-        <div
+        <Box
           onDragOver={handleDropZoneDragOver}
           onDragLeave={handleDropZoneDragLeave}
           onDrop={handleDropZoneDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`
-            border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer
-            transition-colors duration-200
-            ${isDraggingOver
-              ? 'border-indigo-400 dark:border-indigo-500 bg-indigo-50 dark:bg-indigo-900/10'
-              : 'border-gray-200 dark:border-gray-700 hover:border-indigo-400 dark:hover:border-indigo-600 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/5'
-            }
-          `}
+          sx={{
+            border: '2px dashed', borderRadius: 3, p: 4, textAlign: 'center', cursor: 'pointer',
+            transition: 'all 0.2s',
+            borderColor: isDraggingOver ? 'primary.light' : 'divider',
+            bgcolor: isDraggingOver ? 'rgba(99,102,241,0.06)' : 'transparent',
+            '&:hover': { borderColor: 'primary.light', bgcolor: 'rgba(99,102,241,0.04)' },
+          }}
         >
-          <UploadCloud
-            size={44}
-            className={`mx-auto mb-3 transition-colors duration-200 ${
-              isDraggingOver ? 'text-indigo-500' : 'text-gray-300 dark:text-gray-600'
-            }`}
-          />
-          <p className={`text-sm font-semibold transition-colors duration-200 ${
-            isDraggingOver ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-700 dark:text-gray-300'
-          }`}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1.5 }}>
+            <UploadCloud size={44} style={{ color: isDraggingOver ? '#6366f1' : undefined, opacity: isDraggingOver ? 1 : 0.35, transition: 'all 0.2s' }} />
+          </Box>
+          <Typography sx={{ fontSize: 14, fontWeight: 600, color: isDraggingOver ? 'primary.main' : 'text.primary', transition: 'color 0.2s' }}>
             {isDraggingOver ? 'Release to upload' : 'Drag & drop images here'}
-          </p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-            or{' '}
-            <span className="text-indigo-600 dark:text-indigo-400 font-semibold">browse files</span>
+          </Typography>
+          <Typography sx={{ fontSize: 12, color: 'text.disabled', mt: 0.5 }}>
+            or <Box component="span" sx={{ color: 'primary.main', fontWeight: 600 }}>browse files</Box>
             {' '}· JPEG, PNG, WebP · max 10 MB
             {!single && ` · up to ${maxImages} images`}
-          </p>
-          <input
+          </Typography>
+          <Box
+            component="input"
             ref={fileInputRef}
             type="file"
             accept="image/jpeg,image/png,image/webp"
             multiple={!single}
-            className="hidden"
+            sx={{ display: 'none' }}
             onChange={e => { uploadFiles(e.target.files); e.target.value = ''; }}
           />
-        </div>
+        </Box>
       )}
 
-      {/* ── Validation error ────────────────────────────────────────────── */}
+      {/* Validation error */}
       {validationError && (
-        <div className="flex items-center gap-1.5 mt-2 text-red-500">
-          <AlertCircle size={14} />
-          <span className="text-xs">{validationError}</span>
-        </div>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 1 }}>
+          <AlertCircle size={14} style={{ color: '#ef4444', flexShrink: 0 }} />
+          <Typography sx={{ fontSize: 12, color: 'error.main' }}>{validationError}</Typography>
+        </Box>
       )}
 
-      {/* ── Image preview grid ──────────────────────────────────────────── */}
+      {/* Image preview grid */}
       {hasItems && (
-        <div className={`flex flex-wrap gap-3 ${hasItems && !atMax ? 'mt-4' : ''}`}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mt: hasItems && !atMax ? 2 : 0 }}>
           {items.map((item, idx) => (
-            <div
+            <Box
               key={idx}
               draggable={!item.uploading && !item.error}
               onDragStart={() => handleItemDragStart(idx)}
               onDragOver={e => handleItemDragOver(e, idx)}
               onDragEnd={handleItemDragEnd}
-              className={`
-                relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0
-                border-2 transition-colors
-                ${item.error
-                  ? 'border-red-400 bg-red-50 dark:bg-red-900/10'
-                  : idx === 0
-                  ? 'border-indigo-400 dark:border-indigo-500 bg-gray-50 dark:bg-gray-800'
-                  : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800'
-                }
-                ${!item.uploading && !item.error ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}
-                group
-              `}
+              sx={{
+                position: 'relative', width: 96, height: 96, borderRadius: 2.5, overflow: 'hidden', flexShrink: 0,
+                border: '2px solid', transition: 'border-color 0.15s',
+                borderColor: item.error ? 'error.main' : idx === 0 ? 'primary.main' : 'divider',
+                bgcolor: 'action.hover',
+                cursor: !item.uploading && !item.error ? 'grab' : 'default',
+                '&:active': { cursor: !item.uploading && !item.error ? 'grabbing' : 'default' },
+                '&:hover .img-action-bar': { opacity: 1 },
+              }}
             >
-              {/* Image */}
               {item.previewSrc && (
-                <img
-                  src={item.previewSrc}
-                  alt=""
-                  className="w-full h-full object-cover block"
-                />
+                <Box component="img" src={item.previewSrc} alt="" sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               )}
 
               {/* Upload progress overlay */}
               {item.uploading && (
-                <div className="absolute inset-0 bg-black/55 flex flex-col items-center justify-center gap-2">
-                  <Loader2 size={18} className="text-white animate-spin" />
-                  <span className="text-white text-xs font-bold">{item.progress}%</span>
-                  <div className="w-3/4 h-1 bg-white/20 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-white rounded-full transition-all duration-200"
-                      style={{ width: `${item.progress}%` }}
-                    />
-                  </div>
-                </div>
+                <Box sx={{ position: 'absolute', inset: 0, bgcolor: 'rgba(0,0,0,0.55)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                  <Loader2 size={18} style={{ color: '#fff', animation: 'spin 1s linear infinite' }} />
+                  <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>{item.progress}%</Typography>
+                  <Box sx={{ width: '75%', height: 4, bgcolor: 'rgba(255,255,255,0.2)', borderRadius: 2, overflow: 'hidden' }}>
+                    <Box sx={{ height: '100%', bgcolor: '#fff', borderRadius: 2, width: `${item.progress}%`, transition: 'width 0.2s' }} />
+                  </Box>
+                </Box>
               )}
 
               {/* Error overlay */}
               {item.error && (
-                <div className="absolute inset-0 bg-red-500/85 flex flex-col items-center justify-center p-1.5">
-                  <AlertCircle size={18} className="text-white mb-1" />
-                  <span className="text-white text-center leading-tight" style={{ fontSize: '0.6rem' }}>
-                    {item.error}
-                  </span>
-                </div>
+                <Box sx={{ position: 'absolute', inset: 0, bgcolor: 'rgba(239,68,68,0.85)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', p: 0.75 }}>
+                  <AlertCircle size={18} style={{ color: '#fff', marginBottom: 4 }} />
+                  <Typography sx={{ fontSize: '0.6rem', color: '#fff', textAlign: 'center', lineHeight: 1.3 }}>{item.error}</Typography>
+                </Box>
               )}
 
               {/* Primary badge */}
               {idx === 0 && !item.uploading && !item.error && (
-                <span className="absolute top-1 left-1 bg-indigo-600 text-white rounded px-1 py-px font-extrabold uppercase tracking-wide" style={{ fontSize: '0.52rem' }}>
+                <Box sx={{ position: 'absolute', top: 4, left: 4, bgcolor: 'primary.main', color: '#fff', borderRadius: 0.5, px: 0.5, py: '1px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: '0.52rem' }}>
                   Primary
-                </span>
+                </Box>
               )}
 
-              {/* Hover/Secondary badge */}
+              {/* Hover/secondary badge */}
               {idx === 1 && !item.uploading && !item.error && (
-                <span className="absolute top-1 left-1 bg-black/55 text-white rounded px-1 py-px font-extrabold uppercase tracking-wide" style={{ fontSize: '0.52rem' }}>
+                <Box sx={{ position: 'absolute', top: 4, left: 4, bgcolor: 'rgba(0,0,0,0.55)', color: '#fff', borderRadius: 0.5, px: 0.5, py: '1px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: '0.52rem' }}>
                   Hover
-                </span>
+                </Box>
               )}
 
-              {/* Hover actions: drag handle + remove */}
+              {/* Hover action bar (drag handle + remove) */}
               {!item.uploading && (
-                <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between bg-black/52 px-1 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                  {!item.error && (
-                    <GripVertical size={13} className="text-white/75 flex-shrink-0" />
-                  )}
-                  <button
+                <Box className="img-action-bar" sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', bgcolor: 'rgba(0,0,0,0.52)', px: 0.5, py: 0.25, opacity: 0, transition: 'opacity 0.15s' }}>
+                  {!item.error && <GripVertical size={13} style={{ color: 'rgba(255,255,255,0.75)', flexShrink: 0 }} />}
+                  <Box
+                    component="button"
                     type="button"
                     onClick={() => handleRemove(idx)}
                     title="Remove image"
-                    className="ml-auto p-0.5 text-white hover:text-red-300 transition-colors"
+                    sx={{ ml: 'auto', p: 0.25, background: 'none', border: 'none', cursor: 'pointer', color: '#fff', display: 'flex', '&:hover': { color: '#fca5a5' }, transition: 'color 0.1s' }}
                   >
                     <X size={13} />
-                  </button>
-                </div>
+                  </Box>
+                </Box>
               )}
-            </div>
+            </Box>
           ))}
-        </div>
+        </Box>
       )}
 
-      {/* ── Helper text ─────────────────────────────────────────────────── */}
+      {/* Helper text */}
       {hasItems && !single && (
-        <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-          First image = <strong className="text-gray-600 dark:text-gray-300">Primary</strong> cover · Second = <strong className="text-gray-600 dark:text-gray-300">Hover</strong> view · Drag cards to reorder
-        </p>
+        <Typography sx={{ fontSize: 12, color: 'text.disabled', mt: 1 }}>
+          First image = <Box component="strong" sx={{ color: 'text.secondary', fontWeight: 600 }}>Primary</Box> cover · Second = <Box component="strong" sx={{ color: 'text.secondary', fontWeight: 600 }}>Hover</Box> view · Drag cards to reorder
+        </Typography>
       )}
-    </div>
+    </Box>
   );
 }

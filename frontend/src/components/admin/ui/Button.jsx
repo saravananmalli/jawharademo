@@ -1,21 +1,21 @@
-import { Loader2 } from 'lucide-react';
+import { Button as MuiButton, IconButton as MuiIconButton, CircularProgress, Tooltip } from '@mui/material';
 
-const VARIANTS = {
-  primary:   'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white shadow-sm shadow-indigo-200 dark:shadow-indigo-900/30',
-  secondary: 'bg-white hover:bg-gray-50 active:bg-gray-100 text-gray-700 border border-gray-200 shadow-sm dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200 dark:border-gray-700',
-  outline:   'bg-transparent hover:bg-indigo-50 text-indigo-600 border border-indigo-200 dark:hover:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-800',
-  ghost:     'bg-transparent hover:bg-gray-100 text-gray-600 dark:hover:bg-gray-800 dark:text-gray-300',
-  danger:    'bg-red-600 hover:bg-red-700 active:bg-red-800 text-white shadow-sm shadow-red-200 dark:shadow-red-900/30',
-  success:   'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white shadow-sm',
-  warning:   'bg-amber-500 hover:bg-amber-600 text-white shadow-sm',
+const VARIANT_MAP = {
+  primary:   { variant: 'contained', color: 'primary' },
+  secondary: { variant: 'outlined',  color: 'inherit' },
+  outline:   { variant: 'outlined',  color: 'primary' },
+  ghost:     { variant: 'text',      color: 'inherit' },
+  danger:    { variant: 'contained', color: 'error' },
+  success:   { variant: 'contained', color: 'success' },
+  warning:   { variant: 'contained', color: 'warning' },
 };
 
-const SIZES = {
-  xs: 'h-7 px-2.5 text-xs gap-1.5',
-  sm: 'h-8 px-3 text-sm gap-1.5',
-  md: 'h-9 px-4 text-sm gap-2',
-  lg: 'h-10 px-5 text-sm gap-2',
-  xl: 'h-11 px-6 text-base gap-2',
+const SIZE_MAP = {
+  xs: 'small',
+  sm: 'small',
+  md: 'medium',
+  lg: 'medium',
+  xl: 'large',
 };
 
 export function Button({
@@ -25,39 +25,75 @@ export function Button({
   loading = false,
   disabled = false,
   icon: Icon,
-  iconRight,
+  iconRight: IconRight,
   className = '',
+  sx = {},
   ...props
 }) {
-  const base = 'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none';
+  const v = VARIANT_MAP[variant] || VARIANT_MAP.primary;
+  const muiSize = SIZE_MAP[size] || 'medium';
+
   return (
-    <button
-      className={`${base} ${VARIANTS[variant] || VARIANTS.primary} ${SIZES[size] || SIZES.md} ${className}`}
+    <MuiButton
+      variant={v.variant}
+      color={v.color}
+      size={muiSize}
       disabled={disabled || loading}
+      className={className}
+      startIcon={loading ? <CircularProgress size={14} color="inherit" /> : Icon ? <Icon size={14} strokeWidth={2} /> : undefined}
+      endIcon={IconRight && !loading ? <IconRight size={14} strokeWidth={2} /> : undefined}
+      sx={{
+        textTransform: 'none',
+        fontWeight: 600,
+        borderRadius: '10px',
+        fontSize: size === 'xs' || size === 'sm' ? '0.75rem' : '0.8125rem',
+        ...(size === 'xs' && { height: 28, px: 1.5, py: 0 }),
+        ...(size === 'sm' && { height: 32, px: 1.75 }),
+        ...(v.variant === 'text' && v.color === 'inherit' && {
+          color: 'text.secondary',
+          '&:hover': { bgcolor: 'action.hover', color: 'text.primary' },
+        }),
+        ...(v.variant === 'outlined' && v.color === 'inherit' && {
+          color: 'text.secondary',
+          borderColor: 'divider',
+          '&:hover': { bgcolor: 'action.hover', borderColor: 'action.hover' },
+        }),
+        ...sx,
+      }}
       {...props}
     >
-      {loading ? (
-        <Loader2 className="animate-spin" size={15} />
-      ) : Icon ? (
-        <Icon size={15} />
-      ) : null}
       {children}
-      {iconRight && !loading && <iconRight size={15} />}
-    </button>
+    </MuiButton>
   );
 }
 
-export function IconBtn({ icon: Icon, label, variant = 'ghost', size = 'md', className = '', ...props }) {
-  const ICON_SIZES = { xs: 'w-6 h-6', sm: 'w-7 h-7', md: 'w-8 h-8', lg: 'w-9 h-9' };
-  const base = 'inline-flex items-center justify-center rounded-lg transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed';
-  return (
-    <button
-      title={label}
+export function IconBtn({ icon: Icon, label, variant = 'ghost', size = 'md', className = '', sx = {}, ...props }) {
+  const SIZE_PX = { xs: 24, sm: 28, md: 32, lg: 36 };
+  const px = SIZE_PX[size] || 32;
+  const iconSize = size === 'xs' ? 13 : size === 'sm' ? 14 : 15;
+
+  const colorMap = {
+    primary:   { color: 'white', bgcolor: 'primary.main', '&:hover': { bgcolor: 'primary.dark' } },
+    secondary: { color: 'text.secondary', border: '1px solid', borderColor: 'divider', '&:hover': { bgcolor: 'action.hover', color: 'text.primary' } },
+    ghost:     { color: 'text.secondary', '&:hover': { bgcolor: 'action.hover', color: 'text.primary' } },
+    danger:    { color: 'white', bgcolor: 'error.main', '&:hover': { bgcolor: 'error.dark' } },
+  };
+
+  const btn = (
+    <MuiIconButton
       aria-label={label}
-      className={`${base} ${VARIANTS[variant] || VARIANTS.ghost} ${ICON_SIZES[size] || ICON_SIZES.md} ${className}`}
+      className={className}
+      size="small"
+      sx={{
+        width: px, height: px, borderRadius: 1.5,
+        ...colorMap[variant] || colorMap.ghost,
+        ...sx,
+      }}
       {...props}
     >
-      {Icon && <Icon size={15} />}
-    </button>
+      {Icon && <Icon size={iconSize} strokeWidth={1.75} />}
+    </MuiIconButton>
   );
+
+  return label ? <Tooltip title={label}>{btn}</Tooltip> : btn;
 }

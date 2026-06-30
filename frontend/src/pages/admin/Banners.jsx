@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   Plus, Edit2, Trash2, Image as ImageIcon, Clock, Link2,
 } from 'lucide-react';
+import { Box, Paper, Grid, Typography, IconButton, MenuItem } from '@mui/material';
 import {
   Button, IconBtn, Card, Modal, Input, Select, Textarea, Toggle,
   Badge, PageHeader, Skeleton,
@@ -170,143 +171,130 @@ export default function Banners() {
   };
 
   return (
-    <div>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       <PageHeader
         title="Banner Management"
         subtitle={`${banners.length} campaign banner${banners.length !== 1 ? 's' : ''} — changes go live instantly`}
-        action={
-          <Button icon={Plus} onClick={openAdd}>Add Banner</Button>
-        }
+        action={<Button icon={Plus} onClick={openAdd}>Add Banner</Button>}
       />
 
       {/* Alerts */}
       {error && (
-        <div className="mb-4 flex items-center gap-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-4 py-3 text-sm text-red-700 dark:text-red-300">
-          <span className="flex-1">{error}</span>
-          <button onClick={() => setError('')} className="text-red-400 hover:text-red-600 dark:hover:text-red-200 font-bold">✕</button>
-        </div>
+        <Paper elevation={0} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 2, py: 1.5, borderRadius: 2, border: '1px solid', bgcolor: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.3)' }}>
+          <Typography sx={{ flex: 1, fontSize: 13, color: 'error.main' }}>{error}</Typography>
+          <IconButton size="small" onClick={() => setError('')} sx={{ color: 'error.main', p: 0.25 }}>✕</IconButton>
+        </Paper>
       )}
       {success && (
-        <div className="mb-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300">
-          {success}
-        </div>
+        <Paper elevation={0} sx={{ px: 2, py: 1.5, borderRadius: 2, border: '1px solid', bgcolor: 'rgba(16,185,129,0.08)', borderColor: 'rgba(16,185,129,0.3)' }}>
+          <Typography sx={{ fontSize: 13, color: 'success.main' }}>{success}</Typography>
+        </Paper>
       )}
 
       {/* Banner Grid */}
       {loading && banners.length === 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Grid container spacing={2}>
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
-              <Skeleton className="h-40 w-full rounded-none" />
-              <div className="p-4 space-y-2">
-                <div className="flex justify-between">
-                  <Skeleton className="h-4 w-2/5" />
-                  <Skeleton className="h-5 w-16 rounded-full" />
-                </div>
-                <Skeleton className="h-3 w-3/4" />
-                <div className="flex gap-2 pt-1">
-                  <Skeleton className="h-8 flex-1 rounded-xl" />
-                  <Skeleton className="h-8 w-10 rounded-xl" />
-                  <Skeleton className="h-8 w-8 rounded-xl" />
-                </div>
-              </div>
-            </div>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i}>
+              <Paper elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
+                <Skeleton height={160} sx={{ borderRadius: 0 }} />
+                <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Skeleton height={16} width="40%" />
+                    <Skeleton height={20} width={64} sx={{ borderRadius: 5 }} />
+                  </Box>
+                  <Skeleton height={12} width="75%" />
+                  <Box sx={{ display: 'flex', gap: 1, pt: 0.5 }}>
+                    <Skeleton height={32} sx={{ flex: 1, borderRadius: 2 }} />
+                    <Skeleton height={32} width={40} sx={{ borderRadius: 2 }} />
+                    <Skeleton height={32} width={32} sx={{ borderRadius: 2 }} />
+                  </Box>
+                </Box>
+              </Paper>
+            </Grid>
           ))}
-        </div>
+        </Grid>
       ) : (
-        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 transition-opacity ${loading ? 'opacity-50' : ''}`}>
+        <Grid container spacing={2} sx={{ opacity: loading ? 0.5 : 1, transition: 'opacity 0.2s' }}>
           {banners.map(b => {
             const st = bannerStatus(b);
             const link = linkSummary(b);
             return (
-              <div key={b._id} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col overflow-hidden">
-                {/* Image preview */}
-                <div className="relative aspect-video bg-gray-100 dark:bg-gray-800 overflow-hidden flex-shrink-0">
-                  {b.imageUrl ? (
-                    <img
-                      src={getImageUrl(b.imageUrl)}
-                      alt={b.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-full text-gray-300 dark:text-gray-600">
-                      <ImageIcon size={40} />
-                      <span className="text-xs mt-1">No image</span>
-                    </div>
-                  )}
-                  {/* Order badge */}
-                  <div className="absolute top-2 left-2 bg-black/60 text-white text-xs font-bold px-2 py-0.5 rounded-lg">
-                    #{b.order}
-                  </div>
-                  {/* Labels */}
-                  <div className="absolute bottom-2 left-2 flex gap-1.5 flex-wrap">
-                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md text-white ${b.placement === 'offer' ? 'bg-rose-700/80' : 'bg-gray-900/70'}`}>
-                      {b.placement === 'offer' ? 'Offer Banner' : 'Hero Carousel'}
-                    </span>
-                    {b.campaign && (
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-md text-white bg-amber-700/80">
-                        {b.campaign}
-                      </span>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={b._id}>
+                <Paper elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%' }}>
+                  {/* Image preview */}
+                  <Box sx={{ position: 'relative', aspectRatio: '16/9', bgcolor: 'action.hover', flexShrink: 0, overflow: 'hidden' }}>
+                    {b.imageUrl ? (
+                      <Box component="img" src={getImageUrl(b.imageUrl)} alt={b.title} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'text.disabled' }}>
+                        <ImageIcon size={40} />
+                        <Typography sx={{ fontSize: 11, mt: 0.5 }}>No image</Typography>
+                      </Box>
                     )}
-                  </div>
-                </div>
+                    <Box sx={{ position: 'absolute', top: 8, left: 8, bgcolor: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 11, fontWeight: 700, px: 1, py: 0.25, borderRadius: 1.5 }}>
+                      #{b.order}
+                    </Box>
+                    <Box sx={{ position: 'absolute', bottom: 8, left: 8, display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
+                      <Box sx={{ fontSize: 11, fontWeight: 700, px: 1, py: 0.25, borderRadius: 1, color: '#fff', bgcolor: b.placement === 'offer' ? 'rgba(185,28,28,0.8)' : 'rgba(0,0,0,0.7)' }}>
+                        {b.placement === 'offer' ? 'Offer Banner' : 'Hero Carousel'}
+                      </Box>
+                      {b.campaign && (
+                        <Box sx={{ fontSize: 11, fontWeight: 700, px: 1, py: 0.25, borderRadius: 1, color: '#fff', bgcolor: 'rgba(180,83,9,0.8)' }}>
+                          {b.campaign}
+                        </Box>
+                      )}
+                    </Box>
+                  </Box>
 
-                {/* Card body */}
-                <div className="flex flex-col flex-1 p-4 gap-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="text-sm font-bold text-gray-900 dark:text-white truncate">{b.title}</span>
-                    <Badge variant={STATUS_BADGE[st]} className="shrink-0">{STATUS_LABEL[st]}</Badge>
-                  </div>
+                  {/* Card body */}
+                  <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 2, gap: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
+                      <Typography sx={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.title}</Typography>
+                      <Box sx={{ flexShrink: 0 }}>
+                        <Badge variant={STATUS_BADGE[st]}>{STATUS_LABEL[st]}</Badge>
+                      </Box>
+                    </Box>
 
-                  <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 truncate" title={link}>
-                    <Link2 size={12} className="shrink-0" />
-                    <span className="truncate">{link}</span>
-                  </div>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, overflow: 'hidden' }} title={link}>
+                      <Link2 size={12} style={{ flexShrink: 0, opacity: 0.5 }} />
+                      <Typography sx={{ fontSize: 12, color: 'text.disabled', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{link}</Typography>
+                    </Box>
 
-                  {(b.startDate || b.endDate) && (
-                    <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
-                      <Clock size={12} className="shrink-0" />
-                      <span>
-                        {b.startDate ? new Date(b.startDate).toLocaleDateString() : '∞'}
-                        {' → '}
-                        {b.endDate ? new Date(b.endDate).toLocaleDateString() : '∞'}
-                      </span>
-                    </div>
-                  )}
+                    {(b.startDate || b.endDate) && (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                        <Clock size={12} style={{ flexShrink: 0, opacity: 0.5 }} />
+                        <Typography sx={{ fontSize: 12, color: 'text.disabled' }}>
+                          {b.startDate ? new Date(b.startDate).toLocaleDateString() : '∞'}
+                          {' → '}
+                          {b.endDate ? new Date(b.endDate).toLocaleDateString() : '∞'}
+                        </Typography>
+                      </Box>
+                    )}
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-2 mt-auto pt-2">
-                    <Button variant="secondary" size="sm" icon={Edit2} className="flex-1" onClick={() => openEdit(b)}>
-                      Edit
-                    </Button>
-                    <Toggle
-                      checked={b.active}
-                      onChange={() => toggleActive(b)}
-                      label=""
-                    />
-                    <IconBtn
-                      icon={Trash2}
-                      label="Delete banner"
-                      variant="ghost"
-                      className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      onClick={() => setDeleteTarget(b)}
-                    />
-                  </div>
-                </div>
-              </div>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 'auto', pt: 1 }}>
+                      <Button variant="secondary" size="sm" icon={Edit2} onClick={() => openEdit(b)} sx={{ flex: 1 }}>Edit</Button>
+                      <Toggle checked={b.active} onChange={() => toggleActive(b)} label="" />
+                      <IconBtn icon={Trash2} label="Delete banner" variant="ghost" sx={{ color: 'error.main', '&:hover': { bgcolor: 'rgba(239,68,68,0.08)' } }} onClick={() => setDeleteTarget(b)} />
+                    </Box>
+                  </Box>
+                </Paper>
+              </Grid>
             );
           })}
 
           {banners.length === 0 && !loading && (
-            <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-300 dark:text-gray-600">
-              <ImageIcon size={56} />
-              <p className="mt-3 text-sm text-gray-400">No banners yet. Click "Add Banner" to create one.</p>
-            </div>
+            <Grid size={12}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', py: 10, color: 'text.disabled' }}>
+                <ImageIcon size={56} />
+                <Typography sx={{ mt: 1.5, fontSize: 13, color: 'text.disabled' }}>No banners yet. Click "Add Banner" to create one.</Typography>
+              </Box>
+            </Grid>
           )}
-        </div>
+        </Grid>
       )}
 
-      {/* ── Add / Edit Modal ── */}
+      {/* Add / Edit Modal */}
       <Modal
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
@@ -315,40 +303,19 @@ export default function Banners() {
         footer={
           <>
             <Button variant="secondary" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button
-              onClick={handleSave}
-              loading={saving}
-              disabled={saving || !form.title.trim() || !form.imageUrl}
-            >
+            <Button onClick={handleSave} loading={saving} disabled={saving || !form.title.trim() || !form.imageUrl}>
               {editTarget ? 'Update Banner' : 'Add Banner'}
             </Button>
           </>
         }
       >
-        <div className="space-y-4">
-          {/* Placement */}
-          <Select
-            label="Placement"
-            required
-            value={form.placement}
-            onChange={e => setF('placement', e.target.value)}
-          >
-            {PLACEMENTS.map(p => (
-              <option key={p.value} value={p.value}>{p.label}</option>
-            ))}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <Select label="Placement" required value={form.placement} onChange={e => setF('placement', e.target.value)}>
+            {PLACEMENTS.map(p => <MenuItem key={p.value} value={p.value}>{p.label}</MenuItem>)}
           </Select>
 
-          {/* Title */}
-          <Input
-            label="Banner Title"
-            required
-            value={form.title}
-            onChange={e => setF('title', e.target.value)}
-            autoFocus
-            placeholder="e.g. Eid Collection 2025"
-          />
+          <Input label="Banner Title" required value={form.title} onChange={e => setF('title', e.target.value)} autoFocus placeholder="e.g. Eid Collection 2025" />
 
-          {/* Description */}
           <Input
             label="Description"
             value={form.description}
@@ -357,11 +324,10 @@ export default function Banners() {
             helper={form.placement === 'offer' ? 'Displayed below the title on the offer section banner.' : 'Optional — not displayed in the hero carousel.'}
           />
 
-          {/* Image */}
-          <div>
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Banner Image <span className="text-red-500">*</span>
-            </p>
+          <Box>
+            <Typography sx={{ fontSize: 13, fontWeight: 500, color: 'text.primary', mb: 1 }}>
+              Banner Image <Box component="span" sx={{ color: 'error.main' }}>*</Box>
+            </Typography>
             <ImageUploader
               images={form.imageUrl ? [form.imageUrl] : []}
               onChange={urls => setF('imageUrl', urls[0] || '')}
@@ -369,45 +335,23 @@ export default function Banners() {
               category="banners"
               single
             />
-          </div>
+          </Box>
 
-          {/* Campaign + Order */}
-          <div className="grid grid-cols-2 gap-3">
-            <Select
-              label="Campaign / Occasion"
-              value={form.campaign}
-              onChange={e => setF('campaign', e.target.value)}
-            >
-              {CAMPAIGNS.map(c => (
-                <option key={c} value={c}>{c || '— None —'}</option>
-              ))}
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+            <Select label="Campaign / Occasion" value={form.campaign} onChange={e => setF('campaign', e.target.value)}>
+              {CAMPAIGNS.map(c => <MenuItem key={c} value={c}>{c || '— None —'}</MenuItem>)}
             </Select>
-            <Input
-              label="Display Order"
-              type="number"
-              value={form.order}
-              onChange={e => setF('order', Number(e.target.value))}
-              min={1}
-            />
-          </div>
+            <Input label="Display Order" type="number" value={form.order} onChange={e => setF('order', Number(e.target.value))} min={1} />
+          </Box>
 
-          {/* Banner Link */}
-          <Input
-            label="Banner Link"
-            icon={Link2}
-            value={form.redirectUrl}
-            onChange={e => setF('redirectUrl', e.target.value)}
-            placeholder="/category/rings  ·  /collection/today-deals  ·  https://..."
-            helper="Where users go when they click this banner."
-          />
+          <Input label="Banner Link" value={form.redirectUrl} onChange={e => setF('redirectUrl', e.target.value)} placeholder="/category/rings  ·  /collection/today-deals  ·  https://..." helper="Where users go when they click this banner." />
 
           {/* Quick Link Shortcuts */}
-          <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-4">
-            <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+          <Paper elevation={0} sx={{ borderRadius: 2.5, border: '1px solid', borderColor: 'divider', bgcolor: 'action.hover', p: 2.5 }}>
+            <Typography sx={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'text.disabled', mb: 1.5 }}>
               Quick Link Shortcuts — selecting one auto-fills the link above
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {/* Category shortcut */}
+            </Typography>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' }, gap: 2 }}>
               <Select
                 label="Category Page"
                 value={form.bannerType === 'category' ? form.linkedCategory : ''}
@@ -423,13 +367,10 @@ export default function Banners() {
                   }));
                 }}
               >
-                <option value="">— None —</option>
-                {categories.map(c => (
-                  <option key={c._id} value={c.slug}>{c.name}</option>
-                ))}
+                <MenuItem value="">— None —</MenuItem>
+                {categories.map(c => <MenuItem key={c._id} value={c.slug}>{c.name}</MenuItem>)}
               </Select>
 
-              {/* Collection shortcut */}
               <Select
                 label="Collection Page"
                 value={form.bannerType === 'collection' ? form.linkedCollection : ''}
@@ -445,13 +386,10 @@ export default function Banners() {
                   }));
                 }}
               >
-                <option value="">— None —</option>
-                {FLAG_COLLECTIONS.map(c => (
-                  <option key={c.slug} value={c.slug}>{c.label}</option>
-                ))}
+                <MenuItem value="">— None —</MenuItem>
+                {FLAG_COLLECTIONS.map(c => <MenuItem key={c.slug} value={c.slug}>{c.label}</MenuItem>)}
               </Select>
 
-              {/* Brand shortcut */}
               <Input
                 label="Brand Page"
                 value={form.bannerType === 'brand' ? form.linkedBrand : ''}
@@ -468,41 +406,28 @@ export default function Banners() {
                 }}
                 placeholder="e.g. Tiffany"
               />
-            </div>
-          </div>
+            </Box>
+          </Paper>
 
           {/* Scheduling */}
-          <div>
-            <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
-              <Clock size={13} />
-              Scheduling (optional — leave blank for always-on)
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Input
-                label="Start Date"
-                type="datetime-local"
-                value={form.startDate}
-                onChange={e => setF('startDate', e.target.value)}
-              />
-              <Input
-                label="End Date"
-                type="datetime-local"
-                value={form.endDate}
-                onChange={e => setF('endDate', e.target.value)}
-              />
-            </div>
-          </div>
+          <Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1.5 }}>
+              <Clock size={13} style={{ opacity: 0.5 }} />
+              <Typography sx={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'text.disabled' }}>
+                Scheduling (optional — leave blank for always-on)
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+              <Input label="Start Date" type="datetime-local" value={form.startDate} onChange={e => setF('startDate', e.target.value)} />
+              <Input label="End Date" type="datetime-local" value={form.endDate} onChange={e => setF('endDate', e.target.value)} />
+            </Box>
+          </Box>
 
-          {/* Active toggle */}
-          <Toggle
-            label="Active (visible on site)"
-            checked={form.active}
-            onChange={e => setF('active', e.target.checked)}
-          />
-        </div>
+          <Toggle label="Active (visible on site)" checked={form.active} onChange={e => setF('active', e.target.checked)} />
+        </Box>
       </Modal>
 
-      {/* ── Delete Confirm Modal ── */}
+      {/* Delete Confirm Modal */}
       <Modal
         open={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
@@ -515,10 +440,10 @@ export default function Banners() {
           </>
         }
       >
-        <p className="text-sm text-gray-600 dark:text-gray-300">
-          Delete <strong className="text-gray-900 dark:text-white">{deleteTarget?.title}</strong>? This cannot be undone.
-        </p>
+        <Typography sx={{ fontSize: '13.5px', color: 'text.secondary', lineHeight: 1.6 }}>
+          Delete <Box component="strong" sx={{ color: 'text.primary', fontWeight: 600 }}>{deleteTarget?.title}</Box>? This cannot be undone.
+        </Typography>
       </Modal>
-    </div>
+    </Box>
   );
 }

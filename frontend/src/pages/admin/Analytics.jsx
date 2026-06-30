@@ -6,17 +6,17 @@ import {
   Users, Smartphone, Gauge, Layers, Gem,
   ArrowRightLeft, Filter, LineChart as LineChartIcon,
 } from 'lucide-react';
+import { Box, Grid, Typography, Chip } from '@mui/material';
 import ReactApexChart from 'react-apexcharts';
 import api from '../../services/api';
 import { useAdminTheme } from './AdminThemeContext';
 import { StatCard } from '../../components/admin/ui/StatCard';
 import { Card, CardHeader, CardBody } from '../../components/admin/ui/Card';
+import { Skeleton } from '../../components/admin/ui/Skeleton';
 
-// ── Palette ───────────────────────────────────────────────────────────────────
 const PIE_PALETTE = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#0ea5e9'];
 const BAR_PALETTE = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#0ea5e9', '#ec4899', '#14b8a6'];
 
-// ── Static mock datasets ──────────────────────────────────────────────────────
 const DEVICE_MOCK = [
   { name: 'Mobile',  value: 58 },
   { name: 'Desktop', value: 34 },
@@ -44,22 +44,35 @@ const CUSTOMER_MOCK = [
   { name: 'VIP',       value: 12 },
 ];
 
-// ── ChartSkeleton ─────────────────────────────────────────────────────────────
 function ChartSkeleton({ height = 300 }) {
   return (
-    <Card className="h-full">
+    <Card sx={{ height: '100%' }}>
       <CardBody>
-        <div className="h-5 w-2/5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-4" />
-        <div
-          className="bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse"
-          style={{ height }}
-        />
+        <Skeleton height={20} width="40%" sx={{ mb: 2 }} />
+        <Skeleton height={height} sx={{ borderRadius: 2 }} />
       </CardBody>
     </Card>
   );
 }
 
-// ── DonutWidget ───────────────────────────────────────────────────────────────
+function BadgeChip({ color, icon: Icon, label }) {
+  const colorMap = {
+    indigo:  { bg: 'rgba(99,102,241,0.1)',  text: '#6366f1' },
+    violet:  { bg: 'rgba(139,92,246,0.1)', text: '#8b5cf6' },
+    amber:   { bg: 'rgba(245,158,11,0.1)', text: '#d97706' },
+    teal:    { bg: 'rgba(20,184,166,0.1)', text: '#0d9488' },
+    violet2: { bg: 'rgba(124,58,237,0.1)', text: '#7c3aed' },
+    orange:  { bg: 'rgba(249,115,22,0.1)', text: '#ea580c' },
+  };
+  const c = colorMap[color] || colorMap.indigo;
+  return (
+    <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, px: 1.25, py: 0.5, borderRadius: 5, bgcolor: c.bg, color: c.text, fontSize: 11, fontWeight: 600 }}>
+      {Icon && <Icon size={11} />}
+      {label}
+    </Box>
+  );
+}
+
 function DonutWidget({ icon: Icon, iconColor, title, data, colors, isDark }) {
   const labels = data.map(d => d.name);
   const values = data.map(d => d.value);
@@ -82,39 +95,35 @@ function DonutWidget({ icon: Icon, iconColor, title, data, colors, isDark }) {
   };
 
   return (
-    <Card className="h-full">
+    <Card sx={{ height: '100%' }}>
       <CardHeader
         title={title}
         action={
-          <span className="flex items-center gap-1" style={{ color: iconColor }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: iconColor }}>
             <Icon size={14} />
-          </span>
+          </Box>
         }
       />
       <CardBody>
-        <ReactApexChart type="donut" series={values} options={options} height={160} />
-        <div className="mt-3 space-y-1.5">
+        <ReactApexChart type="donut" series={values} options={options} height={190} />
+        <Box sx={{ mt: 1.5, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
           {data.map((d, i) => (
-            <div key={d.name} className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span
-                  className="w-2 h-2 rounded-full shrink-0"
-                  style={{ backgroundColor: colors[i % colors.length] }}
-                />
-                <span className="text-xs text-gray-600 dark:text-gray-300">{d.name}</span>
-              </div>
-              <span className="text-xs font-bold text-gray-900 dark:text-white">
+            <Box key={d.name} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: colors[i % colors.length], flexShrink: 0 }} />
+                <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>{d.name}</Typography>
+              </Box>
+              <Typography sx={{ fontSize: 12, fontWeight: 700 }}>
                 {d.value}{typeof d.value === 'number' && d.value <= 100 ? '%' : ''}
-              </span>
-            </div>
+              </Typography>
+            </Box>
           ))}
-        </div>
+        </Box>
       </CardBody>
     </Card>
   );
 }
 
-// ── Main component ────────────────────────────────────────────────────────────
 export default function Analytics() {
   const { mode } = useAdminTheme();
   const isDark = mode === 'dark';
@@ -184,7 +193,6 @@ export default function Analytics() {
 
   const periodLabel = dateRange.label || 'Today';
 
-  // ── Shared chart config helpers ───────────────────────────────────────────
   const axisLabelStyle = { colors: isDark ? '#6b7280' : '#9ca3af', fontSize: '11px' };
   const gridBorderColor = isDark ? '#1f2937' : '#f1f5f9';
 
@@ -194,7 +202,6 @@ export default function Analytics() {
     fontFamily: 'Inter, sans-serif',
   };
 
-  // ── Row 1: Sales Overview area chart ─────────────────────────────────────
   const salesLabels = sales.map(s => s.month);
 
   const salesOverviewOptions = {
@@ -215,16 +222,8 @@ export default function Analytics() {
       labels: { style: axisLabelStyle },
     },
     yaxis: [
-      {
-        labels: {
-          style: axisLabelStyle,
-          formatter: (v) => `AED ${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`,
-        },
-      },
-      {
-        opposite: true,
-        labels: { style: axisLabelStyle },
-      },
+      { labels: { style: axisLabelStyle, formatter: (v) => `AED ${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}` } },
+      { opposite: true, labels: { style: axisLabelStyle } },
     ],
     legend: { position: 'top', fontSize: '12px', labels: { colors: isDark ? '#9ca3af' : '#6b7280' } },
     tooltip: {
@@ -237,12 +236,10 @@ export default function Analytics() {
     markers: { size: [4, 3], strokeWidth: 0 },
   };
 
-  // ── Row 1: Order Status donut ─────────────────────────────────────────────
   const statusDonutData = statusData.length > 0
     ? statusData.map(d => ({ name: d.status, value: d.count }))
     : [{ name: 'No data', value: 1 }];
 
-  // ── Row 2: Revenue Growth bar chart ──────────────────────────────────────
   const revenueBarOptions = {
     chart: { ...baseChartConfig, type: 'bar' },
     theme: { mode: isDark ? 'dark' : 'light' },
@@ -256,19 +253,10 @@ export default function Analytics() {
       axisTicks: { show: false },
       labels: { style: axisLabelStyle },
     },
-    yaxis: {
-      labels: {
-        style: axisLabelStyle,
-        formatter: (v) => `AED ${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`,
-      },
-    },
-    tooltip: {
-      theme: isDark ? 'dark' : 'light',
-      y: { formatter: (v) => `AED ${v.toLocaleString()}` },
-    },
+    yaxis: { labels: { style: axisLabelStyle, formatter: (v) => `AED ${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}` } },
+    tooltip: { theme: isDark ? 'dark' : 'light', y: { formatter: (v) => `AED ${v.toLocaleString()}` } },
   };
 
-  // ── Row 2: Order Analytics line chart ────────────────────────────────────
   const orderLineOptions = {
     chart: { ...baseChartConfig, type: 'line' },
     theme: { mode: isDark ? 'dark' : 'light' },
@@ -287,38 +275,23 @@ export default function Analytics() {
     markers: { size: 4, strokeWidth: 0 },
   };
 
-  // ── Row 4: Product Performance bar ───────────────────────────────────────
   const productBarOptions = {
     chart: { ...baseChartConfig, type: 'bar' },
     theme: { mode: isDark ? 'dark' : 'light' },
     colors: BAR_PALETTE,
-    plotOptions: {
-      bar: { horizontal: true, borderRadius: 5, barHeight: '65%', distributed: true },
-    },
+    plotOptions: { bar: { horizontal: true, borderRadius: 5, barHeight: '65%', distributed: true } },
     legend: { show: false },
     dataLabels: {
       enabled: true,
       style: { fontSize: '10px', colors: [isDark ? '#d1d5db' : '#6b7280'] },
-      offsetX: 6,
-      textAnchor: 'start',
+      offsetX: 6, textAnchor: 'start',
     },
     grid: {
-      borderColor: gridBorderColor,
-      strokeDashArray: 4,
-      xaxis: { lines: { show: true } },
-      yaxis: { lines: { show: false } },
+      borderColor: gridBorderColor, strokeDashArray: 4,
+      xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } },
     },
-    xaxis: {
-      axisBorder: { show: false },
-      axisTicks: { show: false },
-      labels: { style: axisLabelStyle },
-    },
-    yaxis: {
-      labels: {
-        style: { colors: isDark ? '#9ca3af' : '#4b5563', fontSize: '10px' },
-        maxWidth: 130,
-      },
-    },
+    xaxis: { axisBorder: { show: false }, axisTicks: { show: false }, labels: { style: axisLabelStyle } },
+    yaxis: { labels: { style: { colors: isDark ? '#9ca3af' : '#4b5563', fontSize: '10px' }, maxWidth: 130 } },
     tooltip: { theme: isDark ? 'dark' : 'light' },
   };
 
@@ -327,219 +300,166 @@ export default function Analytics() {
   );
   const productBarData = topProducts.map(p => p.sold || 0);
 
-  // ── Row 5: Category bar ───────────────────────────────────────────────────
   const catBarOptions = {
     chart: { ...baseChartConfig, type: 'bar' },
     theme: { mode: isDark ? 'dark' : 'light' },
     colors: PIE_PALETTE,
-    plotOptions: {
-      bar: { horizontal: true, borderRadius: 5, barHeight: '65%', distributed: true },
-    },
+    plotOptions: { bar: { horizontal: true, borderRadius: 5, barHeight: '65%', distributed: true } },
     legend: { show: false },
     dataLabels: { enabled: false },
     grid: {
-      borderColor: gridBorderColor,
-      strokeDashArray: 4,
-      xaxis: { lines: { show: true } },
-      yaxis: { lines: { show: false } },
+      borderColor: gridBorderColor, strokeDashArray: 4,
+      xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } },
     },
     xaxis: {
-      axisBorder: { show: false },
-      axisTicks: { show: false },
-      labels: {
-        style: axisLabelStyle,
-        formatter: (v) => `AED ${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`,
-      },
+      axisBorder: { show: false }, axisTicks: { show: false },
+      labels: { style: axisLabelStyle, formatter: (v) => `AED ${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}` },
     },
-    yaxis: {
-      labels: {
-        style: { colors: isDark ? '#9ca3af' : '#4b5563', fontSize: '10px' },
-        maxWidth: 100,
-      },
-    },
-    tooltip: {
-      theme: isDark ? 'dark' : 'light',
-      y: { formatter: (v) => `AED ${v.toLocaleString()}` },
-    },
+    yaxis: { labels: { style: { colors: isDark ? '#9ca3af' : '#4b5563', fontSize: '10px' }, maxWidth: 100 } },
+    tooltip: { theme: isDark ? 'dark' : 'light', y: { formatter: (v) => `AED ${v.toLocaleString()}` } },
   };
 
-  // ── Row 5: Brand bar ──────────────────────────────────────────────────────
   const brandBarOptions = {
     chart: { ...baseChartConfig, type: 'bar' },
     theme: { mode: isDark ? 'dark' : 'light' },
     colors: BAR_PALETTE,
-    plotOptions: {
-      bar: { horizontal: true, borderRadius: 5, barHeight: '65%', distributed: true },
-    },
+    plotOptions: { bar: { horizontal: true, borderRadius: 5, barHeight: '65%', distributed: true } },
     legend: { show: false },
     dataLabels: { enabled: false },
     grid: {
-      borderColor: gridBorderColor,
-      strokeDashArray: 4,
-      xaxis: { lines: { show: true } },
-      yaxis: { lines: { show: false } },
+      borderColor: gridBorderColor, strokeDashArray: 4,
+      xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } },
     },
-    xaxis: {
-      axisBorder: { show: false },
-      axisTicks: { show: false },
-      labels: { style: axisLabelStyle },
-    },
-    yaxis: {
-      labels: {
-        style: { colors: isDark ? '#9ca3af' : '#4b5563', fontSize: '10px' },
-        maxWidth: 100,
-      },
-    },
+    xaxis: { axisBorder: { show: false }, axisTicks: { show: false }, labels: { style: axisLabelStyle } },
+    yaxis: { labels: { style: { colors: isDark ? '#9ca3af' : '#4b5563', fontSize: '10px' }, maxWidth: 100 } },
     tooltip: { theme: isDark ? 'dark' : 'light' },
   };
 
-  // ── Row 6: Funnel bar ─────────────────────────────────────────────────────
-  const funnelColors = FUNNEL_MOCK.map((_, i) => {
-    const opacity = 1 - i * 0.15;
-    return `rgba(99,102,241,${opacity})`;
-  });
-
+  const funnelColors = FUNNEL_MOCK.map((_, i) => `rgba(99,102,241,${1 - i * 0.15})`);
   const funnelOptions = {
     chart: { ...baseChartConfig, type: 'bar' },
     theme: { mode: isDark ? 'dark' : 'light' },
     colors: funnelColors,
-    plotOptions: {
-      bar: { horizontal: true, borderRadius: 5, barHeight: '65%', distributed: true },
-    },
+    plotOptions: { bar: { horizontal: true, borderRadius: 5, barHeight: '65%', distributed: true } },
     legend: { show: false },
     dataLabels: {
       enabled: true,
       style: { fontSize: '10px', colors: [isDark ? '#d1d5db' : '#6b7280'] },
-      formatter: (v) => v.toLocaleString(),
-      offsetX: 6,
-      textAnchor: 'start',
+      formatter: (v) => v.toLocaleString(), offsetX: 6, textAnchor: 'start',
     },
     grid: {
-      borderColor: gridBorderColor,
-      strokeDashArray: 4,
-      xaxis: { lines: { show: true } },
-      yaxis: { lines: { show: false } },
+      borderColor: gridBorderColor, strokeDashArray: 4,
+      xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } },
     },
     xaxis: {
       categories: FUNNEL_MOCK.map(f => f.stage),
-      axisBorder: { show: false },
-      axisTicks: { show: false },
+      axisBorder: { show: false }, axisTicks: { show: false },
       labels: { style: axisLabelStyle },
     },
-    yaxis: {
-      labels: {
-        style: { colors: isDark ? '#9ca3af' : '#4b5563', fontSize: '10px' },
-        maxWidth: 110,
-      },
-    },
+    yaxis: { labels: { style: { colors: isDark ? '#9ca3af' : '#4b5563', fontSize: '10px' }, maxWidth: 110 } },
     tooltip: { theme: isDark ? 'dark' : 'light' },
   };
 
-  // ── Row 6: Period comparison bar ──────────────────────────────────────────
-  const compareColors = ['#f59e0b', '#6366f1'];
   const compareOptions = {
     chart: { ...baseChartConfig, type: 'bar' },
     theme: { mode: isDark ? 'dark' : 'light' },
-    colors: compareColors,
-    plotOptions: {
-      bar: { borderRadius: 5, columnWidth: '50%', distributed: true },
-    },
+    colors: ['#f59e0b', '#6366f1'],
+    plotOptions: { bar: { borderRadius: 5, columnWidth: '50%', distributed: true } },
     legend: { show: false },
     dataLabels: { enabled: false },
     grid: { borderColor: gridBorderColor, strokeDashArray: 4 },
     xaxis: {
       categories: derived.monthlyCompare.map(m => m.period),
-      axisBorder: { show: false },
-      axisTicks: { show: false },
+      axisBorder: { show: false }, axisTicks: { show: false },
       labels: { style: axisLabelStyle },
     },
-    yaxis: {
-      labels: {
-        style: axisLabelStyle,
-        formatter: (v) => `AED ${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`,
-      },
-    },
-    tooltip: {
-      theme: isDark ? 'dark' : 'light',
-      y: { formatter: (v) => `AED ${v.toLocaleString()}` },
-    },
+    yaxis: { labels: { style: axisLabelStyle, formatter: (v) => `AED ${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}` } },
+    tooltip: { theme: isDark ? 'dark' : 'light', y: { formatter: (v) => `AED ${v.toLocaleString()}` } },
   };
 
-  return (
-    <div>
-      {/* ── Header ─────────────────────────────────────────────────────── */}
-      <div className="mb-6 flex items-start justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white">Analytics</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-            Sales performance, customer insights &amp; product analytics
-          </p>
-        </div>
-        <DateRangeFilter currentPreset={dateRange.preset || 'today'} onChange={handleFilterChange} />
-      </div>
+  function EmptyChart({ height = 300 }) {
+    return (
+      <Box sx={{ height, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1.5 }}>
+        <Box sx={{
+          width: 48, height: 48, borderRadius: 3,
+          bgcolor: 'rgba(99,102,241,0.08)',
+          border: '1px solid rgba(99,102,241,0.14)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <BarChart2 size={20} color="#6366f1" strokeWidth={1.5} />
+        </Box>
+        <Typography sx={{ fontSize: 13, color: 'text.disabled', lineHeight: 1.6 }}>No data for this period.</Typography>
+      </Box>
+    );
+  }
 
-      {/* ── KPI stat bar ───────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3.5 }}>
+      {/* Header */}
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.03em', fontSize: { xs: '1.5rem', md: '1.75rem' } }}>Analytics</Typography>
+          <Typography sx={{ fontSize: 13, color: 'text.secondary', mt: 0.5 }}>
+            Sales performance, customer insights &amp; product analytics
+          </Typography>
+        </Box>
+        <DateRangeFilter currentPreset={dateRange.preset || 'today'} onChange={handleFilterChange} />
+      </Box>
+
+      {/* KPI stat bar */}
+      <Grid container spacing={2.5}>
         {loading ? (
-          [1, 2, 3, 4].map(i => (
-            <div key={i} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm">
-              <div className="h-4 w-3/5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-3" />
-              <div className="h-8 w-4/5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-            </div>
+          [0,1,2,3].map(i => (
+            <Grid key={i} size={{ xs: 12, sm: 6, md: 3 }}>
+              <Box sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', p: 3, bgcolor: 'background.paper' }}>
+                <Skeleton height={16} width="60%" sx={{ mb: 1.5 }} />
+                <Skeleton height={32} width="80%" />
+              </Box>
+            </Grid>
           ))
         ) : (
           <>
-            <StatCard
-              color="indigo"
-              title={`Revenue · ${periodLabel}`}
-              value={<span className="flex items-center gap-1"><DirhamSymbol size="0.82em" /> {derived.rev.toLocaleString()}</span>}
-              icon={TrendingUp}
-            />
-            <StatCard
-              color="violet"
-              title={`Orders · ${periodLabel}`}
-              value={derived.orders.toLocaleString()}
-              icon={BarChart2}
-            />
-            <StatCard
-              color="emerald"
-              title="Avg Order Value"
-              value={<span className="flex items-center gap-1"><DirhamSymbol size="0.82em" /> {derived.avgOV.toLocaleString()}</span>}
-              icon={LineChartIcon}
-            />
-            <StatCard
-              color="sky"
-              title="Conv. Rate"
-              value={`${derived.convRate}%`}
-              icon={Gauge}
-            />
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <StatCard color="indigo" title={`Revenue · ${periodLabel}`}
+                value={<Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}><DirhamSymbol size="0.82em" /> {derived.rev.toLocaleString()}</Box>}
+                icon={TrendingUp}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <StatCard color="violet" title={`Orders · ${periodLabel}`} value={derived.orders.toLocaleString()} icon={BarChart2} />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <StatCard color="emerald" title="Avg Order Value"
+                value={<Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}><DirhamSymbol size="0.82em" /> {derived.avgOV.toLocaleString()}</Box>}
+                icon={LineChartIcon}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <StatCard color="sky" title="Conv. Rate" value={`${derived.convRate}%`} icon={Gauge} />
+            </Grid>
           </>
         )}
-      </div>
+      </Grid>
 
-      {/* ── Chart content: skeleton while loading ──────────────────────── */}
+      {/* Charts — skeleton while loading */}
       {loading ? (
-        <div className="flex flex-wrap gap-5">
+        <Grid container spacing={2.5}>
           {[300, 280, 280, 280, 240, 240, 280, 260].map((h, i) => (
-            <div key={i} className="flex-1 min-w-0 basis-full md:basis-[calc(50%-10px)]">
+            <Grid key={i} size={{ xs: 12, md: 6 }}>
               <ChartSkeleton height={h} />
-            </div>
+            </Grid>
           ))}
-        </div>
+        </Grid>
       ) : (
         <>
-          {/* ── Row 1: Sales Overview area + Order Status donut ────────── */}
-          <div className="flex gap-5 mb-5 flex-wrap lg:flex-nowrap">
-            <div className="flex-1 min-w-0 lg:flex-[2_1_0]">
-              <Card className="h-full">
+          {/* Row 1: Sales Overview (8 cols) + Order Status (4 cols) */}
+          <Grid container spacing={2.5}>
+            <Grid size={{ xs: 12, md: 8 }}>
+              <Card sx={{ height: '100%' }}>
                 <CardHeader
                   title="Sales Overview"
                   subtitle={`Revenue and orders — ${periodLabel}`}
-                  action={
-                    <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
-                      <TrendingUp size={11} /> {periodLabel}
-                    </span>
-                  }
+                  action={<BadgeChip color="indigo" icon={TrendingUp} label={periodLabel} />}
                 />
                 <CardBody>
                   {sales.length > 0 ? (
@@ -550,18 +470,13 @@ export default function Analytics() {
                         { name: 'Orders',  data: sales.map(s => s.orders) },
                       ]}
                       options={salesOverviewOptions}
-                      height={260}
+                      height={310}
                     />
-                  ) : (
-                    <div className="h-64 flex items-center justify-center">
-                      <p className="text-sm text-gray-400 dark:text-gray-500">No sales data for this period.</p>
-                    </div>
-                  )}
+                  ) : <EmptyChart height={310} />}
                 </CardBody>
               </Card>
-            </div>
-
-            <div className="flex-1 min-w-0 lg:flex-[1_1_0]">
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
               <DonutWidget
                 icon={PieChart}
                 iconColor="#8b5cf6"
@@ -570,264 +485,134 @@ export default function Analytics() {
                 colors={PIE_PALETTE}
                 isDark={isDark}
               />
-            </div>
-          </div>
+            </Grid>
+          </Grid>
 
-          {/* ── Row 2: Revenue Growth bar + Order Analytics line ─────── */}
-          <div className="flex gap-5 mb-5 flex-wrap md:flex-nowrap">
-            <div className="flex-1 min-w-0">
-              <Card className="h-full">
-                <CardHeader
-                  title="Revenue Growth"
-                  subtitle={`AED revenue — ${periodLabel}`}
-                  action={
-                    <span className="text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
-                      <BarChart2 size={11} /> Revenue
-                    </span>
-                  }
-                />
+          {/* Row 2: Revenue Growth + Order Analytics */}
+          <Grid container spacing={2.5}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ height: '100%' }}>
+                <CardHeader title="Revenue Growth" subtitle={`AED revenue — ${periodLabel}`} action={<BadgeChip color="amber" icon={BarChart2} label="Revenue" />} />
                 <CardBody>
-                  {sales.length > 0 ? (
+                  {sales.length > 0
+                    ? <ReactApexChart type="bar" series={[{ name: 'Revenue', data: sales.map(s => s.revenue) }]} options={revenueBarOptions} height={300} />
+                    : <EmptyChart height={300} />
+                  }
+                </CardBody>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ height: '100%' }}>
+                <CardHeader title="Order Analytics" subtitle={`Order count trend — ${periodLabel}`} action={<BadgeChip color="violet" icon={ArrowRightLeft} label="Orders" />} />
+                <CardBody>
+                  {sales.length > 0
+                    ? <ReactApexChart type="line" series={[{ name: 'Orders', data: sales.map(s => s.orders) }]} options={orderLineOptions} height={300} />
+                    : <EmptyChart height={300} />
+                  }
+                </CardBody>
+              </Card>
+            </Grid>
+          </Grid>
+
+          {/* Row 3: Three donut charts */}
+          <Grid container spacing={2.5}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <DonutWidget icon={Users} iconColor="#0ea5e9" title="Customer Segments" data={CUSTOMER_MOCK} colors={['#0ea5e9', '#6366f1', '#f59e0b']} isDark={isDark} />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <DonutWidget icon={Smartphone} iconColor="#8b5cf6" title="Device Analytics" data={DEVICE_MOCK} colors={['#8b5cf6', '#8b5cf6cc', '#8b5cf680']} isDark={isDark} />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 12, md: 4 }}>
+              <DonutWidget icon={Layers} iconColor="#10b981" title="Traffic Sources" data={TRAFFIC_MOCK} colors={['#10b981', '#6366f1', '#f59e0b', '#ec4899']} isDark={isDark} />
+            </Grid>
+          </Grid>
+
+          {/* Row 4: Product Performance — full width */}
+          <Grid container spacing={2.5}>
+            <Grid size={12}>
+              <Card>
+                <CardHeader title="Product Performance" subtitle={`Top 10 best-selling products — ${periodLabel}`} action={<BadgeChip color="amber" icon={Trophy} label="Top 10" />} />
+                <CardBody>
+                  {topProducts.length > 0 ? (
                     <ReactApexChart
                       type="bar"
-                      series={[{ name: 'Revenue', data: sales.map(s => s.revenue) }]}
-                      options={revenueBarOptions}
-                      height={260}
+                      series={[{ name: 'Units Sold', data: productBarData }]}
+                      options={{ ...productBarOptions, xaxis: { ...productBarOptions.xaxis, categories: productBarLabels } }}
+                      height={340}
                     />
-                  ) : (
-                    <div className="h-64 flex items-center justify-center">
-                      <p className="text-sm text-gray-400 dark:text-gray-500">No data for this period.</p>
-                    </div>
-                  )}
+                  ) : <EmptyChart height={340} />}
                 </CardBody>
               </Card>
-            </div>
+            </Grid>
+          </Grid>
 
-            <div className="flex-1 min-w-0">
-              <Card className="h-full">
-                <CardHeader
-                  title="Order Analytics"
-                  subtitle={`Order count trend — ${periodLabel}`}
-                  action={
-                    <span className="text-xs font-medium text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
-                      <ArrowRightLeft size={11} /> Orders
-                    </span>
-                  }
-                />
-                <CardBody>
-                  {sales.length > 0 ? (
-                    <ReactApexChart
-                      type="line"
-                      series={[{ name: 'Orders', data: sales.map(s => s.orders) }]}
-                      options={orderLineOptions}
-                      height={260}
-                    />
-                  ) : (
-                    <div className="h-64 flex items-center justify-center">
-                      <p className="text-sm text-gray-400 dark:text-gray-500">No data for this period.</p>
-                    </div>
-                  )}
-                </CardBody>
-              </Card>
-            </div>
-          </div>
-
-          {/* ── Row 3: Three donut charts (mock) ─────────────────────── */}
-          <div className="flex gap-5 mb-5 flex-wrap sm:flex-nowrap">
-            <div className="flex-1 min-w-0 basis-full sm:basis-auto">
-              <DonutWidget
-                icon={Users}
-                iconColor="#0ea5e9"
-                title="Customer Segments"
-                data={CUSTOMER_MOCK}
-                colors={['#0ea5e9', '#6366f1', '#f59e0b']}
-                isDark={isDark}
-              />
-            </div>
-            <div className="flex-1 min-w-0 basis-full sm:basis-auto">
-              <DonutWidget
-                icon={Smartphone}
-                iconColor="#8b5cf6"
-                title="Device Analytics"
-                data={DEVICE_MOCK}
-                colors={['#8b5cf6', '#8b5cf6cc', '#8b5cf680']}
-                isDark={isDark}
-              />
-            </div>
-            <div className="flex-1 min-w-0 basis-full sm:basis-auto">
-              <DonutWidget
-                icon={Layers}
-                iconColor="#10b981"
-                title="Traffic Sources"
-                data={TRAFFIC_MOCK}
-                colors={['#10b981', '#6366f1', '#f59e0b', '#ec4899']}
-                isDark={isDark}
-              />
-            </div>
-          </div>
-
-          {/* ── Row 4: Product Performance ──────────────────────────── */}
-          <div className="mb-5">
-            <Card>
-              <CardHeader
-                title="Product Performance"
-                subtitle={`Top 10 best-selling products — ${periodLabel}`}
-                action={
-                  <span className="text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
-                    <Trophy size={11} /> Top 10
-                  </span>
-                }
-              />
-              <CardBody>
-                {topProducts.length > 0 ? (
-                  <ReactApexChart
-                    type="bar"
-                    series={[{ name: 'Units Sold', data: productBarData }]}
-                    options={{
-                      ...productBarOptions,
-                      xaxis: {
-                        ...productBarOptions.xaxis,
-                        categories: productBarLabels,
-                      },
-                    }}
-                    height={280}
-                  />
-                ) : (
-                  <div className="h-72 flex items-center justify-center">
-                    <p className="text-sm text-gray-400 dark:text-gray-500">No product sales for this period.</p>
-                  </div>
-                )}
-              </CardBody>
-            </Card>
-          </div>
-
-          {/* ── Row 5: Top Categories + Top Brands ──────────────────── */}
-          <div className="flex gap-5 mb-5 flex-wrap md:flex-nowrap">
-            <div className="flex-1 min-w-0">
-              <Card className="h-full">
-                <CardHeader
-                  title="Top Performing Categories"
-                  subtitle={`By estimated revenue (sold × price) — ${periodLabel}`}
-                  action={
-                    <span className="text-xs font-medium text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
-                      <Layers size={11} /> Categories
-                    </span>
-                  }
-                />
+          {/* Row 5: Top Categories + Top Brands */}
+          <Grid container spacing={2.5}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ height: '100%' }}>
+                <CardHeader title="Top Performing Categories" subtitle={`By estimated revenue — ${periodLabel}`} action={<BadgeChip color="teal" icon={Layers} label="Categories" />} />
                 <CardBody>
                   {derived.topCategories.length > 0 ? (
                     <ReactApexChart
                       type="bar"
                       series={[{ name: 'Revenue', data: derived.topCategories.map(c => c.value) }]}
-                      options={{
-                        ...catBarOptions,
-                        xaxis: {
-                          ...catBarOptions.xaxis,
-                          categories: derived.topCategories.map(c => c.name),
-                        },
-                      }}
-                      height={220}
+                      options={{ ...catBarOptions, xaxis: { ...catBarOptions.xaxis, categories: derived.topCategories.map(c => c.name) } }}
+                      height={270}
                     />
-                  ) : (
-                    <div className="h-56 flex items-center justify-center">
-                      <p className="text-sm text-gray-400 dark:text-gray-500">No category data for this period.</p>
-                    </div>
-                  )}
+                  ) : <EmptyChart height={270} />}
                 </CardBody>
               </Card>
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <Card className="h-full">
-                <CardHeader
-                  title="Top Performing Brands"
-                  subtitle={`By total units sold — ${periodLabel}`}
-                  action={
-                    <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
-                      <Gem size={11} /> Brands
-                    </span>
-                  }
-                />
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ height: '100%' }}>
+                <CardHeader title="Top Performing Brands" subtitle={`By total units sold — ${periodLabel}`} action={<BadgeChip color="indigo" icon={Gem} label="Brands" />} />
                 <CardBody>
                   {derived.topBrands.length > 0 ? (
                     <ReactApexChart
                       type="bar"
                       series={[{ name: 'Units Sold', data: derived.topBrands.map(b => b.value) }]}
-                      options={{
-                        ...brandBarOptions,
-                        xaxis: {
-                          ...brandBarOptions.xaxis,
-                          categories: derived.topBrands.map(b => b.name),
-                        },
-                      }}
-                      height={220}
+                      options={{ ...brandBarOptions, xaxis: { ...brandBarOptions.xaxis, categories: derived.topBrands.map(b => b.name) } }}
+                      height={270}
                     />
-                  ) : (
-                    <div className="h-56 flex items-center justify-center">
-                      <p className="text-sm text-gray-400 dark:text-gray-500">No brand data for this period.</p>
-                    </div>
-                  )}
+                  ) : <EmptyChart height={270} />}
                 </CardBody>
               </Card>
-            </div>
-          </div>
+            </Grid>
+          </Grid>
 
-          {/* ── Row 6: Conversion Funnel + Period Comparison ─────────── */}
-          <div className="flex gap-5 flex-wrap md:flex-nowrap">
-            <div className="flex-1 min-w-0">
-              <Card className="h-full">
-                <CardHeader
-                  title="Conversion Funnel"
-                  subtitle="Visitor → Purchase journey"
-                  action={
-                    <span className="text-xs font-medium text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
-                      <Filter size={11} /> Sample data
-                    </span>
-                  }
-                />
+          {/* Row 6: Conversion Funnel + Period Comparison */}
+          <Grid container spacing={2.5}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ height: '100%' }}>
+                <CardHeader title="Conversion Funnel" subtitle="Visitor → Purchase journey" action={<BadgeChip color="violet2" icon={Filter} label="Sample data" />} />
                 <CardBody>
                   <ReactApexChart
                     type="bar"
                     series={[{ name: 'Count', data: FUNNEL_MOCK.map(f => f.value) }]}
                     options={funnelOptions}
-                    height={240}
+                    height={280}
                   />
                 </CardBody>
               </Card>
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <Card className="h-full">
-                <CardHeader
-                  title="Period Comparison"
-                  subtitle={`Revenue: last 2 data points in ${periodLabel}`}
-                  action={
-                    <span className="text-xs font-medium text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
-                      <ArrowRightLeft size={11} /> Compare
-                    </span>
-                  }
-                />
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card sx={{ height: '100%' }}>
+                <CardHeader title="Period Comparison" subtitle={`Revenue: last 2 data points in ${periodLabel}`} action={<BadgeChip color="orange" icon={ArrowRightLeft} label="Compare" />} />
                 <CardBody>
                   {derived.monthlyCompare.length >= 2 ? (
                     <ReactApexChart
                       type="bar"
                       series={[{ name: 'Revenue', data: derived.monthlyCompare.map(m => m.revenue) }]}
                       options={compareOptions}
-                      height={240}
+                      height={280}
                     />
-                  ) : (
-                    <div className="h-60 flex items-center justify-center">
-                      <p className="text-sm text-gray-400 dark:text-gray-500">
-                        Need at least 2 data points for this period.
-                      </p>
-                    </div>
-                  )}
+                  ) : <EmptyChart height={280} />}
                 </CardBody>
               </Card>
-            </div>
-          </div>
+            </Grid>
+          </Grid>
         </>
       )}
-    </div>
+    </Box>
   );
 }

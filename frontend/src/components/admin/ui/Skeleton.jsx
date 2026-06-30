@@ -1,37 +1,52 @@
-export function Skeleton({ className = '', width, height }) {
+import { Skeleton as MuiSkeleton, Box, Paper } from '@mui/material';
+
+export function Skeleton({ className = '', width, height, sx = {} }) {
   return (
-    <div
-      className={`animate-pulse bg-gray-200 dark:bg-gray-800 rounded-lg ${className}`}
-      style={{ width, height }}
+    <MuiSkeleton
+      variant="rectangular"
+      className={className}
+      width={width}
+      height={height || 16}
+      sx={{ borderRadius: 1, ...sx }}
     />
   );
 }
 
 export function SkeletonText({ lines = 1, className = '' }) {
   return (
-    <div className={`space-y-2 ${className}`}>
+    <Box className={className} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
       {Array.from({ length: lines }).map((_, i) => (
-        <Skeleton key={i} className="h-4" style={{ width: i === lines - 1 && lines > 1 ? '60%' : '100%' }} />
+        <MuiSkeleton
+          key={i}
+          variant="text"
+          width={i === lines - 1 && lines > 1 ? '65%' : '100%'}
+          height={14}
+          sx={{ borderRadius: 1 }}
+        />
       ))}
-    </div>
+    </Box>
   );
 }
 
 export function SkeletonCard({ className = '' }) {
   return (
-    <div className={`bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 space-y-4 ${className}`}>
-      <div className="flex items-center gap-3">
-        <Skeleton className="w-10 h-10 rounded-xl" />
-        <div className="flex-1 space-y-2">
-          <Skeleton className="h-4 w-32" />
-          <Skeleton className="h-3 w-20" />
-        </div>
-      </div>
-      <Skeleton className="h-20" />
-      <div className="flex gap-2">
-        <Skeleton className="h-8 flex-1 rounded-xl" />
-        <Skeleton className="h-8 w-20 rounded-xl" />
-      </div>
-    </div>
+    <Paper
+      elevation={0}
+      className={className}
+      sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', p: 3 }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
+        <MuiSkeleton variant="rectangular" width={44} height={44} sx={{ borderRadius: 2.5 }} />
+        <Box sx={{ flex: 1 }}>
+          <MuiSkeleton variant="text" width={120} height={16} sx={{ mb: 0.75 }} />
+          <MuiSkeleton variant="text" width={80} height={12} />
+        </Box>
+      </Box>
+      <MuiSkeleton variant="rectangular" height={80} sx={{ borderRadius: 1.5, mb: 2 }} />
+      <Box sx={{ display: 'flex', gap: 1 }}>
+        <MuiSkeleton variant="rectangular" height={32} sx={{ flex: 1, borderRadius: 1.5 }} />
+        <MuiSkeleton variant="rectangular" width={72} height={32} sx={{ borderRadius: 1.5 }} />
+      </Box>
+    </Paper>
   );
 }

@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   Plus, Pencil, Trash2, Image, GripVertical, Smartphone,
-  Star, Check, Search, Sparkles, Heart, X, Loader2,
+  Star, Check, Search, Sparkles, Heart, Loader2,
 } from 'lucide-react';
+import { Box, Paper, Grid, Typography, Switch, IconButton } from '@mui/material';
 import {
-  Button, IconBtn, Card, CardBody, Input, Textarea, Toggle,
-  Modal, Skeleton, EmptyState, Toast, useToast, Spinner,
+  Button, IconBtn, Input, Textarea, Toggle,
+  Modal, Skeleton,
 } from '../../components/admin/ui/index.js';
 import ImageUploader from '../../components/admin/ImageUploader';
 import api           from '../../services/api';
@@ -25,6 +26,31 @@ const SECTION_HINTS = {
   stories:       'Customer reviews and testimonials. Title = customer name · Badge = star rating (1–5) · Description = review text.',
 };
 
+// Aspect ratio per section — matches the actual image dimensions used in the mobile app
+const SECTION_ASPECT = {
+  banner_slider: '2/1',   // 1080×540 — wide hero banner
+  categories:    '1/1',   // 400×400 — square icon tile
+  offers:        '4/3',   // offer card
+  collections:   '3/2',   // collection landscape card
+  most_loved:    '1/1',   // product thumbnail (square)
+  gifting:       '3/2',   // gifting banner
+  trending:      '3/2',   // trending card
+  moodboard:     '4/5',   // portrait moodboard
+  iconic:        '1/1',   // iconic square tile
+  best_sellers:  '16/9',  // wide diamond banner
+  stories:       '1/1',   // customer avatar (square)
+};
+
+// Override grid columns per section — smaller tiles use more columns
+const SECTION_GRID = {
+  categories:  { size: { xs: 6, sm: 4, md: 2 }, spacing: 1.5 }, // 6 col
+  collections: { size: { xs: 6, sm: 4, md: 2 }, spacing: 1.5 }, // 6 col
+  trending:    { size: { xs: 6, sm: 4, md: 2 }, spacing: 1.5 }, // 6 col
+  moodboard:   { size: { xs: 6, sm: 4, md: 2 }, spacing: 1.5 }, // 6 col
+  iconic:      { size: { xs: 6, sm: 4, md: 2 }, spacing: 1.5 }, // 6 col
+};
+const DEFAULT_GRID = { size: { xs: 12, sm: 6, md: 4 }, spacing: 2 };
+
 const EMPTY_ITEM = {
   title: '', subtitle: '', description: '',
   imageUrl: '', ctaText: '', ctaLink: '', badge: '', active: true,
@@ -36,38 +62,24 @@ const SORT_TABS = [
   { value: 'newest',    label: 'Newest'          },
 ];
 
-// ── Thumb helper ──────────────────────────────────────────────────────────────
 function Thumb({ src, alt, size = 40 }) {
   const px = `${size}px`;
   return src ? (
-    <img
-      src={src}
-      alt={alt}
-      style={{ width: px, height: px }}
-      className="rounded-lg object-cover shrink-0 block"
-    />
+    <Box component="img" src={src} alt={alt} sx={{ width: px, height: px, borderRadius: 2, objectFit: 'cover', flexShrink: 0, display: 'block' }} />
   ) : (
-    <div
-      style={{ width: px, height: px }}
-      className="rounded-lg shrink-0 bg-gray-100 dark:bg-gray-800 flex items-center justify-center"
-    >
-      <Image size={size * 0.45} className="text-gray-300 dark:text-gray-600" />
-    </div>
+    <Box sx={{ width: px, height: px, borderRadius: 2, flexShrink: 0, bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'text.disabled' }}>
+      <Image size={size * 0.45} />
+    </Box>
   );
 }
 
-// ── Toggle switch (small inline) ──────────────────────────────────────────────
-function SmallToggle({ checked, onChange, title }) {
-  return (
-    <label className="relative inline-flex items-center cursor-pointer" title={title}>
-      <input type="checkbox" className="sr-only peer" checked={checked} onChange={onChange} />
-      <div className="w-8 h-4 bg-gray-200 dark:bg-gray-700 peer-checked:bg-indigo-600 rounded-full transition-colors duration-200" />
-      <div className="absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform duration-200 peer-checked:translate-x-4" />
-    </label>
-  );
-}
+const tableRowSx = {
+  borderTop: '1px solid', borderColor: 'divider',
+  '&:hover': { bgcolor: 'action.hover' }, transition: 'background-color 0.15s',
+};
+const thSx = { px: 1.5, py: 1, fontSize: 11, fontWeight: 600, color: 'text.secondary', textAlign: 'left', whiteSpace: 'nowrap' };
+const tdSx = { px: 1.5, py: 1, fontSize: 12 };
 
-// ── Most Loved: side-by-side split panel ──────────────────────────────────────
 function MostLovedPanel({ activeItems, loadingItems, onAdd, onEdit, onDelete, onToggle, onDragStart, onDrop, onOpenAdd }) {
   const [sortBy,      setSortBy]      = useState('purchased');
   const [category,    setCategory]    = useState('all');
@@ -101,9 +113,7 @@ function MostLovedPanel({ activeItems, loadingItems, onAdd, onEdit, onDelete, on
   const filtered = useMemo(() => {
     if (!search.trim()) return suggestions;
     const q = search.trim().toLowerCase();
-    return suggestions.filter(p =>
-      p.name?.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q)
-    );
+    return suggestions.filter(p => p.name?.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q));
   }, [suggestions, search]);
 
   const handleAdd = async (product) => {
@@ -112,107 +122,117 @@ function MostLovedPanel({ activeItems, loadingItems, onAdd, onEdit, onDelete, on
     setAdding(null);
   };
 
+  const chipSx = (active) => ({
+    px: 1.25, py: 0.25, fontSize: 11, fontWeight: 600, borderRadius: 5,
+    border: '1px solid', cursor: 'pointer', background: 'none', fontFamily: 'inherit',
+    borderColor: active ? 'primary.main' : 'divider',
+    bgcolor: active ? 'primary.main' : 'background.paper',
+    color: active ? '#fff' : 'text.secondary',
+    '&:hover': { borderColor: 'primary.light' },
+    transition: 'all 0.15s',
+  });
+
   return (
-    <div className="flex gap-4 items-start">
-
-      {/* ── LEFT: Suggestion table ───────────────────────────────────── */}
-      <div className="flex-[0_0_62%] border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-
+    <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+      {/* LEFT: Suggestion table */}
+      <Paper elevation={0} sx={{ flex: '0 0 62%', border: '1px solid', borderColor: 'divider', borderRadius: 2.5, overflow: 'hidden' }}>
         {/* Header */}
-        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex items-center gap-2">
-          <Sparkles size={16} className="text-indigo-500 shrink-0" />
-          <div>
-            <p className="text-sm font-bold text-gray-900 dark:text-white">Product Suggestions</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Browse and pick products to feature. Click Add to pin them to the mobile view.</p>
-          </div>
-        </div>
+        <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'action.hover', display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Sparkles size={16} style={{ color: '#6366f1', flexShrink: 0 }} />
+          <Box>
+            <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Product Suggestions</Typography>
+            <Typography sx={{ fontSize: 11.5, color: 'text.secondary' }}>Browse and pick products to feature. Click Add to pin them to the mobile view.</Typography>
+          </Box>
+        </Box>
 
-        {/* Search */}
-        <div className="px-4 pt-3 pb-2 border-b border-gray-200 dark:border-gray-700 space-y-2">
-          <div className="relative">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              className="w-full pl-8 pr-3 py-2 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
-              placeholder="Search by name or category…"
+        {/* Search + Sort */}
+        <Box sx={{ px: 2, pt: 1.5, pb: 1, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Box sx={{ position: 'relative' }}>
+            <Box sx={{ position: 'absolute', top: '50%', left: 12, transform: 'translateY(-50%)', color: 'text.disabled', display: 'flex' }}>
+              <Search size={14} />
+            </Box>
+            <Box
+              component="input"
               value={search}
               onChange={e => setSearch(e.target.value)}
+              placeholder="Search by name or category…"
+              sx={{
+                width: '100%', pl: 4.5, pr: 1.5, py: 1, fontSize: 13,
+                border: '1px solid', borderColor: 'divider', borderRadius: 2,
+                bgcolor: 'background.paper', color: 'text.primary',
+                outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box',
+                '&:focus': { borderColor: 'primary.main', boxShadow: '0 0 0 2px rgba(99,102,241,0.15)' },
+                '&::placeholder': { color: 'text.disabled' },
+              }}
             />
-          </div>
-          {/* Sort tabs */}
-          <div className="flex gap-1">
+          </Box>
+          <Box sx={{ display: 'flex', gap: 0.5 }}>
             {SORT_TABS.map(t => (
-              <button
+              <Box
                 key={t.value}
+                component="button"
                 onClick={() => { setSortBy(t.value); setSearch(''); }}
-                className={`px-3 py-1 text-xs rounded-lg font-medium transition-colors ${
-                  sortBy === t.value
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                }`}
+                sx={{
+                  px: 1.5, py: 0.5, fontSize: 12, fontWeight: 600, borderRadius: 1.5, border: 'none',
+                  cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+                  bgcolor: sortBy === t.value ? 'primary.main' : 'transparent',
+                  color: sortBy === t.value ? '#fff' : 'text.secondary',
+                  '&:hover': { bgcolor: sortBy === t.value ? 'primary.dark' : 'action.hover' },
+                }}
               >
                 {t.label}
-              </button>
+              </Box>
             ))}
-          </div>
-        </div>
+          </Box>
+        </Box>
 
         {/* Category chips */}
-        <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex gap-1.5 flex-wrap">
+        <Box sx={{ px: 2, py: 1, borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'action.hover', display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
           {['all', ...categories].map(cat => (
-            <button
-              key={cat}
-              onClick={() => { setCategory(cat); setSearch(''); }}
-              className={`px-2.5 py-0.5 text-xs rounded-full border font-medium transition-colors ${
-                category === cat
-                  ? 'bg-indigo-600 text-white border-indigo-600'
-                  : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-indigo-300'
-              }`}
-            >
+            <Box key={cat} component="button" onClick={() => { setCategory(cat); setSearch(''); }} sx={chipSx(category === cat)}>
               {cat === 'all' ? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1)}
-            </button>
+            </Box>
           ))}
-        </div>
+        </Box>
 
         {/* Table */}
-        <div className="overflow-auto max-h-[480px] admin-scroll">
-          <table className="w-full text-xs">
-            <thead className="bg-gray-50 dark:bg-gray-800/60 sticky top-0 z-10">
-              <tr>
-                <th className="text-left px-3 py-2 font-semibold text-gray-600 dark:text-gray-400 w-9">#</th>
-                <th className="text-left px-3 py-2 font-semibold text-gray-600 dark:text-gray-400">Product</th>
-                <th className="text-left px-3 py-2 font-semibold text-gray-600 dark:text-gray-400 hidden md:table-cell">Category</th>
-                <th className="text-left px-3 py-2 font-semibold text-gray-600 dark:text-gray-400 hidden sm:table-cell">Rating</th>
-                <th className="text-left px-3 py-2 font-semibold text-gray-600 dark:text-gray-400">Price</th>
-                {sortBy === 'purchased' && (
-                  <th className="text-left px-3 py-2 font-semibold text-gray-600 dark:text-gray-400 hidden md:table-cell">Sold</th>
-                )}
-                <th className="text-center px-3 py-2 font-semibold text-gray-600 dark:text-gray-400 w-20">Action</th>
-              </tr>
-            </thead>
-            <tbody>
+        <Box sx={{ overflowY: 'auto', maxHeight: 480 }} className="admin-scroll">
+          <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+            <Box component="thead" sx={{ bgcolor: 'action.hover', position: 'sticky', top: 0, zIndex: 1 }}>
+              <Box component="tr">
+                <Box component="th" sx={{ ...thSx, width: 36 }}>#</Box>
+                <Box component="th" sx={thSx}>Product</Box>
+                <Box component="th" sx={{ ...thSx, display: { xs: 'none', md: 'table-cell' } }}>Category</Box>
+                <Box component="th" sx={{ ...thSx, display: { xs: 'none', sm: 'table-cell' } }}>Rating</Box>
+                <Box component="th" sx={thSx}>Price</Box>
+                {sortBy === 'purchased' && <Box component="th" sx={{ ...thSx, display: { xs: 'none', md: 'table-cell' } }}>Sold</Box>}
+                <Box component="th" sx={{ ...thSx, textAlign: 'center', width: 80 }}>Action</Box>
+              </Box>
+            </Box>
+            <Box component="tbody">
               {loadingSugg ? (
                 Array.from({ length: 8 }).map((_, i) => (
-                  <tr key={i} className="border-t border-gray-100 dark:border-gray-800">
-                    <td className="px-3 py-2"><Skeleton className="h-3 w-4" /></td>
-                    <td className="px-3 py-2">
-                      <div className="flex items-center gap-2">
-                        <Skeleton className="h-9 w-9 rounded-lg shrink-0" />
-                        <Skeleton className="h-3 w-24" />
-                      </div>
-                    </td>
-                    <td className="px-3 py-2 hidden md:table-cell"><Skeleton className="h-3 w-14" /></td>
-                    <td className="px-3 py-2 hidden sm:table-cell"><Skeleton className="h-3 w-8" /></td>
-                    <td className="px-3 py-2"><Skeleton className="h-3 w-14" /></td>
-                    {sortBy === 'purchased' && <td className="px-3 py-2 hidden md:table-cell"><Skeleton className="h-3 w-6" /></td>}
-                    <td className="px-3 py-2"><Skeleton className="h-6 w-12 rounded-lg mx-auto" /></td>
-                  </tr>
+                  <Box component="tr" key={i} sx={tableRowSx}>
+                    <Box component="td" sx={tdSx}><Skeleton height={12} width={16} /></Box>
+                    <Box component="td" sx={tdSx}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Skeleton width={36} height={36} sx={{ borderRadius: 2, flexShrink: 0 }} />
+                        <Skeleton height={12} width={96} />
+                      </Box>
+                    </Box>
+                    <Box component="td" sx={{ ...tdSx, display: { xs: 'none', md: 'table-cell' } }}><Skeleton height={12} width={56} /></Box>
+                    <Box component="td" sx={{ ...tdSx, display: { xs: 'none', sm: 'table-cell' } }}><Skeleton height={12} width={32} /></Box>
+                    <Box component="td" sx={tdSx}><Skeleton height={12} width={56} /></Box>
+                    {sortBy === 'purchased' && <Box component="td" sx={{ ...tdSx, display: { xs: 'none', md: 'table-cell' } }}><Skeleton height={12} width={24} /></Box>}
+                    <Box component="td" sx={tdSx}><Skeleton height={24} width={48} sx={{ borderRadius: 2, mx: 'auto' }} /></Box>
+                  </Box>
                 ))
               ) : filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="text-center py-8 text-gray-400 dark:text-gray-600">
+                <Box component="tr">
+                  <Box component="td" colSpan={7} sx={{ ...tdSx, textAlign: 'center', py: 4, color: 'text.disabled' }}>
                     No products match this filter.
-                  </td>
-                </tr>
+                  </Box>
+                </Box>
               ) : (
                 filtered.map((product, idx) => {
                   const alreadyAdded = existingProductIds.has(product._id);
@@ -220,198 +240,198 @@ function MostLovedPanel({ activeItems, loadingItems, onAdd, onEdit, onDelete, on
                   const imgSrc       = getImageUrl(product.images?.[0]);
 
                   return (
-                    <tr
+                    <Box
+                      component="tr"
                       key={product._id}
-                      className={`border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors ${
-                        alreadyAdded ? 'bg-emerald-50 dark:bg-emerald-900/10' : ''
-                      }`}
+                      sx={{
+                        ...tableRowSx,
+                        bgcolor: alreadyAdded ? 'rgba(16,185,129,0.05)' : undefined,
+                      }}
                     >
-                      <td className="px-3 py-2 text-gray-400">{idx + 1}</td>
+                      <Box component="td" sx={{ ...tdSx, color: 'text.disabled' }}>{idx + 1}</Box>
 
-                      <td className="px-3 py-2">
-                        <div className="flex items-center gap-2">
-                          <div className="relative shrink-0">
+                      <Box component="td" sx={tdSx}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box sx={{ position: 'relative', flexShrink: 0 }}>
                             <Thumb src={imgSrc} alt={product.name} size={36} />
                             {alreadyAdded && (
-                              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center">
-                                <Check size={9} className="text-white" />
-                              </div>
+                              <Box sx={{ position: 'absolute', bottom: -4, right: -4, width: 16, height: 16, bgcolor: '#10b981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Check size={9} style={{ color: '#fff' }} />
+                              </Box>
                             )}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-semibold text-gray-800 dark:text-gray-100 line-clamp-2 leading-tight">
+                          </Box>
+                          <Box sx={{ minWidth: 0 }}>
+                            <Typography sx={{ fontSize: 12, fontWeight: 600, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: 1.3 }}>
                               {product.name}
-                            </p>
+                            </Typography>
                             {product.badge && (
-                              <span className="inline-block mt-0.5 px-1.5 py-px text-[10px] font-semibold bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-full">
+                              <Box sx={{ display: 'inline-block', mt: 0.25, px: 0.75, py: '1px', fontSize: 10, fontWeight: 600, bgcolor: 'rgba(99,102,241,0.1)', color: 'primary.main', borderRadius: 5 }}>
                                 {product.badge}
-                              </span>
+                              </Box>
                             )}
-                          </div>
-                        </div>
-                      </td>
+                          </Box>
+                        </Box>
+                      </Box>
 
-                      <td className="px-3 py-2 hidden md:table-cell text-gray-500 dark:text-gray-400 capitalize">
+                      <Box component="td" sx={{ ...tdSx, display: { xs: 'none', md: 'table-cell' }, color: 'text.secondary', textTransform: 'capitalize' }}>
                         {product.category}
-                      </td>
+                      </Box>
 
-                      <td className="px-3 py-2 hidden sm:table-cell">
+                      <Box component="td" sx={{ ...tdSx, display: { xs: 'none', sm: 'table-cell' } }}>
                         {product.rating > 0 ? (
-                          <div className="flex items-center gap-0.5">
-                            <Star size={11} className="text-amber-400 fill-amber-400" />
-                            <span className="font-semibold text-gray-700 dark:text-gray-300">{product.rating.toFixed(1)}</span>
-                            {product.reviewCount > 0 && (
-                              <span className="text-gray-400 text-[10px]">({product.reviewCount})</span>
-                            )}
-                          </div>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+                            <Star size={11} style={{ color: '#f59e0b', fill: '#f59e0b' }} />
+                            <Typography sx={{ fontSize: 12, fontWeight: 600 }}>{product.rating.toFixed(1)}</Typography>
+                            {product.reviewCount > 0 && <Typography sx={{ fontSize: 10, color: 'text.disabled' }}>({product.reviewCount})</Typography>}
+                          </Box>
                         ) : (
-                          <span className="text-gray-300 dark:text-gray-600">—</span>
+                          <Typography sx={{ fontSize: 12, color: 'text.disabled' }}>—</Typography>
                         )}
-                      </td>
+                      </Box>
 
-                      <td className="px-3 py-2 font-semibold text-gray-800 dark:text-gray-100">
+                      <Box component="td" sx={{ ...tdSx, fontWeight: 700 }}>
                         AED {product.price?.toLocaleString()}
-                      </td>
+                      </Box>
 
                       {sortBy === 'purchased' && (
-                        <td className="px-3 py-2 hidden md:table-cell text-gray-500 dark:text-gray-400">
+                        <Box component="td" sx={{ ...tdSx, display: { xs: 'none', md: 'table-cell' }, color: 'text.secondary' }}>
                           {product.soldCount > 0 ? product.soldCount : '—'}
-                        </td>
+                        </Box>
                       )}
 
-                      <td className="px-3 py-2 text-center">
+                      <Box component="td" sx={{ ...tdSx, textAlign: 'center' }}>
                         {alreadyAdded ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full">
+                          <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, px: 1, py: 0.25, fontSize: 10, fontWeight: 600, bgcolor: 'rgba(16,185,129,0.1)', color: '#059669', borderRadius: 5 }}>
                             <Check size={9} /> Added
-                          </span>
+                          </Box>
                         ) : (
-                          <button
+                          <Box
+                            component="button"
                             disabled={isAdding}
                             onClick={() => handleAdd(product)}
-                            className="inline-flex items-center justify-center gap-1 px-2.5 py-1 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg disabled:opacity-50 transition-colors"
+                            sx={{
+                              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 0.5,
+                              px: 1.25, py: 0.5, fontSize: 12, fontWeight: 600,
+                              bgcolor: 'primary.main', color: '#fff', borderRadius: 1.5, border: 'none',
+                              cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+                              '&:hover': { bgcolor: 'primary.dark' },
+                              '&:disabled': { opacity: 0.5, cursor: 'not-allowed' },
+                            }}
                           >
-                            {isAdding ? <Loader2 size={11} className="animate-spin" /> : 'Add'}
-                          </button>
+                            {isAdding ? <Loader2 size={11} style={{ animation: 'spin 1s linear infinite' }} /> : 'Add'}
+                          </Box>
                         )}
-                      </td>
-                    </tr>
+                      </Box>
+                    </Box>
                   );
                 })
               )}
-            </tbody>
-          </table>
-        </div>
+            </Box>
+          </Box>
+        </Box>
 
-        <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-          <p className="text-xs text-gray-400">
+        <Box sx={{ px: 2, py: 1, borderTop: '1px solid', borderColor: 'divider', bgcolor: 'action.hover' }}>
+          <Typography sx={{ fontSize: 11.5, color: 'text.disabled' }}>
             Showing {filtered.length} of {suggestions.length} products
-          </p>
-        </div>
-      </div>
+          </Typography>
+        </Box>
+      </Paper>
 
-      {/* ── RIGHT: Pinned items list ──────────────────────────────────── */}
-      <div className="flex-1 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden sticky top-20">
-        {/* Header */}
-        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex items-center gap-2">
-          <Heart size={16} className="text-rose-400 shrink-0" />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-bold text-gray-900 dark:text-white">Pinned in App</p>
-              <span className={`inline-flex items-center px-1.5 py-px text-[10px] font-semibold rounded-full ${
-                activeItems.length > 0
-                  ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
-              }`}>
+      {/* RIGHT: Pinned items list */}
+      <Paper elevation={0} sx={{ flex: 1, border: '1px solid', borderColor: 'divider', borderRadius: 2.5, overflow: 'hidden', position: 'sticky', top: 80 }}>
+        <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'action.hover', display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Heart size={16} style={{ color: '#fb7185', flexShrink: 0 }} />
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Pinned in App</Typography>
+              <Box sx={{
+                display: 'inline-flex', alignItems: 'center', px: 0.75, py: '1px', fontSize: 10, fontWeight: 600, borderRadius: 5,
+                bgcolor: activeItems.length > 0 ? 'rgba(99,102,241,0.1)' : 'action.hover',
+                color: activeItems.length > 0 ? 'primary.main' : 'text.disabled',
+              }}>
                 {activeItems.length}
-              </span>
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Drag rows to reorder</p>
-          </div>
-        </div>
+              </Box>
+            </Box>
+            <Typography sx={{ fontSize: 11.5, color: 'text.secondary' }}>Drag rows to reorder</Typography>
+          </Box>
+        </Box>
 
-        {/* Pinned list */}
         {loadingItems && activeItems.length === 0 ? (
-          <div className="p-3 space-y-3">
+          <Box sx={{ p: 1.5, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <Skeleton className="h-3 w-3" />
-                <Skeleton className="h-9 w-9 rounded-lg" />
-                <div className="flex-1 space-y-1">
-                  <Skeleton className="h-3 w-24" />
-                  <Skeleton className="h-2.5 w-16" />
-                </div>
-              </div>
+              <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Skeleton width={12} height={12} />
+                <Skeleton width={36} height={36} sx={{ borderRadius: 2 }} />
+                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+                  <Skeleton height={12} width={96} />
+                  <Skeleton height={10} width={64} />
+                </Box>
+              </Box>
             ))}
-          </div>
+          </Box>
         ) : activeItems.length === 0 ? (
-          <div className="text-center py-10 px-4">
-            <Heart size={32} className="mx-auto mb-2 text-gray-200 dark:text-gray-700" />
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">No products pinned yet</p>
-            <p className="text-xs text-gray-400 dark:text-gray-600 mt-0.5">Click Add in the suggestions table to feature a product.</p>
-          </div>
+          <Box sx={{ textAlign: 'center', py: 5, px: 2 }}>
+            <Box sx={{ color: 'text.disabled', mb: 1, display: 'flex', justifyContent: 'center' }}><Heart size={32} /></Box>
+            <Typography sx={{ fontSize: 13, fontWeight: 500, color: 'text.secondary' }}>No products pinned yet</Typography>
+            <Typography sx={{ fontSize: 11.5, color: 'text.disabled', mt: 0.25 }}>Click Add in the suggestions table to feature a product.</Typography>
+          </Box>
         ) : (
-          <div className="overflow-auto max-h-[480px] admin-scroll">
-            <table className="w-full text-xs">
-              <tbody>
+          <Box sx={{ overflowY: 'auto', maxHeight: 480 }} className="admin-scroll">
+            <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+              <Box component="tbody">
                 {activeItems.map((item, index) => (
-                  <tr
+                  <Box
+                    component="tr"
                     key={item._id}
                     draggable
                     onDragStart={() => onDragStart(index)}
                     onDragOver={e => e.preventDefault()}
                     onDrop={() => onDrop(index)}
-                    className={`border-t border-gray-100 dark:border-gray-800 cursor-grab active:cursor-grabbing hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-all ${
-                      item.active ? 'opacity-100' : 'opacity-50'
-                    }`}
+                    sx={{
+                      ...tableRowSx, cursor: 'grab', '&:active': { cursor: 'grabbing' },
+                      opacity: item.active ? 1 : 0.5, transition: 'opacity 0.15s, background-color 0.15s',
+                    }}
                   >
-                    <td className="pl-2 pr-1 py-2 w-6 text-gray-300 dark:text-gray-600">
+                    <Box component="td" sx={{ pl: 1, pr: 0.5, py: 1, width: 24, color: 'text.disabled' }}>
                       <GripVertical size={14} />
-                    </td>
-                    <td className="px-1 py-2 w-6 font-bold text-gray-400">{index + 1}</td>
-                    <td className="px-1 py-2 w-10">
+                    </Box>
+                    <Box component="td" sx={{ px: 0.5, py: 1, width: 24, fontWeight: 700, color: 'text.disabled', fontSize: 11 }}>
+                      {index + 1}
+                    </Box>
+                    <Box component="td" sx={{ px: 0.5, py: 1, width: 40 }}>
                       <Thumb src={getImageUrl(item.imageUrl)} alt={item.title} size={34} />
-                    </td>
-                    <td className="px-2 py-2 min-w-0">
-                      <p className="font-semibold text-gray-800 dark:text-gray-100 truncate max-w-[120px]">
-                        {item.title || <em className="text-gray-400">No title</em>}
-                      </p>
-                      {item.subtitle && (
-                        <p className="text-gray-400 dark:text-gray-500 text-[10px]">{item.subtitle}</p>
-                      )}
-                    </td>
-                    <td className="px-1 py-2 w-10">
-                      <SmallToggle
-                        checked={item.active}
-                        onChange={() => onToggle(item)}
-                        title={item.active ? 'Visible in app' : 'Hidden in app'}
-                      />
-                    </td>
-                    <td className="pr-2 py-2 w-16">
-                      <div className="flex items-center gap-0.5">
+                    </Box>
+                    <Box component="td" sx={{ px: 1, py: 1, minWidth: 0 }}>
+                      <Typography sx={{ fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 120 }}>
+                        {item.title || <Box component="em" sx={{ color: 'text.disabled', fontStyle: 'normal' }}>No title</Box>}
+                      </Typography>
+                      {item.subtitle && <Typography sx={{ fontSize: 10, color: 'text.secondary' }}>{item.subtitle}</Typography>}
+                    </Box>
+                    <Box component="td" sx={{ px: 0.5, py: 1, width: 40 }}>
+                      <Switch size="small" checked={item.active} onChange={() => onToggle(item)} title={item.active ? 'Visible in app' : 'Hidden in app'} sx={{ '& .MuiSwitch-thumb': { width: 12, height: 12 } }} />
+                    </Box>
+                    <Box component="td" sx={{ pr: 1, py: 1, width: 64 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
                         <IconBtn icon={Pencil} size="xs" label="Edit" onClick={() => onEdit(item)} />
-                        <IconBtn icon={Trash2} size="xs" label="Remove" variant="danger" onClick={() => onDelete(item)}
-                          className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20" />
-                      </div>
-                    </td>
-                  </tr>
+                        <IconBtn icon={Trash2} size="xs" label="Remove" variant="danger" onClick={() => onDelete(item)} sx={{ color: 'error.main', '&:hover': { bgcolor: 'rgba(239,68,68,0.08)' } }} />
+                      </Box>
+                    </Box>
+                  </Box>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </Box>
+            </Box>
+          </Box>
         )}
 
-        {/* Footer: Add custom item */}
-        <div className="p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-          <Button variant="outline" size="sm" icon={Plus} onClick={onOpenAdd} className="w-full justify-center">
+        <Box sx={{ p: 1.5, borderTop: '1px solid', borderColor: 'divider', bgcolor: 'action.hover' }}>
+          <Button variant="outline" size="sm" icon={Plus} onClick={onOpenAdd} style={{ width: '100%', justifyContent: 'center' }}>
             Add Custom Item
           </Button>
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Paper>
+    </Box>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
 
 export default function MobileDashboard() {
   const [sections, setSections]         = useState([]);
@@ -430,8 +450,6 @@ export default function MobileDashboard() {
   const dragSecRef                      = useRef(null);
 
   const setF = (k, v) => setForm(f => ({ ...f, [k]: v }));
-
-  // ── Sections ──────────────────────────────────────────────────────────────
 
   const loadSections = useCallback(async () => {
     try {
@@ -476,8 +494,6 @@ export default function MobileDashboard() {
       setError('Section reorder failed.');
     }
   };
-
-  // ── Items ─────────────────────────────────────────────────────────────────
 
   const loadItems = useCallback(async (sectionKey) => {
     try {
@@ -549,18 +565,12 @@ export default function MobileDashboard() {
     try {
       const currentCount = items[activeKey]?.length || 0;
       await api.post('/admin/mobile-assets', {
-        screen:    'dashboard',
-        section:   'most_loved',
-        slot:      'most_loved',
-        productId: product._id,
-        title:     product.name,
+        screen: 'dashboard', section: 'most_loved', slot: 'most_loved',
+        productId: product._id, title: product.name,
         subtitle:  `AED ${product.price?.toLocaleString() || ''}`,
         imageUrl:  product.images?.[0] || '',
-        ctaText:   'Shop Now',
-        ctaLink:   `/product/${product._id}`,
-        badge:     product.badge || '',
-        active:    true,
-        order:     currentCount + 1,
+        ctaText:   'Shop Now', ctaLink: `/product/${product._id}`,
+        badge:     product.badge || '', active: true, order: currentCount + 1,
       });
       setSuccess(`"${product.name}" added to Most Loved.`);
       setTimeout(() => setSuccess(''), 3000);
@@ -589,9 +599,7 @@ export default function MobileDashboard() {
       await api.put(`/admin/mobile-assets/${item._id}`, { active: !item.active });
       setItems(prev => ({
         ...prev,
-        [activeKey]: (prev[activeKey] || []).map(x =>
-          x._id === item._id ? { ...x, active: !x.active } : x
-        ),
+        [activeKey]: (prev[activeKey] || []).map(x => x._id === item._id ? { ...x, active: !x.active } : x),
       }));
     } catch {
       setError('Could not update item.');
@@ -616,150 +624,151 @@ export default function MobileDashboard() {
     }
   };
 
-  // ── Derived ───────────────────────────────────────────────────────────────
-
   const activeSection = sections.find(s => s.key === activeKey);
   const activeItems   = items[activeKey] || [];
   const isStories     = activeKey === 'stories';
   const isMostLoved   = activeKey === 'most_loved';
-
-  // ── Render ────────────────────────────────────────────────────────────────
+  const imgAspect     = SECTION_ASPECT[activeKey] || '3/2';
+  const gridCfg       = SECTION_GRID[activeKey] || DEFAULT_GRID;
 
   return (
-    <div>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       {/* Page header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-1">
-          <Smartphone size={22} className="text-gray-400" />
-          <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white">Mobile App Dashboard</h1>
-        </div>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+      <Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+          <Smartphone size={22} style={{ opacity: 0.5 }} />
+          <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>Mobile App Dashboard</Typography>
+        </Box>
+        <Typography sx={{ fontSize: 13, color: 'text.secondary' }}>
           Manage every section of the mobile app home screen. Toggle sections on/off, reorder them, and add or edit items within each section.
-        </p>
-      </div>
+        </Typography>
+      </Box>
 
       {error && (
-        <div className="mb-4 flex items-start gap-2 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-700 dark:text-red-400">
-          <span className="flex-1">{error}</span>
-          <button onClick={() => setError('')} className="shrink-0 hover:opacity-70"><X size={14} /></button>
-        </div>
+        <Paper elevation={0} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 2, py: 1.5, borderRadius: 2, border: '1px solid', bgcolor: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.3)' }}>
+          <Typography sx={{ flex: 1, fontSize: 13, color: 'error.main' }}>{error}</Typography>
+          <IconButton size="small" onClick={() => setError('')} sx={{ color: 'error.main', p: 0.25 }}>✕</IconButton>
+        </Paper>
       )}
       {success && (
-        <div className="mb-4 px-4 py-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl text-sm text-emerald-700 dark:text-emerald-400">
-          {success}
-        </div>
+        <Paper elevation={0} sx={{ px: 2, py: 1.5, borderRadius: 2, border: '1px solid', bgcolor: 'rgba(16,185,129,0.08)', borderColor: 'rgba(16,185,129,0.3)' }}>
+          <Typography sx={{ fontSize: 13, color: 'success.main' }}>{success}</Typography>
+        </Paper>
       )}
 
       {loadingSec && sections.length === 0 ? (
-        <div className="flex gap-6 items-start">
+        <Box sx={{ display: 'flex', gap: 3, alignItems: 'flex-start' }}>
           {/* Sidebar skeleton */}
-          <div className="w-60 shrink-0 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-              <Skeleton className="h-4 w-20 mb-1" />
-              <Skeleton className="h-3 w-36" />
-            </div>
+          <Paper elevation={0} sx={{ width: 240, flexShrink: 0, border: '1px solid', borderColor: 'divider', borderRadius: 2.5, overflow: 'hidden' }}>
+            <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+              <Skeleton height={16} width={80} sx={{ mb: 0.5 }} />
+              <Skeleton height={12} width={144} />
+            </Box>
             {Array.from({ length: 9 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-100 dark:border-gray-800">
-                <Skeleton className="h-3 w-3" />
-                <Skeleton className="h-3 flex-1" />
-                <Skeleton className="h-4 w-8 rounded-full" />
-              </div>
+              <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1.5, py: 1.25, borderBottom: '1px solid', borderColor: 'divider' }}>
+                <Skeleton width={12} height={12} />
+                <Skeleton height={12} sx={{ flex: 1 }} />
+                <Skeleton height={16} width={32} sx={{ borderRadius: 5 }} />
+              </Box>
             ))}
-          </div>
+          </Paper>
           {/* Content skeleton */}
-          <div className="flex-1">
-            <div className="flex justify-between mb-5">
-              <div><Skeleton className="h-6 w-36 mb-1" /><Skeleton className="h-4 w-52" /></div>
-              <Skeleton className="h-9 w-24 rounded-xl" />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Box sx={{ flex: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2.5 }}>
+              <Box>
+                <Skeleton height={24} width={144} sx={{ mb: 0.5 }} />
+                <Skeleton height={16} width={208} />
+              </Box>
+              <Skeleton height={36} width={96} sx={{ borderRadius: 2.5 }} />
+            </Box>
+            <Grid container spacing={2}>
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-                  <Skeleton className="h-36 w-full" />
-                  <div className="p-3 space-y-1.5">
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-3 w-1/2" />
-                  </div>
-                </div>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i}>
+                  <Paper elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2.5, overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <Box sx={{ aspectRatio: imgAspect, flexShrink: 0 }}><Skeleton variant="rectangular" sx={{ width: '100%', height: '100%' }} /></Box>
+                    <Box sx={{ p: 1.5, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+                      <Skeleton height={16} width="75%" />
+                      <Skeleton height={12} width="50%" />
+                    </Box>
+                  </Paper>
+                </Grid>
               ))}
-            </div>
-          </div>
-        </div>
+            </Grid>
+          </Box>
+        </Box>
       ) : (
-        <div className="flex gap-6 items-start">
-
-          {/* ── Left: section list ─────────────────────────────────────── */}
-          <div className="w-60 shrink-0 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden sticky top-20">
-            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-              <p className="text-sm font-bold text-gray-900 dark:text-white">Sections</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Drag to reorder · toggle to show/hide</p>
-            </div>
+        <Box sx={{ display: 'flex', gap: 3, alignItems: 'flex-start' }}>
+          {/* LEFT: Section list */}
+          <Paper elevation={0} sx={{ width: 240, flexShrink: 0, border: '1px solid', borderColor: 'divider', borderRadius: 2.5, overflow: 'hidden', position: 'sticky', top: 80 }}>
+            <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'action.hover' }}>
+              <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Sections</Typography>
+              <Typography sx={{ fontSize: 11.5, color: 'text.secondary' }}>Drag to reorder · toggle to show/hide</Typography>
+            </Box>
 
             {sections.map((sec, idx) => (
-              <div
+              <Box
                 key={sec._id}
                 draggable
                 onDragStart={() => handleSecDragStart(idx)}
                 onDragOver={e => e.preventDefault()}
                 onDrop={() => handleSecDrop(idx)}
                 onClick={() => selectSection(sec.key)}
-                className={`flex items-center gap-2 px-3 py-2.5 cursor-pointer border-l-[3px] transition-colors ${
-                  idx < sections.length - 1 ? 'border-b border-b-gray-100 dark:border-b-gray-800' : ''
-                } ${
-                  activeKey === sec.key
-                    ? 'border-l-indigo-600 bg-indigo-50 dark:bg-indigo-900/20'
-                    : 'border-l-transparent hover:bg-gray-50 dark:hover:bg-gray-800/40'
-                }`}
+                sx={{
+                  display: 'flex', alignItems: 'center', gap: 1, px: 1.5, py: 1.25,
+                  cursor: 'pointer',
+                  borderLeft: '3px solid',
+                  borderBottom: idx < sections.length - 1 ? '1px solid' : 'none',
+                  borderColor: activeKey === sec.key ? 'primary.main' : 'divider',
+                  bgcolor: activeKey === sec.key ? 'rgba(99,102,241,0.06)' : 'transparent',
+                  '&:hover': { bgcolor: activeKey === sec.key ? 'rgba(99,102,241,0.06)' : 'action.hover' },
+                  transition: 'background-color 0.15s',
+                }}
               >
-                <GripVertical size={14} className="text-gray-300 dark:text-gray-600 cursor-grab shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className={`text-sm truncate leading-tight ${
-                    activeKey === sec.key ? 'font-bold text-indigo-700 dark:text-indigo-300' : 'font-medium text-gray-700 dark:text-gray-300'
-                  }`}>
+                <GripVertical size={14} style={{ opacity: 0.3, cursor: 'grab', flexShrink: 0 }} />
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography sx={{
+                    fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.3,
+                    fontWeight: activeKey === sec.key ? 700 : 500,
+                    color: activeKey === sec.key ? 'primary.main' : 'text.primary',
+                  }}>
                     {sec.label}
-                  </p>
-                  <p className="text-xs text-gray-400 dark:text-gray-600">
+                  </Typography>
+                  <Typography sx={{ fontSize: 11, color: 'text.disabled' }}>
                     {items[sec.key] !== undefined
                       ? `${items[sec.key].length} item${items[sec.key].length !== 1 ? 's' : ''}`
                       : '—'}
-                  </p>
-                </div>
-                <div onClick={e => e.stopPropagation()}>
-                  <SmallToggle
-                    checked={sec.enabled}
-                    onChange={(e) => toggleSection(e, sec)}
-                    title={sec.enabled ? 'Hide section in app' : 'Show section in app'}
-                  />
-                </div>
-              </div>
+                  </Typography>
+                </Box>
+                <Box onClick={e => e.stopPropagation()}>
+                  <Switch size="small" checked={sec.enabled} onChange={(e) => toggleSection(e, sec)} title={sec.enabled ? 'Hide section in app' : 'Show section in app'} sx={{ '& .MuiSwitch-thumb': { width: 12, height: 12 } }} />
+                </Box>
+              </Box>
             ))}
-          </div>
+          </Paper>
 
-          {/* ── Right: item management ─────────────────────────────────── */}
-          <div className="flex-1 min-w-0">
+          {/* RIGHT: Item management */}
+          <Box sx={{ flex: 1, minWidth: 0 }}>
             {activeSection ? (
               <>
-                {/* Section header — hidden for Most Loved (panel has its own header) */}
                 {!isMostLoved && (
-                  <div className="flex items-start justify-between mb-5 flex-wrap gap-4">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">{activeSection.label}</h2>
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2.5, flexWrap: 'wrap', gap: 2 }}>
+                    <Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                        <Typography sx={{ fontSize: 16, fontWeight: 700 }}>{activeSection.label}</Typography>
                         {!activeSection.enabled && (
-                          <span className="px-2 py-0.5 text-xs font-medium border border-amber-400 text-amber-600 dark:text-amber-400 rounded-full">
+                          <Box sx={{ px: 1, py: 0.25, fontSize: 11, fontWeight: 500, border: '1px solid', borderColor: 'warning.main', color: 'warning.main', borderRadius: 5 }}>
                             Hidden in app
-                          </span>
+                          </Box>
                         )}
-                      </div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                      </Box>
+                      <Typography sx={{ fontSize: 13, color: 'text.secondary' }}>
                         {SECTION_HINTS[activeSection.key] || ''}
-                      </p>
-                    </div>
+                      </Typography>
+                    </Box>
                     <Button icon={Plus} onClick={openAdd}>Add Item</Button>
-                  </div>
+                  </Box>
                 )}
 
-                {/* ── Most Loved: split panel ── */}
                 {isMostLoved ? (
                   <MostLovedPanel
                     activeItems={activeItems}
@@ -772,124 +781,110 @@ export default function MobileDashboard() {
                     onDrop={handleItemDrop}
                     onOpenAdd={openAdd}
                   />
+                ) : loadingItems && !(items[activeKey]?.length > 0) ? (
+                  <Grid container spacing={gridCfg.spacing}>
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <Grid size={gridCfg.size} key={i}>
+                        <Paper elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2.5, overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                          <Box sx={{ aspectRatio: imgAspect, flexShrink: 0 }}><Skeleton variant="rectangular" sx={{ width: '100%', height: '100%' }} /></Box>
+                          <Box sx={{ p: 1.5, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+                            <Skeleton height={16} width="75%" />
+                            <Skeleton height={12} width="50%" />
+                          </Box>
+                        </Paper>
+                      </Grid>
+                    ))}
+                  </Grid>
+                ) : activeItems.length === 0 ? (
+                  <Box sx={{ border: '2px dashed', borderColor: 'divider', borderRadius: 3, py: 8, textAlign: 'center' }}>
+                    <Box sx={{ color: 'text.disabled', mb: 1.5, display: 'flex', justifyContent: 'center' }}><Image size={40} /></Box>
+                    <Typography sx={{ fontSize: 15, fontWeight: 600, color: 'text.secondary', mb: 0.5 }}>No items yet</Typography>
+                    <Typography sx={{ fontSize: 13, color: 'text.disabled', mb: 2.5 }}>
+                      Add the first item for the <Box component="strong" sx={{ color: 'text.primary' }}>{activeSection.label}</Box> section.
+                    </Typography>
+                    <Button icon={Plus} onClick={openAdd}>Add Item</Button>
+                  </Box>
                 ) : (
-                  /* ── All other sections: card grid ── */
-                  loadingItems && !(items[activeKey]?.length > 0) ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {Array.from({ length: 6 }).map((_, i) => (
-                        <div key={i} className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-                          <Skeleton className="h-36 w-full" />
-                          <div className="p-3 space-y-1.5">
-                            <Skeleton className="h-4 w-3/4" />
-                            <Skeleton className="h-3 w-1/2" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : activeItems.length === 0 ? (
-                    <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl py-16 text-center">
-                      <Image size={40} className="mx-auto mb-3 text-gray-300 dark:text-gray-600" />
-                      <h3 className="text-base font-semibold text-gray-600 dark:text-gray-400">No items yet</h3>
-                      <p className="text-sm text-gray-400 dark:text-gray-600 mb-4">
-                        Add the first item for the <strong>{activeSection.label}</strong> section.
-                      </p>
-                      <Button icon={Plus} onClick={openAdd}>Add Item</Button>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {activeItems.map((item, index) => (
-                        <div
-                          key={item._id}
+                  <Grid container spacing={gridCfg.spacing}>
+                    {activeItems.map((item, index) => (
+                      <Grid size={gridCfg.size} key={item._id}>
+                        <Paper
+                          elevation={0}
                           draggable
                           onDragStart={() => handleItemDragStart(index)}
                           onDragOver={e => e.preventDefault()}
                           onDrop={() => handleItemDrop(index)}
-                          className={`border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden flex flex-col cursor-grab active:cursor-grabbing transition-opacity ${
-                            item.active ? 'opacity-100' : 'opacity-55'
-                          }`}
+                          sx={{
+                            border: '1px solid', borderColor: 'divider', borderRadius: 2.5, overflow: 'hidden',
+                            display: 'flex', flexDirection: 'column', height: '100%',
+                            cursor: 'grab', '&:active': { cursor: 'grabbing' },
+                            opacity: item.active ? 1 : 0.55, transition: 'opacity 0.15s',
+                          }}
                         >
-                          {/* Image area */}
-                          <div className="h-36 bg-gray-100 dark:bg-gray-800 relative overflow-hidden shrink-0 flex items-center justify-center">
+                          <Box sx={{ aspectRatio: imgAspect, bgcolor: 'action.hover', position: 'relative', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             {item.imageUrl ? (
-                              <img
-                                src={getImageUrl(item.imageUrl)}
-                                alt={item.title}
-                                className="w-full h-full object-cover"
-                              />
+                              <Box component="img" src={getImageUrl(item.imageUrl)} alt={item.title} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             ) : (
-                              <div className="text-center text-gray-400 dark:text-gray-600">
-                                <Image size={32} className="mx-auto" />
-                                <span className="text-xs block mt-1">No image</span>
-                              </div>
+                              <Box sx={{ textAlign: 'center', color: 'text.disabled' }}>
+                                <Image size={32} />
+                                <Typography sx={{ fontSize: 11, mt: 0.5 }}>No image</Typography>
+                              </Box>
                             )}
-                            {/* Position badge */}
-                            <div className="absolute top-2 left-2 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md">
+                            <Box sx={{ position: 'absolute', top: 8, left: 8, bgcolor: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 10, fontWeight: 700, px: 0.75, py: 0.25, borderRadius: 1 }}>
                               #{index + 1}
-                            </div>
-                            {/* Drag handle */}
-                            <div className="absolute top-2 right-2 text-white/70">
+                            </Box>
+                            <Box sx={{ position: 'absolute', top: 8, right: 8, color: 'rgba(255,255,255,0.7)' }}>
                               <GripVertical size={16} />
-                            </div>
-                            {/* Badge chip */}
+                            </Box>
                             {item.badge && (
-                              <div className="absolute bottom-2 left-2 bg-indigo-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                              <Box sx={{ position: 'absolute', bottom: 8, left: 8, bgcolor: 'primary.main', color: '#fff', fontSize: 10, fontWeight: 700, px: 1, py: 0.25, borderRadius: 5 }}>
                                 {item.badge}
-                              </div>
+                              </Box>
                             )}
-                          </div>
+                          </Box>
 
-                          {/* Content */}
-                          <div className="p-3 flex-1 flex flex-col">
-                            <p className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">
-                              {item.title || <em className="text-gray-400 font-normal">No title</em>}
-                            </p>
-                            {item.subtitle && (
-                              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{item.subtitle}</p>
-                            )}
-                            {item.description && (
-                              <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 line-clamp-1">{item.description}</p>
-                            )}
-                            {item.ctaText && (
-                              <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-0.5">CTA: {item.ctaText}</p>
-                            )}
-                            <div className="flex items-center gap-2 mt-auto pt-3">
-                              <button
+                          <Box sx={{ p: 1.5, flex: 1, display: 'flex', flexDirection: 'column' }}>
+                            <Typography sx={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {item.title || <Box component="em" sx={{ color: 'text.disabled', fontStyle: 'normal', fontWeight: 400 }}>No title</Box>}
+                            </Typography>
+                            {item.subtitle && <Typography sx={{ fontSize: 12, color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.subtitle}</Typography>}
+                            {item.description && <Typography sx={{ fontSize: 11.5, color: 'text.disabled', mt: 0.25, display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.description}</Typography>}
+                            {item.ctaText && <Typography sx={{ fontSize: 11.5, color: 'primary.main', mt: 0.25 }}>CTA: {item.ctaText}</Typography>}
+
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 'auto', pt: 1.5 }}>
+                              <Box
+                                component="button"
                                 onClick={() => openEdit(item)}
-                                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                                sx={{
+                                  flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75,
+                                  px: 1.5, py: 0.75, fontSize: 12, fontWeight: 500,
+                                  border: '1px solid', borderColor: 'divider', color: 'text.secondary',
+                                  borderRadius: 1.5, background: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                                  '&:hover': { bgcolor: 'action.hover' }, transition: 'background-color 0.15s',
+                                }}
                               >
                                 <Pencil size={12} /> Edit
-                              </button>
-                              <SmallToggle
-                                checked={item.active}
-                                onChange={() => toggleItemActive(item)}
-                                title={item.active ? 'Hide item' : 'Show item'}
-                              />
-                              <IconBtn
-                                icon={Trash2}
-                                size="sm"
-                                label="Delete"
-                                onClick={() => setDeleteTarget(item)}
-                                className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )
+                              </Box>
+                              <Switch size="small" checked={item.active} onChange={() => toggleItemActive(item)} title={item.active ? 'Hide item' : 'Show item'} sx={{ '& .MuiSwitch-thumb': { width: 12, height: 12 } }} />
+                              <IconBtn icon={Trash2} size="sm" label="Delete" onClick={() => setDeleteTarget(item)} sx={{ color: 'error.main', '&:hover': { bgcolor: 'rgba(239,68,68,0.08)' } }} />
+                            </Box>
+                          </Box>
+                        </Paper>
+                      </Grid>
+                    ))}
+                  </Grid>
                 )}
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center py-24 text-gray-400 dark:text-gray-600">
-                <Image size={40} className="mb-2" />
-                <p className="text-sm">Select a section from the left to manage its items</p>
-              </div>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', py: 12, color: 'text.disabled' }}>
+                <Image size={40} />
+                <Typography sx={{ fontSize: 13, mt: 1, color: 'text.disabled' }}>Select a section from the left to manage its items</Typography>
+              </Box>
             )}
-          </div>
-        </div>
+          </Box>
+        </Box>
       )}
 
-      {/* ── Add / Edit dialog ─────────────────────────────────────────────── */}
       <Modal
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
@@ -898,83 +893,36 @@ export default function MobileDashboard() {
         footer={
           <>
             <Button variant="secondary" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button
-              onClick={handleSave}
-              loading={saving}
-              disabled={saving || (!isStories && !form.imageUrl)}
-            >
+            <Button onClick={handleSave} loading={saving} disabled={saving || (!isStories && !form.imageUrl)}>
               {editTarget ? 'Update' : 'Add Item'}
             </Button>
           </>
         }
       >
         {activeSection && (
-          <p className="text-xs text-gray-500 dark:text-gray-400 -mt-2 mb-4">Section: {activeSection.label}</p>
+          <Typography sx={{ fontSize: 12, color: 'text.secondary', mt: -1, mb: 2 }}>Section: {activeSection.label}</Typography>
         )}
-        <div className="space-y-4">
-          <div>
-            <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <Box>
+            <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'text.secondary', mb: 1 }}>
               {isStories ? 'Customer Avatar (optional)' : 'Image *'}
-            </p>
-            <ImageUploader
-              images={form.imageUrl ? [form.imageUrl] : []}
-              onChange={urls => setF('imageUrl', urls[0] || '')}
-              maxImages={1}
-              category="mobile"
-              single
-            />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
-              label={isStories ? 'Customer Name' : 'Title'}
-              required={isStories}
-              value={form.title}
-              onChange={e => setF('title', e.target.value)}
-              autoFocus
-            />
-            <Input
-              label={isStories ? 'Star Rating (1–5)' : 'Badge / Label'}
-              value={form.badge}
-              onChange={e => setF('badge', e.target.value)}
-              placeholder={isStories ? 'e.g. 5' : 'e.g. BEST SELL · 50% OFF'}
-            />
-          </div>
-          <Input
-            label="Subtitle"
-            value={form.subtitle}
-            onChange={e => setF('subtitle', e.target.value)}
-            placeholder="Short supporting text shown below the title"
-          />
-          <Textarea
-            label={isStories ? 'Review Text' : 'Description'}
-            value={form.description}
-            onChange={e => setF('description', e.target.value)}
-            placeholder={isStories ? 'What the customer said…' : 'Additional detail or promotional copy'}
-            rows={2}
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
-              label="CTA Button Text"
-              value={form.ctaText}
-              onChange={e => setF('ctaText', e.target.value)}
-              placeholder="e.g. Shop Now · Explore"
-            />
-            <Input
-              label="CTA Link / Deep Link"
-              value={form.ctaLink}
-              onChange={e => setF('ctaLink', e.target.value)}
-              placeholder="e.g. /category/rings"
-            />
-          </div>
-          <Toggle
-            label="Active (visible in app)"
-            checked={form.active}
-            onChange={e => setF('active', e.target.checked)}
-          />
-        </div>
+            </Typography>
+            <ImageUploader images={form.imageUrl ? [form.imageUrl] : []} onChange={urls => setF('imageUrl', urls[0] || '')} maxImages={1} category="mobile" single />
+          </Box>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+            <Input label={isStories ? 'Customer Name' : 'Title'} required={isStories} value={form.title} onChange={e => setF('title', e.target.value)} autoFocus />
+            <Input label={isStories ? 'Star Rating (1–5)' : 'Badge / Label'} value={form.badge} onChange={e => setF('badge', e.target.value)} placeholder={isStories ? 'e.g. 5' : 'e.g. BEST SELL · 50% OFF'} />
+          </Box>
+          <Input label="Subtitle" value={form.subtitle} onChange={e => setF('subtitle', e.target.value)} placeholder="Short supporting text shown below the title" />
+          <Textarea label={isStories ? 'Review Text' : 'Description'} value={form.description} onChange={e => setF('description', e.target.value)} placeholder={isStories ? 'What the customer said…' : 'Additional detail or promotional copy'} rows={2} />
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+            <Input label="CTA Button Text" value={form.ctaText} onChange={e => setF('ctaText', e.target.value)} placeholder="e.g. Shop Now · Explore" />
+            <Input label="CTA Link / Deep Link" value={form.ctaLink} onChange={e => setF('ctaLink', e.target.value)} placeholder="e.g. /category/rings" />
+          </Box>
+          <Toggle label="Active (visible in app)" checked={form.active} onChange={e => setF('active', e.target.checked)} />
+        </Box>
       </Modal>
 
-      {/* ── Delete confirm dialog ──────────────────────────────────────────── */}
       <Modal
         open={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
@@ -987,10 +935,10 @@ export default function MobileDashboard() {
           </>
         }
       >
-        <p className="text-sm text-gray-700 dark:text-gray-300">
-          Remove <strong>{deleteTarget?.title || 'this item'}</strong> from the mobile view? This cannot be undone.
-        </p>
+        <Typography sx={{ fontSize: '13.5px', color: 'text.secondary', lineHeight: 1.6 }}>
+          Remove <Box component="strong" sx={{ color: 'text.primary', fontWeight: 600 }}>{deleteTarget?.title || 'this item'}</Box> from the mobile view? This cannot be undone.
+        </Typography>
       </Modal>
-    </div>
+    </Box>
   );
 }

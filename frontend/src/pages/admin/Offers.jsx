@@ -4,6 +4,7 @@ import {
   Plus, Edit2, Trash2, Timer, Tag, Flame, Star,
   ArrowUp, ArrowDown, Eye, EyeOff, Search, PlusCircle, MinusCircle,
 } from 'lucide-react';
+import { Box, Paper, Grid, Typography, IconButton } from '@mui/material';
 import {
   Button, IconBtn, Card, Modal, Input, Textarea, Toggle,
   Badge, PageHeader, Skeleton, Spinner,
@@ -11,7 +12,6 @@ import {
 import ImageUploader from '../../components/admin/ImageUploader';
 import api from '../../services/api';
 
-// ── Countdown display ─────────────────────────────────────────────────────────
 function CountdownTimer({ endDate }) {
   const [parts, setParts] = useState([0, 0, 0, 0]);
   const [expired, setExpired] = useState(false);
@@ -34,22 +34,25 @@ function CountdownTimer({ endDate }) {
   }, [endDate]);
 
   if (expired) {
-    return <span className="text-xs font-bold text-red-500 font-mono">Expired</span>;
+    return <Typography component="span" sx={{ fontSize: 12, fontWeight: 700, color: 'error.main', fontFamily: 'monospace' }}>Expired</Typography>;
   }
 
   return (
-    <div className="flex items-center gap-1.5 text-center">
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, textAlign: 'center' }}>
       {['Days', 'Hours', 'Mins', 'Secs'].map((unit, i) => (
-        <div key={unit} className="bg-gray-900 dark:bg-gray-800 text-white rounded-xl p-2.5 min-w-[52px]">
-          <div className="text-xl font-bold tabular-nums leading-none">{parts[i].toString().padStart(2, '0')}</div>
-          <div className="text-[10px] text-gray-400 uppercase tracking-wider mt-1">{unit}</div>
-        </div>
+        <Box key={unit} sx={{ bgcolor: '#111827', color: '#fff', borderRadius: 2.5, p: 1.25, minWidth: 52 }}>
+          <Typography sx={{ fontSize: 20, fontWeight: 700, fontFamily: 'monospace', lineHeight: 1, color: '#fff' }}>
+            {parts[i].toString().padStart(2, '0')}
+          </Typography>
+          <Typography sx={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.08em', mt: 0.5 }}>
+            {unit}
+          </Typography>
+        </Box>
       ))}
-    </div>
+    </Box>
   );
 }
 
-// ── Inline countdown for card (compact text) ──────────────────────────────────
 function CountdownInline({ endDate }) {
   const [timeLeft, setTimeLeft] = useState('');
   useEffect(() => {
@@ -66,12 +69,9 @@ function CountdownInline({ endDate }) {
     const t = setInterval(calc, 1000);
     return () => clearInterval(t);
   }, [endDate]);
-  return (
-    <span className="font-mono text-xs font-bold text-amber-600 dark:text-amber-400">{timeLeft}</span>
-  );
+  return <Box component="span" sx={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color: 'warning.main' }}>{timeLeft}</Box>;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 function toDateInput(iso) { return iso ? iso.slice(0, 16) : ''; }
 
 function offerStatus(o) {
@@ -92,7 +92,18 @@ const EMPTY_FORM = {
   bannerCtaText: 'See More Product', bannerCtaLink: '/', bannerActive: true,
 };
 
-// ── Main component ────────────────────────────────────────────────────────────
+function SectionDivider({ label }) {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, my: 1 }}>
+      <Box sx={{ flex: 1, height: 1, bgcolor: 'divider' }} />
+      <Typography sx={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'text.disabled', whiteSpace: 'nowrap' }}>
+        {label}
+      </Typography>
+      <Box sx={{ flex: 1, height: 1, bgcolor: 'divider' }} />
+    </Box>
+  );
+}
+
 export default function Offers() {
   const [offers, setOffers]           = useState([]);
   const [loading, setLoading]         = useState(false);
@@ -100,22 +111,18 @@ export default function Offers() {
   const [error, setError]             = useState('');
   const [success, setSuccess]         = useState('');
 
-  // Offer dialog
   const [dialogOpen, setDialogOpen]   = useState(false);
   const [editTarget, setEditTarget]   = useState(null);
   const [form, setForm]               = useState(EMPTY_FORM);
 
-  // Products dialog
   const [prodDialogOpen, setProdDialogOpen] = useState(false);
   const [prodTarget, setProdTarget]   = useState(null);
   const [assignedProducts, setAssignedProducts] = useState([]);
 
-  // Product search autocomplete
   const [productOptions, setProductOptions] = useState([]);
   const [prodSearch, setProdSearch]   = useState('');
   const searchTimer = useRef(null);
 
-  // Hot-deal suggestions
   const [suggestions, setSuggestions]         = useState([]);
   const [loadingSuggestions, setLoadingSugg]  = useState(false);
 
@@ -123,7 +130,6 @@ export default function Offers() {
 
   const setF = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-  // ── Load all offers ─────────────────────────────────────────────────────────
   const load = useCallback(async () => {
     try {
       setLoading(true);
@@ -138,7 +144,6 @@ export default function Offers() {
 
   useEffect(() => { load(); }, [load]);
 
-  // ── Search products for autocomplete ───────────────────────────────────────
   useEffect(() => {
     if (!prodSearch.trim()) { setProductOptions([]); return; }
     clearTimeout(searchTimer.current);
@@ -154,12 +159,7 @@ export default function Offers() {
     }, 350);
   }, [prodSearch, assignedProducts]);
 
-  // ── Offer CRUD ──────────────────────────────────────────────────────────────
-  const openAdd = () => {
-    setEditTarget(null);
-    setForm(EMPTY_FORM);
-    setDialogOpen(true);
-  };
+  const openAdd = () => { setEditTarget(null); setForm(EMPTY_FORM); setDialogOpen(true); };
 
   const openEdit = (o) => {
     setEditTarget(o);
@@ -187,11 +187,7 @@ export default function Offers() {
     setSaving(true);
     setError('');
     try {
-      const payload = {
-        ...form,
-        startDate: form.startDate || null,
-        endDate:   form.endDate   || null,
-      };
+      const payload = { ...form, startDate: form.startDate || null, endDate: form.endDate || null };
       if (editTarget) {
         await api.put(`/admin/offers/${editTarget._id}`, payload);
       } else {
@@ -227,7 +223,6 @@ export default function Offers() {
     }
   };
 
-  // ── Product management dialog ────────────────────────────────────────────────
   const openProdDialog = async (o) => {
     setProdTarget(o);
     const list = (o.products || []).map((p, i) => ({
@@ -243,7 +238,6 @@ export default function Offers() {
     setSuggestions([]);
     setProdDialogOpen(true);
 
-    // Fetch hot-deal suggestions (≥50% off)
     setLoadingSugg(true);
     try {
       const res = await api.get('/offers/hot-deals?minDiscount=50&limit=30');
@@ -258,10 +252,7 @@ export default function Offers() {
 
   const addProduct = (product) => {
     if (!product) return;
-    setAssignedProducts(prev => [
-      ...prev,
-      { product, enabled: true, featured: false, displayOrder: prev.length },
-    ]);
+    setAssignedProducts(prev => [...prev, { product, enabled: true, featured: false, displayOrder: prev.length }]);
     setProdSearch('');
     setProductOptions([]);
     setSuggestions(prev => prev.filter(p => p._id !== product._id));
@@ -311,9 +302,8 @@ export default function Offers() {
     }
   };
 
-  // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <div>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       <PageHeader
         title="Offers & Countdown"
         subtitle="Manage limited-time offers, assign products, and configure countdown timers"
@@ -322,47 +312,48 @@ export default function Offers() {
 
       {/* Alerts */}
       {error && (
-        <div className="mb-4 flex items-center gap-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-4 py-3 text-sm text-red-700 dark:text-red-300">
-          <span className="flex-1">{error}</span>
-          <button onClick={() => setError('')} className="text-red-400 hover:text-red-600 font-bold">✕</button>
-        </div>
+        <Paper elevation={0} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 2, py: 1.5, borderRadius: 2, border: '1px solid', bgcolor: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.3)' }}>
+          <Typography sx={{ flex: 1, fontSize: 13, color: 'error.main' }}>{error}</Typography>
+          <IconButton size="small" onClick={() => setError('')} sx={{ color: 'error.main', p: 0.25 }}>✕</IconButton>
+        </Paper>
       )}
       {success && (
-        <div className="mb-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300">
-          {success}
-        </div>
+        <Paper elevation={0} sx={{ px: 2, py: 1.5, borderRadius: 2, border: '1px solid', bgcolor: 'rgba(16,185,129,0.08)', borderColor: 'rgba(16,185,129,0.3)' }}>
+          <Typography sx={{ fontSize: 13, color: 'success.main' }}>{success}</Typography>
+        </Paper>
       )}
 
       {/* Offer Cards Grid */}
       {loading && offers.length === 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Grid container spacing={2}>
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 space-y-3">
-              <div className="flex justify-between items-start">
-                <div className="flex items-center gap-3">
-                  <Skeleton className="w-9 h-9 rounded-xl" />
-                  <div className="space-y-1.5">
-                    <Skeleton className="h-4 w-36" />
-                    <Skeleton className="h-3 w-24" />
-                  </div>
-                </div>
-                <Skeleton className="h-5 w-16 rounded-full" />
-              </div>
-              <hr className="border-gray-100 dark:border-gray-800" />
-              <Skeleton className="h-3 w-full" />
-              <Skeleton className="h-3 w-4/5" />
-              <Skeleton className="h-2 w-full rounded-full mt-1" />
-              <div className="flex gap-2 pt-1">
-                <Skeleton className="h-8 flex-1 rounded-xl" />
-                <Skeleton className="h-8 flex-1 rounded-xl" />
-                <Skeleton className="h-8 flex-1 rounded-xl" />
-                <Skeleton className="h-8 w-8 rounded-xl" />
-              </div>
-            </div>
+            <Grid size={{ xs: 12, md: 6 }} key={i}>
+              <Paper elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', p: 2.5 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Skeleton width={36} height={36} sx={{ borderRadius: 2 }} />
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+                      <Skeleton height={16} width={144} />
+                      <Skeleton height={12} width={96} />
+                    </Box>
+                  </Box>
+                  <Skeleton height={20} width={64} sx={{ borderRadius: 5 }} />
+                </Box>
+                <Box sx={{ borderTop: '1px solid', borderColor: 'divider', pt: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Skeleton height={12} />
+                  <Skeleton height={12} width="80%" />
+                  <Skeleton height={6} sx={{ borderRadius: 3, mt: 0.5 }} />
+                  <Box sx={{ display: 'flex', gap: 1, pt: 0.5 }}>
+                    {[1,2,3].map(j => <Skeleton key={j} height={32} sx={{ flex: 1, borderRadius: 2 }} />)}
+                    <Skeleton height={32} width={32} sx={{ borderRadius: 2 }} />
+                  </Box>
+                </Box>
+              </Paper>
+            </Grid>
           ))}
-        </div>
+        </Grid>
       ) : (
-        <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 transition-opacity ${loading ? 'opacity-50' : ''}`}>
+        <Grid container spacing={2} sx={{ opacity: loading ? 0.5 : 1, transition: 'opacity 0.2s' }}>
           {offers.map(o => {
             const st = offerStatus(o);
             const now = Date.now();
@@ -372,111 +363,92 @@ export default function Offers() {
             const expired  = st === 'expired';
 
             return (
-              <div key={o._id} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col">
-                <div className="flex-1 p-5">
-                  {/* Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
-                        <Tag size={18} />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{o.title}</p>
-                        {o.subtitle && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{o.subtitle}</p>
-                        )}
-                      </div>
-                    </div>
-                    <Badge variant={STATUS_BADGE[st]} className="shrink-0">{STATUS_LABEL[st]}</Badge>
-                  </div>
+              <Grid size={{ xs: 12, md: 6 }} key={o._id}>
+                <Paper elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', display: 'flex', flexDirection: 'column', height: '100%' }}>
+                  <Box sx={{ flex: 1, p: 2.5 }}>
+                    {/* Header */}
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2.5 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
+                        <Box sx={{ width: 36, height: 36, borderRadius: 2.5, bgcolor: 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d97706', flexShrink: 0 }}>
+                          <Tag size={18} />
+                        </Box>
+                        <Box sx={{ minWidth: 0 }}>
+                          <Typography sx={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{o.title}</Typography>
+                          {o.subtitle && <Typography sx={{ fontSize: 12, color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{o.subtitle}</Typography>}
+                        </Box>
+                      </Box>
+                      <Box sx={{ flexShrink: 0 }}>
+                        <Badge variant={STATUS_BADGE[st]}>{STATUS_LABEL[st]}</Badge>
+                      </Box>
+                    </Box>
 
-                  <hr className="border-gray-100 dark:border-gray-800 mb-4" />
+                    <Box sx={{ borderTop: '1px solid', borderColor: 'divider', pt: 2, display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+                      {/* Products count */}
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>Products assigned</Typography>
+                        <Typography sx={{ fontSize: 12, fontWeight: 700, color: 'primary.main' }}>
+                          {(o.products || []).filter(p => p.enabled).length} / {(o.products || []).length}
+                        </Typography>
+                      </Box>
 
-                  <div className="space-y-2.5">
-                    {/* Products count */}
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-gray-500 dark:text-gray-400">Products assigned</span>
-                      <span className="font-bold text-indigo-600 dark:text-indigo-400">
-                        {(o.products || []).filter(p => p.enabled).length} / {(o.products || []).length}
-                      </span>
-                    </div>
+                      {o.endDate && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>Ends</Typography>
+                          <Typography sx={{ fontSize: 12, fontWeight: 600 }}>{new Date(o.endDate).toLocaleString()}</Typography>
+                        </Box>
+                      )}
 
-                    {/* End date */}
-                    {o.endDate && (
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-gray-500 dark:text-gray-400">Ends</span>
-                        <span className="font-semibold text-gray-700 dark:text-gray-300">
-                          {new Date(o.endDate).toLocaleString()}
-                        </span>
-                      </div>
-                    )}
+                      {o.showCountdown && o.endDate && !expired && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <Timer size={12} style={{ opacity: 0.5 }} />
+                            <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>Countdown</Typography>
+                          </Box>
+                          <CountdownInline endDate={o.endDate} />
+                        </Box>
+                      )}
 
-                    {/* Countdown */}
-                    {o.showCountdown && o.endDate && !expired && (
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                          <Timer size={12} /> Countdown
-                        </span>
-                        <CountdownInline endDate={o.endDate} />
-                      </div>
-                    )}
+                      <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
+                        {o.showCountdown && <Badge variant="warning">Countdown ON</Badge>}
+                        {o.autoExpire    && <Badge variant="info">Auto-Expire</Badge>}
+                      </Box>
 
-                    {/* Badges */}
-                    <div className="flex gap-1.5 flex-wrap">
-                      {o.showCountdown && <Badge variant="warning">Countdown ON</Badge>}
-                      {o.autoExpire    && <Badge variant="info">Auto-Expire</Badge>}
-                    </div>
+                      {o.endDate && (
+                        <Box sx={{ height: 6, borderRadius: 3, bgcolor: 'action.hover', overflow: 'hidden', mt: 0.5 }}>
+                          <Box sx={{ height: '100%', borderRadius: 3, bgcolor: expired ? 'error.main' : 'primary.main', width: `${progress}%`, transition: 'width 1s linear' }} />
+                        </Box>
+                      )}
+                    </Box>
 
-                    {/* Progress bar */}
-                    {o.endDate && (
-                      <div className="h-1.5 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden mt-1">
-                        <div
-                          className={`h-full rounded-full transition-all ${expired ? 'bg-red-500' : 'bg-indigo-500'}`}
-                          style={{ width: `${progress}%` }}
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-2 mt-4 flex-wrap">
-                    <Button variant="secondary" size="sm" icon={Edit2} className="flex-1 min-w-[72px]" onClick={() => openEdit(o)}>
-                      Edit
-                    </Button>
-                    <Button variant="outline" size="sm" className="flex-1 min-w-[72px]" onClick={() => openProdDialog(o)}>
-                      Products ({(o.products || []).length})
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={o.active ? 'warning' : 'success'}
-                      className="flex-1 min-w-[72px]"
-                      onClick={() => toggleActive(o)}
-                    >
-                      {o.active ? 'Pause' : 'Activate'}
-                    </Button>
-                    <IconBtn
-                      icon={Trash2}
-                      label="Delete offer"
-                      variant="ghost"
-                      className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      onClick={() => setDeleteTarget(o)}
-                    />
-                  </div>
-                </div>
-              </div>
+                    {/* Actions */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2.5, flexWrap: 'wrap' }}>
+                      <Button variant="secondary" size="sm" icon={Edit2} onClick={() => openEdit(o)} sx={{ flex: 1, minWidth: 72 }}>Edit</Button>
+                      <Button variant="outline" size="sm" onClick={() => openProdDialog(o)} sx={{ flex: 1, minWidth: 72 }}>
+                        Products ({(o.products || []).length})
+                      </Button>
+                      <Button size="sm" variant={o.active ? 'warning' : 'success'} onClick={() => toggleActive(o)} sx={{ flex: 1, minWidth: 72 }}>
+                        {o.active ? 'Pause' : 'Activate'}
+                      </Button>
+                      <IconBtn icon={Trash2} label="Delete offer" variant="ghost" sx={{ color: 'error.main', '&:hover': { bgcolor: 'rgba(239,68,68,0.08)' } }} onClick={() => setDeleteTarget(o)} />
+                    </Box>
+                  </Box>
+                </Paper>
+              </Grid>
             );
           })}
 
           {offers.length === 0 && !loading && (
-            <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-300 dark:text-gray-600">
-              <Tag size={52} />
-              <p className="mt-3 text-sm text-gray-400">No offers yet. Click "New Offer" to create one.</p>
-            </div>
+            <Grid size={12}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', py: 10, color: 'text.disabled' }}>
+                <Tag size={52} />
+                <Typography sx={{ mt: 1.5, fontSize: 13, color: 'text.disabled' }}>No offers yet. Click "New Offer" to create one.</Typography>
+              </Box>
+            </Grid>
           )}
-        </div>
+        </Grid>
       )}
 
-      {/* ── Create / Edit Offer Modal ─────────────────────────────────────── */}
+      {/* Create / Edit Offer Modal */}
       <Modal
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
@@ -491,89 +463,42 @@ export default function Offers() {
           </>
         }
       >
-        <div className="space-y-4">
-          <Input
-            label="Offer Title"
-            required
-            value={form.title}
-            onChange={e => setF('title', e.target.value)}
-            autoFocus
-            placeholder="Limited-Time Jewellery Offers"
-          />
-          <Input
-            label="Subtitle"
-            value={form.subtitle}
-            onChange={e => setF('subtitle', e.target.value)}
-            placeholder="Sale up to 50% off on selected items."
-          />
-          <Input
-            label="View All Link"
-            value={form.viewAllLink}
-            onChange={e => setF('viewAllLink', e.target.value)}
-            placeholder="/search?sale=true"
-          />
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <Input label="Offer Title" required value={form.title} onChange={e => setF('title', e.target.value)} autoFocus placeholder="Limited-Time Jewellery Offers" />
+          <Input label="Subtitle" value={form.subtitle} onChange={e => setF('subtitle', e.target.value)} placeholder="Sale up to 50% off on selected items." />
+          <Input label="View All Link" value={form.viewAllLink} onChange={e => setF('viewAllLink', e.target.value)} placeholder="/search?sale=true" />
 
           {/* Countdown / Schedule */}
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="h-px flex-1 bg-gray-100 dark:bg-gray-800" />
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Countdown / Schedule</span>
-              <div className="h-px flex-1 bg-gray-100 dark:bg-gray-800" />
-            </div>
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <Input
-                label="Start Date & Time"
-                type="datetime-local"
-                value={form.startDate}
-                onChange={e => setF('startDate', e.target.value)}
-              />
-              <Input
-                label="End Date & Time"
-                type="datetime-local"
-                value={form.endDate}
-                onChange={e => setF('endDate', e.target.value)}
-              />
-            </div>
+          <Box>
+            <SectionDivider label="Countdown / Schedule" />
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2.5 }}>
+              <Input label="Start Date & Time" type="datetime-local" value={form.startDate} onChange={e => setF('startDate', e.target.value)} />
+              <Input label="End Date & Time" type="datetime-local" value={form.endDate} onChange={e => setF('endDate', e.target.value)} />
+            </Box>
 
-            {/* Live countdown preview */}
             {form.endDate && (
-              <div className="rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 mb-4">
-                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-1.5">
-                  <Timer size={13} /> Countdown preview
-                </p>
+              <Paper elevation={0} sx={{ borderRadius: 2.5, border: '1px solid', borderColor: 'divider', bgcolor: 'action.hover', p: 2, mb: 2.5 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1.5 }}>
+                  <Timer size={13} style={{ opacity: 0.5 }} />
+                  <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'text.secondary' }}>Countdown preview</Typography>
+                </Box>
                 <CountdownTimer endDate={form.endDate} />
-              </div>
+              </Paper>
             )}
 
-            <div className="grid grid-cols-3 gap-4">
-              <Toggle
-                label="Show Countdown"
-                checked={form.showCountdown}
-                onChange={e => setF('showCountdown', e.target.checked)}
-              />
-              <Toggle
-                label="Auto Expire"
-                checked={form.autoExpire}
-                onChange={e => setF('autoExpire', e.target.checked)}
-              />
-              <Toggle
-                label="Active"
-                checked={form.active}
-                onChange={e => setF('active', e.target.checked)}
-              />
-            </div>
-          </div>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 2.5 }}>
+              <Toggle label="Show Countdown" checked={form.showCountdown} onChange={e => setF('showCountdown', e.target.checked)} />
+              <Toggle label="Auto Expire" checked={form.autoExpire} onChange={e => setF('autoExpire', e.target.checked)} />
+              <Toggle label="Active" checked={form.active} onChange={e => setF('active', e.target.checked)} />
+            </Box>
+          </Box>
 
           {/* Promotional Banner */}
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="h-px flex-1 bg-gray-100 dark:bg-gray-800" />
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Promotional Banner (Left Card)</span>
-              <div className="h-px flex-1 bg-gray-100 dark:bg-gray-800" />
-            </div>
-            <div className="space-y-3">
-              <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Banner Image</p>
+          <Box>
+            <SectionDivider label="Promotional Banner (Left Card)" />
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box>
+                <Typography sx={{ fontSize: 13, fontWeight: 500, color: 'text.primary', mb: 1 }}>Banner Image</Typography>
                 <ImageUploader
                   images={form.bannerImage ? [form.bannerImage] : []}
                   onChange={urls => setF('bannerImage', urls[0] || '')}
@@ -581,52 +506,22 @@ export default function Offers() {
                   category="banners"
                   single
                 />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <Input
-                  label="Banner Title"
-                  value={form.bannerTitle}
-                  onChange={e => setF('bannerTitle', e.target.value)}
-                  placeholder="Christmas Gifts"
-                />
-                <Input
-                  label="Banner Description"
-                  value={form.bannerDescription}
-                  onChange={e => setF('bannerDescription', e.target.value)}
-                  placeholder="Hurry to take advantage of the offer"
-                />
-              </div>
-              <div className="grid grid-cols-5 gap-3 items-end">
-                <div className="col-span-2">
-                  <Input
-                    label="CTA Button Text"
-                    value={form.bannerCtaText}
-                    onChange={e => setF('bannerCtaText', e.target.value)}
-                    placeholder="See More Product"
-                  />
-                </div>
-                <div className="col-span-2">
-                  <Input
-                    label="CTA Link"
-                    value={form.bannerCtaLink}
-                    onChange={e => setF('bannerCtaLink', e.target.value)}
-                    placeholder="/category/rings"
-                  />
-                </div>
-                <div className="pb-0.5">
-                  <Toggle
-                    label="Show"
-                    checked={form.bannerActive}
-                    onChange={e => setF('bannerActive', e.target.checked)}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+              </Box>
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                <Input label="Banner Title" value={form.bannerTitle} onChange={e => setF('bannerTitle', e.target.value)} placeholder="Christmas Gifts" />
+                <Input label="Banner Description" value={form.bannerDescription} onChange={e => setF('bannerDescription', e.target.value)} placeholder="Hurry to take advantage of the offer" />
+              </Box>
+              <Box sx={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr', gap: 2, alignItems: 'flex-end' }}>
+                <Input label="CTA Button Text" value={form.bannerCtaText} onChange={e => setF('bannerCtaText', e.target.value)} placeholder="See More Product" />
+                <Input label="CTA Link" value={form.bannerCtaLink} onChange={e => setF('bannerCtaLink', e.target.value)} placeholder="/category/rings" />
+                <Toggle label="Show" checked={form.bannerActive} onChange={e => setF('bannerActive', e.target.checked)} />
+              </Box>
+            </Box>
+          </Box>
+        </Box>
       </Modal>
 
-      {/* ── Product Assignment Modal ────────────────────────────────────── */}
+      {/* Product Assignment Modal */}
       <Modal
         open={prodDialogOpen}
         onClose={() => setProdDialogOpen(false)}
@@ -641,144 +536,137 @@ export default function Offers() {
           </>
         }
       >
-        <div>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {prodTarget && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 -mt-2 mb-4">{prodTarget.title}</p>
+            <Typography sx={{ fontSize: 13, color: 'text.secondary', mt: -1 }}>{prodTarget.title}</Typography>
           )}
 
           {/* Search input */}
-          <div className="relative mb-3">
-            <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-gray-400">
+          <Box sx={{ position: 'relative' }}>
+            <Box sx={{ position: 'absolute', top: '50%', left: 14, transform: 'translateY(-50%)', color: 'text.disabled', display: 'flex' }}>
               <Search size={15} />
-            </div>
-            <input
-              className="w-full pl-10 pr-4 py-2.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:text-gray-400"
-              placeholder="Type product name…"
+            </Box>
+            <Box
+              component="input"
               value={prodSearch}
               onChange={e => setProdSearch(e.target.value)}
+              placeholder="Type product name…"
+              sx={{
+                width: '100%', pl: 5, pr: 2, py: 1.25, fontSize: 14,
+                border: '1px solid', borderColor: 'divider', borderRadius: 2,
+                bgcolor: 'background.paper', color: 'text.primary',
+                outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box',
+                '&:focus': { borderColor: 'primary.main', boxShadow: '0 0 0 2px rgba(99,102,241,0.15)' },
+                '&::placeholder': { color: 'text.disabled' },
+              }}
             />
-          </div>
+          </Box>
 
           {/* Autocomplete dropdown */}
           {productOptions.length > 0 && (
-            <div className="mb-3 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-lg">
+            <Paper elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden', mt: -1 }}>
               {productOptions.map(p => (
-                <button
+                <Box
                   key={p._id}
+                  component="button"
                   onClick={() => addProduct(p)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 text-left transition-colors border-b last:border-0 border-gray-100 dark:border-gray-800"
+                  sx={{
+                    display: 'flex', alignItems: 'center', gap: 1.5, width: '100%',
+                    px: 1.5, py: 1.25, textAlign: 'left', background: 'none', border: 'none',
+                    borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer',
+                    '&:last-child': { border: 0 },
+                    '&:hover': { bgcolor: 'action.hover' },
+                  }}
                 >
-                  {p.images?.[0] && (
-                    <img src={p.images[0]} alt="" className="w-9 h-9 rounded-lg object-cover shrink-0" />
-                  )}
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{p.name}</p>
-                    <p className="text-xs text-gray-500">AED {p.price} · {p.category}</p>
-                  </div>
-                </button>
+                  {p.images?.[0] && <Box component="img" src={p.images[0]} alt="" sx={{ width: 36, height: 36, borderRadius: 1.5, objectFit: 'cover', flexShrink: 0 }} />}
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography sx={{ fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</Typography>
+                    <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>AED {p.price} · {p.category}</Typography>
+                  </Box>
+                </Box>
               ))}
-            </div>
+            </Paper>
           )}
 
           {/* Hot-deal suggestions */}
           {(loadingSuggestions || suggestions.length > 0) && (
-            <div className="mb-4">
-              <div className="flex items-center gap-1.5 mb-2">
-                <Flame size={14} className="text-red-500" />
-                <span className="text-xs font-bold text-red-500">Suggested — 50%+ Discount</span>
-                {loadingSuggestions && <Spinner size="xs" className="ml-1" />}
-              </div>
+            <Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
+                <Flame size={14} style={{ color: '#ef4444' }} />
+                <Typography sx={{ fontSize: 12, fontWeight: 700, color: 'error.main' }}>Suggested — 50%+ Discount</Typography>
+                {loadingSuggestions && <Spinner size="xs" />}
+              </Box>
               {!loadingSuggestions && (
-                <div className="space-y-1.5">
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
                   {suggestions.map(p => (
-                    <div
+                    <Box
                       key={p._id}
-                      className="flex items-center gap-3 px-3 py-2 border border-dashed border-red-200 dark:border-red-800 rounded-xl bg-red-50/50 dark:bg-red-900/10"
+                      sx={{
+                        display: 'flex', alignItems: 'center', gap: 1.5, px: 1.5, py: 1,
+                        borderRadius: 2, border: '1px dashed', borderColor: 'rgba(239,68,68,0.3)',
+                        bgcolor: 'rgba(239,68,68,0.04)',
+                      }}
                     >
-                      {p.images?.[0] && (
-                        <img src={p.images[0]} alt="" className="w-8 h-8 rounded-lg object-cover shrink-0" />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{p.name}</p>
-                        <p className="text-xs text-gray-500">
+                      {p.images?.[0] && <Box component="img" src={p.images[0]} alt="" sx={{ width: 32, height: 32, borderRadius: 1.5, objectFit: 'cover', flexShrink: 0 }} />}
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography sx={{ fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</Typography>
+                        <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>
                           AED {p.price}
-                          {p.originalPrice && (
-                            <span className="line-through ml-1.5 text-gray-400">AED {p.originalPrice}</span>
-                          )}
-                        </p>
-                      </div>
-                      <Badge variant="danger" className="shrink-0">-{p.discount}%</Badge>
-                      <IconBtn
-                        icon={PlusCircle}
-                        label="Add to offer"
-                        size="sm"
-                        variant="ghost"
-                        className="text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
-                        onClick={() => addProduct(p)}
-                      />
-                    </div>
+                          {p.originalPrice && <Box component="span" sx={{ textDecoration: 'line-through', ml: 1, color: 'text.disabled' }}>AED {p.originalPrice}</Box>}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ flexShrink: 0 }}><Badge variant="danger">-{p.discount}%</Badge></Box>
+                      <IconBtn icon={PlusCircle} label="Add to offer" size="sm" variant="ghost" sx={{ color: 'primary.main', '&:hover': { bgcolor: 'rgba(99,102,241,0.08)' } }} onClick={() => addProduct(p)} />
+                    </Box>
                   ))}
-                </div>
+                </Box>
               )}
-              <hr className="border-gray-100 dark:border-gray-800 mt-3" />
-            </div>
+              <Box sx={{ borderTop: '1px solid', borderColor: 'divider', mt: 1.5 }} />
+            </Box>
           )}
 
           {/* Assigned product list */}
           {assignedProducts.length === 0 ? (
-            <p className="text-sm text-center text-gray-400 py-6">
+            <Typography sx={{ fontSize: 13, textAlign: 'center', color: 'text.disabled', py: 3 }}>
               No products assigned yet. Search above to add.
-            </p>
+            </Typography>
           ) : (
-            <div className="space-y-2">
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               {assignedProducts.map((entry, idx) => {
                 const p = entry.product;
                 return (
-                  <div
+                  <Paper
                     key={p._id || idx}
-                    className={`flex items-center gap-2 px-3 py-2.5 border rounded-xl transition-opacity ${
-                      entry.enabled ? '' : 'opacity-40'
-                    } ${
-                      entry.featured
-                        ? 'border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10'
-                        : 'border-gray-200 dark:border-gray-700'
-                    }`}
+                    elevation={0}
+                    sx={{
+                      display: 'flex', alignItems: 'center', gap: 1.5, px: 1.5, py: 1.25,
+                      borderRadius: 2.5, border: '1px solid',
+                      borderColor: entry.featured ? 'rgba(245,158,11,0.4)' : 'divider',
+                      bgcolor: entry.featured ? 'rgba(245,158,11,0.04)' : 'transparent',
+                      opacity: entry.enabled ? 1 : 0.4, transition: 'opacity 0.15s',
+                    }}
                   >
                     {/* Reorder */}
-                    <div className="flex flex-col gap-0.5">
-                      <IconBtn
-                        icon={ArrowUp}
-                        label="Move up"
-                        size="xs"
-                        onClick={() => moveProduct(idx, -1)}
-                        disabled={idx === 0}
-                      />
-                      <IconBtn
-                        icon={ArrowDown}
-                        label="Move down"
-                        size="xs"
-                        onClick={() => moveProduct(idx, 1)}
-                        disabled={idx === assignedProducts.length - 1}
-                      />
-                    </div>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                      <IconBtn icon={ArrowUp} label="Move up" size="xs" onClick={() => moveProduct(idx, -1)} disabled={idx === 0} />
+                      <IconBtn icon={ArrowDown} label="Move down" size="xs" onClick={() => moveProduct(idx, 1)} disabled={idx === assignedProducts.length - 1} />
+                    </Box>
 
-                    {p.images?.[0] && (
-                      <img src={p.images[0]} alt="" className="w-9 h-9 rounded-lg object-cover shrink-0" />
-                    )}
+                    {p.images?.[0] && <Box component="img" src={p.images[0]} alt="" sx={{ width: 36, height: 36, borderRadius: 1.5, objectFit: 'cover', flexShrink: 0 }} />}
 
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{p.name || '—'}</p>
-                      <p className="text-xs text-gray-500">AED {p.price} · #{idx + 1}</p>
-                    </div>
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography sx={{ fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name || '—'}</Typography>
+                      <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>AED {p.price} · #{idx + 1}</Typography>
+                    </Box>
 
                     {/* Controls */}
-                    <div className="flex items-center gap-0.5">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
                       <IconBtn
-                        icon={entry.featured ? Star : Star}
+                        icon={Star}
                         label={entry.featured ? 'Remove featured' : 'Mark as featured'}
                         size="sm"
                         variant="ghost"
-                        className={entry.featured ? 'text-amber-500' : 'text-gray-400'}
+                        sx={{ color: entry.featured ? '#f59e0b' : 'text.disabled' }}
                         onClick={() => toggleProductProp(idx, 'featured')}
                       />
                       <IconBtn
@@ -786,7 +674,7 @@ export default function Offers() {
                         label={entry.enabled ? 'Hide product' : 'Show product'}
                         size="sm"
                         variant="ghost"
-                        className={entry.enabled ? 'text-indigo-500' : 'text-gray-400'}
+                        sx={{ color: entry.enabled ? 'primary.main' : 'text.disabled' }}
                         onClick={() => toggleProductProp(idx, 'enabled')}
                       />
                       <IconBtn
@@ -794,19 +682,19 @@ export default function Offers() {
                         label="Remove from offer"
                         size="sm"
                         variant="ghost"
-                        className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        sx={{ color: 'error.main', '&:hover': { bgcolor: 'rgba(239,68,68,0.08)' } }}
                         onClick={() => removeProduct(idx)}
                       />
-                    </div>
-                  </div>
+                    </Box>
+                  </Paper>
                 );
               })}
-            </div>
+            </Box>
           )}
-        </div>
+        </Box>
       </Modal>
 
-      {/* ── Delete Confirm ────────────────────────────────────────────── */}
+      {/* Delete Confirm */}
       <Modal
         open={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
@@ -819,10 +707,10 @@ export default function Offers() {
           </>
         }
       >
-        <p className="text-sm text-gray-600 dark:text-gray-300">
-          Delete <strong className="text-gray-900 dark:text-white">{deleteTarget?.title}</strong>? This cannot be undone.
-        </p>
+        <Typography sx={{ fontSize: '13.5px', color: 'text.secondary', lineHeight: 1.6 }}>
+          Delete <Box component="strong" sx={{ color: 'text.primary', fontWeight: 600 }}>{deleteTarget?.title}</Box>? This cannot be undone.
+        </Typography>
       </Modal>
-    </div>
+    </Box>
   );
 }

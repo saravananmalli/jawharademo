@@ -1,24 +1,51 @@
+import { TextField, InputAdornment, IconButton } from '@mui/material';
 import { Search, X } from 'lucide-react';
 
-export function SearchInput({ value, onChange, placeholder = 'Search...', className = '' }) {
+export function SearchInput({
+  value,
+  onChange,
+  placeholder = 'Search…',
+  className = '',
+  size = 'small',
+  sx = {},
+}) {
   return (
-    <div className={`relative ${className}`}>
-      <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-      <input
-        type="text"
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full pl-9 pr-9 py-2 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-      />
-      {value && (
-        <button
-          onClick={() => onChange('')}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-        >
-          <X size={13} />
-        </button>
-      )}
-    </div>
+    <TextField
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder={placeholder}
+      size={size}
+      fullWidth
+      className={className}
+      sx={{
+        '& .MuiOutlinedInput-root': {
+          borderRadius: 2.5,
+          transition: 'all 0.15s ease',
+          '&.Mui-focused': {
+            boxShadow: '0 0 0 3px rgba(99,102,241,0.14)',
+          },
+        },
+        ...sx,
+      }}
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position="start" sx={{ color: 'text.disabled' }}>
+            <Search size={14} />
+          </InputAdornment>
+        ),
+        endAdornment: value ? (
+          <InputAdornment position="end">
+            <IconButton
+              size="small"
+              onClick={() => onChange('')}
+              edge="end"
+              sx={{ mr: -0.5, color: 'text.disabled', '&:hover': { color: 'text.secondary' } }}
+            >
+              <X size={13} />
+            </IconButton>
+          </InputAdornment>
+        ) : undefined,
+      }}
+    />
   );
 }

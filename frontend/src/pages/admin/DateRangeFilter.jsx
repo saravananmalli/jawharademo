@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Calendar } from 'lucide-react';
+import { Box, Select, MenuItem } from '@mui/material';
 
 const PRESETS = [
   { label: 'Today',        value: 'today' },
@@ -55,8 +56,13 @@ export function computeDateRange(preset, customStart = '', customEnd = '') {
   }
 }
 
-const SELECT_CLS = 'h-9 pl-8 pr-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer appearance-none';
-const INPUT_CLS  = 'h-9 px-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-36';
+const inputSx = {
+  height: 36, px: 1.5, fontSize: 13, fontFamily: 'Inter, sans-serif',
+  border: '1px solid', borderColor: 'divider', borderRadius: 2,
+  bgcolor: 'background.paper', color: 'text.primary',
+  outline: 'none', cursor: 'pointer', appearance: 'none',
+  '&:focus': { borderColor: 'primary.main', boxShadow: '0 0 0 2px rgba(99,102,241,0.15)' },
+};
 
 export default function DateRangeFilter({ onChange, currentPreset = 'today' }) {
   const [preset,      setPreset] = useState(currentPreset);
@@ -79,41 +85,38 @@ export default function DateRangeFilter({ onChange, currentPreset = 'today' }) {
   };
 
   return (
-    <div className="flex items-center gap-2 flex-wrap">
-      <div className="relative">
-        <Calendar size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-        <select value={preset} onChange={handlePresetChange} className={SELECT_CLS}>
-          {PRESETS.map(p => (
-            <option key={p.value} value={p.value}>{p.label}</option>
-          ))}
-        </select>
-      </div>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+      <Select
+        value={preset}
+        onChange={handlePresetChange}
+        size="small"
+        startAdornment={<Calendar size={13} style={{ marginRight: 6, color: '#9ca3af', flexShrink: 0 }} />}
+        sx={{ minWidth: 160, height: 36, fontSize: 13 }}
+        MenuProps={{ disableScrollLock: true, PaperProps: { elevation: 3, sx: { mt: 0.5, borderRadius: 1.5, border: '1px solid', borderColor: 'divider' } } }}
+      >
+        {PRESETS.map(p => <MenuItem key={p.value} value={p.value}>{p.label}</MenuItem>)}
+      </Select>
 
       {preset === 'custom' && (
         <>
-          <input
-            type="date"
-            value={customStart}
-            max={customEnd || undefined}
-            onChange={e => setCStart(e.target.value)}
-            className={INPUT_CLS}
-          />
-          <input
-            type="date"
-            value={customEnd}
-            min={customStart || undefined}
-            onChange={e => setCEnd(e.target.value)}
-            className={INPUT_CLS}
-          />
-          <button
+          <Box component="input" type="date" value={customStart} max={customEnd || undefined} onChange={e => setCStart(e.target.value)} sx={{ ...inputSx, width: 144, px: 1.5 }} />
+          <Box component="input" type="date" value={customEnd} min={customStart || undefined} onChange={e => setCEnd(e.target.value)} sx={{ ...inputSx, width: 144, px: 1.5 }} />
+          <Box
+            component="button"
             onClick={handleApply}
             disabled={!customStart || !customEnd}
-            className="h-9 px-4 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            sx={{
+              height: 36, px: 2, borderRadius: 2, bgcolor: 'primary.main', color: '#fff',
+              fontSize: 13, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+              '&:hover': { bgcolor: 'primary.dark' },
+              '&:disabled': { opacity: 0.4, cursor: 'not-allowed' },
+              transition: 'background-color 0.15s',
+            }}
           >
             Apply
-          </button>
+          </Box>
         </>
       )}
-    </div>
+    </Box>
   );
 }

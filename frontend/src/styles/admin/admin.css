@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+/* ── CSS Isolation ───────────────────────────────────────────────── */
+/* Overrides Poppins / letter-spacing pollution from main.scss */
+.admin-root {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  letter-spacing: 0;
+}
+.admin-root *,
+.admin-root button,
+.admin-root input,
+.admin-root select,
+.admin-root textarea,
+.admin-root a {
+  letter-spacing: inherit;
+  font-family: inherit;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────── */
+.admin-scroll::-webkit-scrollbar        { width: 4px; height: 4px; }
+.admin-scroll::-webkit-scrollbar-track  { background: transparent; }
+.admin-scroll::-webkit-scrollbar-thumb  { background: rgba(148,163,184,0.18); border-radius: 9999px; }
+.admin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(148,163,184,0.36); }
+
+/* ── Page transition ─────────────────────────────────────────────── */
+.page-enter { animation: fadeSlideIn 0.22s cubic-bezier(0.4, 0, 0.2, 1) both; }
+
+/* ── Keyframes ───────────────────────────────────────────────────── */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes badgePulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position:  200% 0; }
+}
+
+.badge-pulse { animation: badgePulse 2.2s ease-in-out infinite; }
+
+/* ── Focus ring (global for admin) ──────────────────────────────── */
+.admin-root :focus-visible {
+  outline: 2px solid rgba(99, 102, 241, 0.75);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

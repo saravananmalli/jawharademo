@@ -7,6 +7,7 @@ import {
   FileText, Search, MessageSquare, Gift, Zap, ExternalLink,
   AlertCircle, ChevronDown, X,
 } from 'lucide-react';
+import { Box, Paper, Typography, MenuItem } from '@mui/material';
 
 import api from '../../services/api';
 import ImageUploader from '../../components/admin/ImageUploader';
@@ -14,7 +15,6 @@ import ReviewManagerPanel from '../../components/admin/ReviewManagerPanel';
 import {
   Input, Select, Textarea, Toggle, Button, Card, CardHeader, CardBody,
 } from '../../components/admin/ui/index.js';
-// brands loaded dynamically from API — see useBrands hook below
 import {
   METAL_OPTIONS, KARAT_OPTIONS, STONE_OPTIONS,
   FORWHO_OPTIONS, BADGE_OPTIONS, BADGE_COLORS, CATEGORY_LIST,
@@ -22,30 +22,13 @@ import {
   FLAG_COLLECTIONS,
 } from '../../utils/filterConstants';
 
-// ── Form defaults ─────────────────────────────────────────────────────────────
 const RING_SIZES = ['5', '6', '7', '8', '9', '10', '11', '12'];
-
-const DELIVERY_OPTIONS = [
-  'Next Day Delivery', '1–3 Day Delivery', '2–3 Day Delivery',
-];
-
+const DELIVERY_OPTIONS = ['Next Day Delivery', '1–3 Day Delivery', '2–3 Day Delivery'];
 const AI_COLLECTION_OPTIONS = [
-  "Valentine's Day Collection",
-  "Mother's Day Collection",
-  'New Arrivals',
-  'Best Sellers',
-  'Bridal Collection',
-  'Wedding Collection',
-  'Anniversary Collection',
-  "Kids' Collection",
-  "Men's Collection",
-  'Sale Collection',
-  'Eid Collection',
-  'Ramadan Collection',
-  'Christmas Collection',
-  'Graduation Collection',
-  'Engagement Collection',
-  'Festive Collection',
+  "Valentine's Day Collection", "Mother's Day Collection", 'New Arrivals', 'Best Sellers',
+  'Bridal Collection', 'Wedding Collection', 'Anniversary Collection', "Kids' Collection",
+  "Men's Collection", 'Sale Collection', 'Eid Collection', 'Ramadan Collection',
+  'Christmas Collection', 'Graduation Collection', 'Engagement Collection', 'Festive Collection',
 ];
 
 const EMPTY = {
@@ -65,7 +48,6 @@ const EMPTY = {
   seoTitle: '', seoDescription: '', slug: '',
 };
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 function autoPriceRange(price) {
   const n = Number(price);
   if (!n || n <= 0) return '';
@@ -94,94 +76,95 @@ function computeMatchedMetalStone(metals, stones, metalKt, category) {
   });
 }
 
-// ── Section wrapper ───────────────────────────────────────────────────────────
+const ACCENT = {
+  indigo:  { bg: 'rgba(99,102,241,0.1)',  border: 'rgba(99,102,241,0.2)',  color: '#6366f1' },
+  violet:  { bg: 'rgba(139,92,246,0.1)',  border: 'rgba(139,92,246,0.2)',  color: '#7c3aed' },
+  green:   { bg: 'rgba(16,185,129,0.1)',  border: 'rgba(16,185,129,0.2)',  color: '#059669' },
+  blue:    { bg: 'rgba(59,130,246,0.1)',  border: 'rgba(59,130,246,0.2)',  color: '#2563eb' },
+  orange:  { bg: 'rgba(249,115,22,0.1)',  border: 'rgba(249,115,22,0.2)',  color: '#ea580c' },
+  teal:    { bg: 'rgba(20,184,166,0.1)',  border: 'rgba(20,184,166,0.2)',  color: '#0d9488' },
+  cyan:    { bg: 'rgba(6,182,212,0.1)',   border: 'rgba(6,182,212,0.2)',   color: '#0891b2' },
+  amber:   { bg: 'rgba(245,158,11,0.1)',  border: 'rgba(245,158,11,0.2)',  color: '#d97706' },
+  sky:     { bg: 'rgba(14,165,233,0.1)',  border: 'rgba(14,165,233,0.2)',  color: '#0284c7' },
+};
+
 function Section({ icon: Icon, title, subtitle, accentColor = 'indigo', children }) {
-  const accentMap = {
-    indigo:  'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-800/40 text-indigo-600 dark:text-indigo-400',
-    violet:  'bg-violet-50 dark:bg-violet-900/20 border-violet-100 dark:border-violet-800/40 text-violet-600 dark:text-violet-400',
-    green:   'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800/40 text-emerald-600 dark:text-emerald-400',
-    blue:    'bg-blue-50 dark:bg-blue-900/20 border-blue-100 dark:border-blue-800/40 text-blue-600 dark:text-blue-400',
-    orange:  'bg-orange-50 dark:bg-orange-900/20 border-orange-100 dark:border-orange-800/40 text-orange-600 dark:text-orange-400',
-    teal:    'bg-teal-50 dark:bg-teal-900/20 border-teal-100 dark:border-teal-800/40 text-teal-600 dark:text-teal-400',
-    cyan:    'bg-cyan-50 dark:bg-cyan-900/20 border-cyan-100 dark:border-cyan-800/40 text-cyan-600 dark:text-cyan-400',
-    amber:   'bg-amber-50 dark:bg-amber-900/20 border-amber-100 dark:border-amber-800/40 text-amber-600 dark:text-amber-400',
-    sky:     'bg-sky-50 dark:bg-sky-900/20 border-sky-100 dark:border-sky-800/40 text-sky-600 dark:text-sky-400',
-  };
-  const accent = accentMap[accentColor] || accentMap.indigo;
+  const a = ACCENT[accentColor] || ACCENT.indigo;
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden mb-5">
-      <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-start gap-3">
+    <Paper elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', overflow: 'hidden', mb: 2.5, bgcolor: 'background.paper' }}>
+      <Box sx={{ px: 3, py: 2, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
         {Icon && (
-          <div className={`w-8 h-8 rounded-lg border flex items-center justify-center flex-shrink-0 mt-0.5 ${accent}`}>
+          <Box sx={{ width: 32, height: 32, borderRadius: 2, border: '1px solid', bgcolor: a.bg, borderColor: a.border, color: a.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, mt: 0.25 }}>
             <Icon size={15} />
-          </div>
+          </Box>
         )}
-        <div>
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{title}</h3>
-          {subtitle && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{subtitle}</p>}
-        </div>
-      </div>
-      <div className="p-6">
-        {children}
-      </div>
-    </div>
+        <Box>
+          <Typography sx={{ fontSize: 14, fontWeight: 600 }}>{title}</Typography>
+          {subtitle && <Typography sx={{ fontSize: 12, color: 'text.secondary', mt: 0.25 }}>{subtitle}</Typography>}
+        </Box>
+      </Box>
+      <Box sx={{ p: 3 }}>{children}</Box>
+    </Paper>
   );
 }
 
-// ── Sidebar card ──────────────────────────────────────────────────────────────
 function SideCard({ title, icon: Icon, children }) {
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden mb-4">
+    <Paper elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', overflow: 'hidden', mb: 2, bgcolor: 'background.paper' }}>
       {title && (
-        <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
-          {Icon && <Icon size={13} className="text-gray-400 dark:text-gray-500" />}
-          <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest" style={{ letterSpacing: '0.9px', fontSize: '0.62rem' }}>
-            {title}
-          </span>
-        </div>
+        <Box sx={{ px: 2, py: 1.25, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 1 }}>
+          {Icon && <Icon size={13} style={{ opacity: 0.5 }} />}
+          <Typography sx={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'text.disabled' }}>{title}</Typography>
+        </Box>
       )}
-      <div className="p-4">
-        {children}
-      </div>
-    </div>
+      <Box sx={{ p: 2 }}>{children}</Box>
+    </Paper>
   );
 }
 
-// ── Chip toggle group ─────────────────────────────────────────────────────────
+const CHIP_COLOR = {
+  indigo:  { on: '#6366f1', onBorder: '#6366f1' },
+  violet:  { on: '#7c3aed', onBorder: '#7c3aed' },
+  emerald: { on: '#059669', onBorder: '#059669' },
+  info:    { on: '#0284c7', onBorder: '#0284c7' },
+  warning: { on: '#f59e0b', onBorder: '#f59e0b' },
+  teal:    { on: '#0d9488', onBorder: '#0d9488' },
+};
+
 function ChipToggle({ label, selected, onClick, color = 'indigo' }) {
-  const colorMap = {
-    indigo:  { on: 'bg-indigo-600 border-indigo-600 text-white', off: 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-indigo-300 dark:hover:border-indigo-700' },
-    violet:  { on: 'bg-violet-600 border-violet-600 text-white', off: 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-violet-300 dark:hover:border-violet-700' },
-    emerald: { on: 'bg-emerald-600 border-emerald-600 text-white', off: 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-emerald-300 dark:hover:border-emerald-700' },
-    info:    { on: 'bg-sky-600 border-sky-600 text-white', off: 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-sky-300 dark:hover:border-sky-700' },
-    warning: { on: 'bg-amber-500 border-amber-500 text-white', off: 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-amber-300 dark:hover:border-amber-700' },
-    teal:    { on: 'bg-teal-600 border-teal-600 text-white', off: 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-teal-300 dark:hover:border-teal-700' },
-  };
-  const c = colorMap[color] || colorMap.indigo;
+  const c = CHIP_COLOR[color] || CHIP_COLOR.indigo;
   return (
-    <button
+    <Box
+      component="button"
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-xs font-medium transition-all duration-150 cursor-pointer ${selected ? c.on : c.off}`}
+      sx={{
+        display: 'inline-flex', alignItems: 'center', gap: 0.5,
+        px: 1.25, py: 0.5, borderRadius: 1.5, border: '1px solid', fontSize: 12, fontWeight: 500,
+        cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+        bgcolor: selected ? c.on : 'background.paper',
+        borderColor: selected ? c.onBorder : 'divider',
+        color: selected ? '#fff' : 'text.secondary',
+        '&:hover': { borderColor: c.on, color: selected ? '#fff' : c.on },
+      }}
     >
-      {selected && <Check size={10} className="flex-shrink-0" />}
+      {selected && <Check size={10} style={{ flexShrink: 0 }} />}
       {label}
-    </button>
+    </Box>
   );
 }
 
 function ChipToggleGroup({ options, selected, onChange, color = 'indigo' }) {
   const toggle = (val) => onChange(selected.includes(val) ? selected.filter(v => v !== val) : [...selected, val]);
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
       {options.map(opt => (
         <ChipToggle key={opt} label={opt} selected={selected.includes(opt)} onClick={() => toggle(opt)} color={color} />
       ))}
-    </div>
+    </Box>
   );
 }
 
-// ── Tag input (free-form) ─────────────────────────────────────────────────────
 function TagInput({ value = [], onChange, placeholder }) {
   const [input, setInput] = useState('');
   const addTag = (raw) => {
@@ -194,37 +177,53 @@ function TagInput({ value = [], onChange, placeholder }) {
     if (e.key === 'Backspace' && !input && value.length) onChange(value.slice(0, -1));
   };
   return (
-    <div className="flex flex-wrap gap-1.5 min-h-[42px] w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent transition-all duration-150">
+    <Box sx={{
+      display: 'flex', flexWrap: 'wrap', gap: 0.75, minHeight: 42,
+      border: '1px solid', borderColor: 'divider', borderRadius: 2, px: 1.5, py: 1,
+      bgcolor: 'background.paper', cursor: 'text',
+      '&:focus-within': { borderColor: 'primary.main', boxShadow: '0 0 0 2px rgba(99,102,241,0.15)' },
+      transition: 'all 0.15s',
+    }}>
       {value.map(tag => (
-        <span key={tag} className="inline-flex items-center gap-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 rounded-md px-2 py-0.5 text-xs font-medium">
+        <Box key={tag} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, bgcolor: 'rgba(99,102,241,0.08)', color: 'primary.main', border: '1px solid', borderColor: 'rgba(99,102,241,0.2)', borderRadius: 1, px: 1, py: 0.25, fontSize: 12, fontWeight: 500 }}>
           {tag}
-          <button type="button" onClick={() => onChange(value.filter(t => t !== tag))} className="hover:text-red-500 transition-colors">
+          <Box component="button" type="button" onClick={() => onChange(value.filter(t => t !== tag))} sx={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', display: 'flex', p: 0, '&:hover': { color: 'error.main' }, transition: 'color 0.1s' }}>
             <X size={10} />
-          </button>
-        </span>
+          </Box>
+        </Box>
       ))}
-      <input
+      <Box
+        component="input"
         value={input}
         onChange={e => setInput(e.target.value)}
         onKeyDown={handleKey}
         onBlur={() => input.trim() && addTag(input)}
         placeholder={value.length === 0 ? placeholder : ''}
-        className="flex-1 min-w-[120px] bg-transparent text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none"
+        sx={{ flex: 1, minWidth: 120, bgcolor: 'transparent', border: 'none', outline: 'none', fontSize: 14, color: 'text.primary', fontFamily: 'inherit', '&::placeholder': { color: 'text.disabled' } }}
       />
-    </div>
+    </Box>
   );
 }
 
-// ── Badge color utility for product badge chips ───────────────────────────────
-const BADGE_PILL_MAP = {
-  new:     'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700',
-  sale:    'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700',
-  hot:     'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700',
-  limited: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700',
-  default: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700',
+const BADGE_PILL = {
+  new:     { bg: 'rgba(16,185,129,0.1)',  color: '#059669', border: 'rgba(16,185,129,0.25)' },
+  sale:    { bg: 'rgba(239,68,68,0.1)',   color: '#dc2626', border: 'rgba(239,68,68,0.25)' },
+  hot:     { bg: 'rgba(249,115,22,0.1)',  color: '#ea580c', border: 'rgba(249,115,22,0.25)' },
+  limited: { bg: 'rgba(139,92,246,0.1)',  color: '#7c3aed', border: 'rgba(139,92,246,0.25)' },
+  default: { bg: 'action.hover',          color: 'text.secondary', border: 'divider' },
 };
 
-// ── Main component ────────────────────────────────────────────────────────────
+const priceInputSx = (hasError) => ({
+  width: '100%', pl: 5, pr: 1.75, py: 1.25, fontSize: 14,
+  border: '1px solid', borderRadius: 2,
+  borderColor: hasError ? 'error.main' : 'divider',
+  bgcolor: 'background.paper', color: 'text.primary',
+  outline: 'none', fontFamily: 'inherit',
+  '&:focus': { borderColor: 'primary.main', boxShadow: '0 0 0 2px rgba(99,102,241,0.15)' },
+  '&::placeholder': { color: 'text.disabled' },
+  transition: 'all 0.15s',
+});
+
 export default function ProductForm() {
   const { id }   = useParams();
   const navigate = useNavigate();
@@ -235,8 +234,6 @@ export default function ProductForm() {
   const [saving,        setSaving]        = useState(false);
   const [error,         setError]         = useState('');
   const [formErrors,    setFormErrors]    = useState({});
-  // productLoaded gates the ImageUploader so it mounts exactly once with the
-  // correct initial images (either immediately for new, or after API fetch for edit)
   const [productLoaded, setProductLoaded] = useState(!isEdit);
 
   useEffect(() => {
@@ -286,45 +283,25 @@ export default function ProductForm() {
 
   const setPrice = (val) => {
     const range = autoPriceRange(val);
-    setForm(f => ({
-      ...f,
-      price: val,
-      priceRange: range || f.priceRange,
-      discount: calcDiscount(val, f.originalPrice),
-    }));
+    setForm(f => ({ ...f, price: val, priceRange: range || f.priceRange, discount: calcDiscount(val, f.originalPrice) }));
   };
 
   const setOriginalPrice = (val) => {
-    setForm(f => ({
-      ...f,
-      originalPrice: val,
-      discount: calcDiscount(f.price, val),
-    }));
+    setForm(f => ({ ...f, originalPrice: val, discount: calcDiscount(f.price, val) }));
   };
 
   const setCategory = (cat) => {
     const map = CATEGORY_FILTER_MAP[cat] || { featured: [], styles: [] };
-    setForm(f => ({
-      ...f,
-      category:    cat,
-      subcategory: '',
-      featured:    f.featured.filter(v => map.featured.includes(v)),
-      styles:      f.styles.filter(v => map.styles.includes(v)),
-    }));
+    setForm(f => ({ ...f, category: cat, subcategory: '', featured: f.featured.filter(v => map.featured.includes(v)), styles: f.styles.filter(v => map.styles.includes(v)) }));
     clearError('category');
   };
 
   const setName = (val) => {
-    setForm(f => ({
-      ...f,
-      name:     val,
-      seoTitle: f.seoTitle === f.name || !f.seoTitle ? val : f.seoTitle,
-      slug:     f.slug === slugify(f.name) || !f.slug ? slugify(val) : f.slug,
-    }));
+    setForm(f => ({ ...f, name: val, seoTitle: f.seoTitle === f.name || !f.seoTitle ? val : f.seoTitle, slug: f.slug === slugify(f.name) || !f.slug ? slugify(val) : f.slug }));
     clearError('name');
   };
 
-  const toggleSize  = (s) => set('sizes', form.sizes.includes(s) ? form.sizes.filter(x => x !== s) : [...form.sizes, s]);
+  const toggleSize = (s) => set('sizes', form.sizes.includes(s) ? form.sizes.filter(x => x !== s) : [...form.sizes, s]);
 
   const autoDiscount = form.price && form.originalPrice && Number(form.originalPrice) > Number(form.price)
     ? Math.round(((Number(form.originalPrice) - Number(form.price)) / Number(form.originalPrice)) * 100)
@@ -403,359 +380,266 @@ export default function ProductForm() {
     }
   };
 
-  // ── Render ─────────────────────────────────────────────────────────────────
-  return (
-    <form onSubmit={handleSubmit} noValidate className="pb-24">
+  const saveBtnSx = {
+    display: 'inline-flex', alignItems: 'center', gap: 1, px: 2.5, height: 36,
+    fontSize: 14, fontWeight: 600, color: '#fff', bgcolor: 'primary.main', border: 'none',
+    borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit',
+    '&:hover': { bgcolor: 'primary.dark' },
+    '&:disabled': { opacity: 0.6, cursor: 'not-allowed' },
+    transition: 'background-color 0.15s',
+  };
 
-      {/* ── Sticky page header ─────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-20 bg-gray-50 dark:bg-gray-950 pt-1 pb-4 mb-6 border-b border-gray-200 dark:border-gray-800">
-        <div className="flex items-center gap-3 flex-wrap">
-          <button
+  const discardBtnSx = {
+    display: 'inline-flex', alignItems: 'center', gap: 1, px: 2, height: 36,
+    fontSize: 14, fontWeight: 500, color: 'text.secondary', bgcolor: 'background.paper',
+    border: '1px solid', borderColor: 'divider', borderRadius: 2, cursor: 'pointer', fontFamily: 'inherit',
+    '&:hover': { bgcolor: 'action.hover' },
+    transition: 'background-color 0.15s',
+  };
+
+  return (
+    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ pb: 12 }}>
+
+      {/* Sticky page header */}
+      <Box sx={{ position: 'sticky', top: 0, zIndex: 20, bgcolor: 'background.default', pt: 0.5, pb: 2.5, mb: 3, borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+          <Box
+            component="button"
             type="button"
             onClick={() => navigate('/admin/products')}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-3 h-8 bg-white dark:bg-gray-900 transition-colors flex-shrink-0"
+            sx={{
+              display: 'inline-flex', alignItems: 'center', gap: 0.75, fontSize: 14, fontWeight: 500,
+              color: 'text.secondary', border: '1px solid', borderColor: 'divider',
+              borderRadius: 2, px: 1.5, height: 32, bgcolor: 'background.paper', cursor: 'pointer', fontFamily: 'inherit',
+              '&:hover': { color: 'text.primary', bgcolor: 'action.hover' }, flexShrink: 0, transition: 'all 0.15s',
+            }}
           >
-            <ArrowLeft size={14} />
-            Products
-          </button>
+            <ArrowLeft size={14} /> Products
+          </Box>
 
-          <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-extrabold text-gray-900 dark:text-white leading-tight truncate">
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography sx={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.02em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {isEdit ? 'Edit Product' : 'Add New Product'}
-            </h1>
-            <p className="text-xs text-gray-400 dark:text-gray-500">
+            </Typography>
+            <Typography sx={{ fontSize: 12, color: 'text.disabled' }}>
               {isEdit ? 'Update product listing details' : 'Fill in all details to publish a new product'}
-            </p>
-          </div>
+            </Typography>
+          </Box>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <button
-              type="button"
-              onClick={() => navigate('/admin/products')}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-xl px-4 h-9 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-            >
-              Discard
-            </button>
-            <button
-              type="submit"
-              disabled={saving}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl px-5 h-9 shadow-sm shadow-indigo-200 dark:shadow-indigo-900/30 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-            >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
+            <Box component="button" type="button" onClick={() => navigate('/admin/products')} sx={discardBtnSx}>Discard</Box>
+            <Box component="button" type="submit" disabled={saving} sx={saveBtnSx}>
               {saving ? (
-                <svg className="animate-spin" width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+                <svg style={{ animation: 'spin 1s linear infinite' }} width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
                   <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
                 </svg>
-              ) : (
-                <Save size={14} />
-              )}
+              ) : <Save size={14} />}
               {saving ? 'Saving…' : isEdit ? 'Save Changes' : 'Publish Product'}
-            </button>
-          </div>
-        </div>
+            </Box>
+          </Box>
+        </Box>
 
-        {/* Error banner */}
         {error && (
-          <div className="mt-3 flex items-start gap-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
-            <AlertCircle size={15} className="text-red-500 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-red-700 dark:text-red-300 flex-1">{error}</p>
-            <button type="button" onClick={() => setError('')} className="text-red-400 hover:text-red-600 transition-colors">
-              <X size={14} />
-            </button>
-          </div>
+          <Box sx={{ mt: 1.5, display: 'flex', alignItems: 'flex-start', gap: 1, bgcolor: 'rgba(239,68,68,0.08)', border: '1px solid', borderColor: 'rgba(239,68,68,0.3)', borderRadius: 2, px: 2, py: 1.25 }}>
+            <AlertCircle size={15} style={{ color: '#ef4444', flexShrink: 0, marginTop: 2 }} />
+            <Typography sx={{ fontSize: 13, color: 'error.main', flex: 1 }}>{error}</Typography>
+            <Box component="button" type="button" onClick={() => setError('')} sx={{ background: 'none', border: 'none', cursor: 'pointer', color: 'error.light', display: 'flex', p: 0 }}><X size={14} /></Box>
+          </Box>
         )}
-      </div>
+      </Box>
 
-      {/* ── Two-column body ────────────────────────────────────────────────── */}
-      <div className="flex gap-5 items-start flex-col lg:flex-row">
+      {/* Two-column body */}
+      <Box sx={{ display: 'flex', gap: 2.5, alignItems: 'flex-start', flexDirection: { xs: 'column', lg: 'row' } }}>
 
-        {/* ════ LEFT COLUMN ════════════════════════════════════════════════ */}
-        <div className="flex-1 min-w-0 w-full lg:w-auto">
+        {/* LEFT COLUMN */}
+        <Box sx={{ flex: 1, minWidth: 0, width: '100%' }}>
 
-          {/* 1 ─ Product Information ──────────────────────────────────────── */}
+          {/* 1 – Product Information */}
           <Section icon={Diamond} title="Product Information" subtitle="Product name and unique SKU / design code" accentColor="indigo">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="md:col-span-2">
-                <Input
-                  label="Product Name"
-                  required
-                  value={form.name}
-                  onChange={e => setName(e.target.value)}
-                  placeholder="e.g. 18K Gold Diamond Solitaire Ring"
-                  error={formErrors.name}
-                  helper="A clear, descriptive name (also pre-fills SEO title and URL slug)"
-                />
-              </div>
-              <div>
-                <Input
-                  label="SKU / Design Code"
-                  required
-                  value={form.designCode}
-                  onChange={e => set('designCode', e.target.value)}
-                  placeholder="e.g. RNG-001"
-                  error={formErrors.designCode}
-                  helper="Unique product identifier"
-                />
-              </div>
-            </div>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' }, gap: 2 }}>
+              <Input label="Product Name" required value={form.name} onChange={e => setName(e.target.value)} placeholder="e.g. 18K Gold Diamond Solitaire Ring" error={formErrors.name} helper="A clear, descriptive name (also pre-fills SEO title and URL slug)" />
+              <Input label="SKU / Design Code" required value={form.designCode} onChange={e => set('designCode', e.target.value)} placeholder="e.g. RNG-001" error={formErrors.designCode} helper="Unique product identifier" />
+            </Box>
           </Section>
 
-          {/* 2 ─ Product Description ──────────────────────────────────────── */}
+          {/* 2 – Product Description */}
           <Section icon={FileText} title="Product Description" subtitle="Plain text description shown on the product page" accentColor="violet">
-            <Textarea
-              rows={6}
-              placeholder="Write your product description here…"
-              value={form.description}
-              onChange={e => set('description', e.target.value)}
-              maxLength={2000}
-              error={formErrors.description}
-              helper={`${(form.description || '').length} / 2000`}
-            />
+            <Textarea rows={6} placeholder="Write your product description here…" value={form.description} onChange={e => set('description', e.target.value)} maxLength={2000} error={formErrors.description} helper={`${(form.description || '').length} / 2000`} />
           </Section>
 
-          {/* 3 ─ Pricing ──────────────────────────────────────────────────── */}
+          {/* 3 – Pricing */}
           <Section icon={Tag} title="Pricing" subtitle="Sale price auto-assigns the price range bucket — override if needed" accentColor="green">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  Sale Price <span className="text-red-500 ml-0.5">*</span>
-                </label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-3 flex items-center text-gray-400 text-sm pointer-events-none">
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' }, gap: 2 }}>
+              {/* Sale Price */}
+              <Box>
+                <Typography sx={{ fontSize: 14, fontWeight: 500, mb: 0.75 }}>
+                  Sale Price <Box component="span" sx={{ color: 'error.main', ml: 0.25 }}>*</Box>
+                </Typography>
+                <Box sx={{ position: 'relative' }}>
+                  <Box sx={{ position: 'absolute', inset: '0 auto 0 12px', display: 'flex', alignItems: 'center', pointerEvents: 'none', color: 'text.disabled', fontSize: 14 }}>
                     <DirhamSymbol size="0.9em" />
-                  </span>
-                  <input
-                    type="number"
-                    min={0}
-                    step={0.01}
-                    value={form.price}
-                    onChange={e => { setPrice(e.target.value); clearError('price'); }}
-                    placeholder="0.00"
-                    className={`w-full pl-8 pr-3.5 py-2.5 bg-white dark:bg-gray-900 border rounded-xl text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all ${formErrors.price ? 'border-red-400' : 'border-gray-200 dark:border-gray-700'}`}
-                  />
-                </div>
+                  </Box>
+                  <Box component="input" type="number" min={0} step={0.01} value={form.price} onChange={e => { setPrice(e.target.value); clearError('price'); }} placeholder="0.00" sx={priceInputSx(!!formErrors.price)} />
+                </Box>
                 {formErrors.price
-                  ? <p className="text-xs text-red-500 mt-1">{formErrors.price}</p>
-                  : <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Current selling price</p>
+                  ? <Typography sx={{ fontSize: 11, color: 'error.main', mt: 0.5 }}>{formErrors.price}</Typography>
+                  : <Typography sx={{ fontSize: 11, color: 'text.disabled', mt: 0.5 }}>Current selling price</Typography>
                 }
-              </div>
+              </Box>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Original Price</label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-3 flex items-center text-gray-400 text-sm pointer-events-none">
+              {/* Original Price */}
+              <Box>
+                <Typography sx={{ fontSize: 14, fontWeight: 500, mb: 0.75 }}>Original Price</Typography>
+                <Box sx={{ position: 'relative' }}>
+                  <Box sx={{ position: 'absolute', inset: '0 auto 0 12px', display: 'flex', alignItems: 'center', pointerEvents: 'none', color: 'text.disabled', fontSize: 14 }}>
                     <DirhamSymbol size="0.9em" />
-                  </span>
-                  <input
-                    type="number"
-                    min={0}
-                    step={0.01}
-                    value={form.originalPrice}
-                    onChange={e => setOriginalPrice(e.target.value)}
-                    placeholder="0.00"
-                    className="w-full pl-8 pr-3.5 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                  />
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Shown struck-through when higher than sale price</p>
-              </div>
+                  </Box>
+                  <Box component="input" type="number" min={0} step={0.01} value={form.originalPrice} onChange={e => setOriginalPrice(e.target.value)} placeholder="0.00" sx={priceInputSx(false)} />
+                </Box>
+                <Typography sx={{ fontSize: 11, color: 'text.disabled', mt: 0.5 }}>Shown struck-through when higher than sale price</Typography>
+              </Box>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Discount %</label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    min={0}
-                    max={100}
-                    readOnly
-                    value={form.discount}
-                    className="w-full pr-8 pl-3.5 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-500 dark:text-gray-400 cursor-default focus:outline-none"
-                  />
-                  <span className="absolute inset-y-0 right-3 flex items-center text-gray-400 text-sm pointer-events-none">%</span>
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Auto-calculated from sale &amp; original price</p>
-              </div>
-            </div>
+              {/* Discount % */}
+              <Box>
+                <Typography sx={{ fontSize: 14, fontWeight: 500, mb: 0.75 }}>Discount %</Typography>
+                <Box sx={{ position: 'relative' }}>
+                  <Box component="input" type="number" readOnly value={form.discount} sx={{ ...priceInputSx(false), pl: 1.75, pr: 5, bgcolor: 'action.hover', color: 'text.disabled', cursor: 'default' }} />
+                  <Box sx={{ position: 'absolute', inset: '0 12px 0 auto', display: 'flex', alignItems: 'center', pointerEvents: 'none', color: 'text.disabled', fontSize: 14 }}>%</Box>
+                </Box>
+                <Typography sx={{ fontSize: 11, color: 'text.disabled', mt: 0.5 }}>Auto-calculated from sale & original price</Typography>
+              </Box>
+            </Box>
 
-            {/* Savings callout */}
             {autoDiscount !== null && (
-              <div className="mt-4 inline-flex items-center gap-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl px-4 py-2.5">
-                <Check size={14} className="text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-                <span className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">
+              <Box sx={{ mt: 2.5, display: 'inline-flex', alignItems: 'center', gap: 1, bgcolor: 'rgba(16,185,129,0.08)', border: '1px solid', borderColor: 'rgba(16,185,129,0.3)', borderRadius: 2.5, px: 2, py: 1 }}>
+                <Check size={14} style={{ color: '#059669', flexShrink: 0 }} />
+                <Typography sx={{ fontSize: 13, color: '#059669', fontWeight: 500 }}>
                   Customer saves AED {(Number(form.originalPrice) - Number(form.price)).toLocaleString()} · {autoDiscount}% off
-                </span>
-              </div>
+                </Typography>
+              </Box>
             )}
 
-            {/* Price range bucket (read-only) */}
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Price Range Bucket</label>
-                <div className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-500 dark:text-gray-400 cursor-default">
-                  {form.priceRange
-                    ? PRICE_BUCKET_MAP.find(b => b.slug === form.priceRange)?.label || form.priceRange
-                    : 'Auto-assigned from price'
-                  }
-                </div>
-              </div>
-            </div>
+            <Box sx={{ mt: 2.5, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+              <Box>
+                <Typography sx={{ fontSize: 14, fontWeight: 500, mb: 0.75 }}>Price Range Bucket</Typography>
+                <Box sx={{ px: 1.75, py: 1.25, bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider', borderRadius: 2, fontSize: 14, color: 'text.secondary' }}>
+                  {form.priceRange ? PRICE_BUCKET_MAP.find(b => b.slug === form.priceRange)?.label || form.priceRange : 'Auto-assigned from price'}
+                </Box>
+              </Box>
+            </Box>
           </Section>
 
-          {/* 4 ─ Product Images ───────────────────────────────────────────── */}
+          {/* 4 – Product Images */}
           <Section icon={ImageIcon} title="Product Images" subtitle="Upload from device — first is the primary cover, second is the hover view" accentColor="blue">
             {productLoaded && (
-              <ImageUploader
-                images={form.images}
-                onChange={urls => { set('images', urls); clearError('images'); }}
-                maxImages={10}
-                category="products"
-              />
+              <ImageUploader images={form.images} onChange={urls => { set('images', urls); clearError('images'); }} maxImages={10} category="products" />
             )}
-            {formErrors.images && (
-              <p className="text-xs text-red-500 mt-2">{formErrors.images}</p>
-            )}
+            {formErrors.images && <Typography sx={{ fontSize: 11, color: 'error.main', mt: 1 }}>{formErrors.images}</Typography>}
           </Section>
 
-          {/* 5 ─ Ring Sizes (conditional) ────────────────────────────────── */}
+          {/* 5 – Ring Sizes (conditional) */}
           {form.category === 'Rings' && (
             <Section icon={Sparkles} title="Product Variants" subtitle="Select available ring sizes" accentColor="orange">
-              <div className="flex flex-wrap gap-2">
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                 {RING_SIZES.map(s => {
                   const on = form.sizes.includes(s);
                   return (
-                    <button
+                    <Box
                       key={s}
+                      component="button"
                       type="button"
                       onClick={() => toggleSize(s)}
-                      className={`w-12 h-12 rounded-xl border-2 text-sm font-semibold transition-all duration-150 ${
-                        on
-                          ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500 dark:border-indigo-500 text-indigo-700 dark:text-indigo-300'
-                          : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-indigo-300 dark:hover:border-indigo-700'
-                      }`}
+                      sx={{
+                        width: 48, height: 48, borderRadius: 2, border: '2px solid',
+                        fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+                        bgcolor: on ? 'rgba(99,102,241,0.06)' : 'background.paper',
+                        borderColor: on ? 'primary.main' : 'divider',
+                        color: on ? 'primary.main' : 'text.secondary',
+                        '&:hover': { borderColor: 'primary.light' },
+                      }}
                     >
                       {s}
-                    </button>
+                    </Box>
                   );
                 })}
-              </div>
+              </Box>
               {form.sizes.length > 0 && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
+                <Typography sx={{ fontSize: 12, color: 'text.secondary', mt: 1.5 }}>
                   Selected: {[...form.sizes].sort((a, b) => Number(a) - Number(b)).join(', ')}
-                </p>
+                </Typography>
               )}
             </Section>
           )}
 
-          {/* 6 ─ Jewellery Specifications ─────────────────────────────────── */}
+          {/* 6 – Jewellery Specifications */}
           <Section icon={Sparkles} title="Jewellery Specifications" subtitle="Metal, karat, stone — multiple selections allowed" accentColor="violet">
-            <div className="space-y-5">
-              {/* Metal Type */}
-              <div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                  Metal Type <span className="text-red-500">*</span>
-                </p>
-                <ChipToggleGroup options={METAL_OPTIONS} selected={form.metals}
-                  onChange={val => { set('metals', val); clearError('metals'); }} color="indigo" />
-                {formErrors.metals && <p className="text-xs text-red-500 mt-1.5">{formErrors.metals}</p>}
-              </div>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <Box>
+                <Typography sx={{ fontSize: 14, fontWeight: 600, mb: 1 }}>
+                  Metal Type <Box component="span" sx={{ color: 'error.main' }}>*</Box>
+                </Typography>
+                <ChipToggleGroup options={METAL_OPTIONS} selected={form.metals} onChange={val => { set('metals', val); clearError('metals'); }} color="indigo" />
+                {formErrors.metals && <Typography sx={{ fontSize: 11, color: 'error.main', mt: 0.75 }}>{formErrors.metals}</Typography>}
+              </Box>
 
-              {/* Metal Karat */}
-              <div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                  Metal Karat <span className="text-red-500">*</span>
-                </p>
-                <ChipToggleGroup
-                  options={KARAT_OPTIONS}
-                  selected={form.metalKt ? [form.metalKt] : []}
-                  onChange={val => { set('metalKt', val[val.length - 1] || ''); clearError('metalKt'); }}
-                  color="violet"
-                />
-                {formErrors.metalKt && <p className="text-xs text-red-500 mt-1.5">{formErrors.metalKt}</p>}
-              </div>
+              <Box>
+                <Typography sx={{ fontSize: 14, fontWeight: 600, mb: 1 }}>
+                  Metal Karat <Box component="span" sx={{ color: 'error.main' }}>*</Box>
+                </Typography>
+                <ChipToggleGroup options={KARAT_OPTIONS} selected={form.metalKt ? [form.metalKt] : []} onChange={val => { set('metalKt', val[val.length - 1] || ''); clearError('metalKt'); }} color="violet" />
+                {formErrors.metalKt && <Typography sx={{ fontSize: 11, color: 'error.main', mt: 0.75 }}>{formErrors.metalKt}</Typography>}
+              </Box>
 
-              {/* Stone / Gemstone */}
-              <div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
-                  Stone / Gemstone{' '}
-                  <span className="text-gray-400 dark:text-gray-500 font-normal">(optional)</span>
-                </p>
-                <p className="text-xs text-gray-400 dark:text-gray-500 mb-2">Leave empty for plain metal products (e.g. gold chains, plain bangles)</p>
-                <ChipToggleGroup options={STONE_OPTIONS} selected={form.stones}
-                  onChange={val => set('stones', val)} color="info" />
-              </div>
+              <Box>
+                <Typography sx={{ fontSize: 14, fontWeight: 600, mb: 0.5 }}>
+                  Stone / Gemstone <Box component="span" sx={{ color: 'text.disabled', fontWeight: 400 }}>(optional)</Box>
+                </Typography>
+                <Typography sx={{ fontSize: 12, color: 'text.disabled', mb: 1 }}>Leave empty for plain metal products (e.g. gold chains, plain bangles)</Typography>
+                <ChipToggleGroup options={STONE_OPTIONS} selected={form.stones} onChange={val => set('stones', val)} color="info" />
+              </Box>
 
-              {/* Diamond-specific attributes */}
               {form.stones.includes('Diamond') && (
-                <div className="p-4 rounded-xl border border-violet-200 dark:border-violet-800/40 bg-violet-50/50 dark:bg-violet-900/10">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Diamond size={14} className="text-violet-600 dark:text-violet-400" />
-                    <span className="text-sm font-bold text-violet-700 dark:text-violet-300">Diamond Specifications</span>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <Select
-                      label="Clarity"
-                      value={form.diamondClarity}
-                      onChange={e => set('diamondClarity', e.target.value)}
-                    >
-                      <option value="">Not specified</option>
-                      {['FL','IF','VVS1','VVS2','VS1','VS2','SI1','SI2','I1','I2','I3'].map(v => (
-                        <option key={v} value={v}>{v}</option>
-                      ))}
+                <Box sx={{ p: 2, borderRadius: 2.5, border: '1px solid', borderColor: 'rgba(139,92,246,0.3)', bgcolor: 'rgba(139,92,246,0.04)' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                    <Diamond size={14} style={{ color: '#7c3aed' }} />
+                    <Typography sx={{ fontSize: 13, fontWeight: 700, color: '#7c3aed' }}>Diamond Specifications</Typography>
+                  </Box>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' }, gap: 1.5 }}>
+                    <Select label="Clarity" value={form.diamondClarity} onChange={e => set('diamondClarity', e.target.value)}>
+                      <MenuItem value="">Not specified</MenuItem>
+                      {['FL','IF','VVS1','VVS2','VS1','VS2','SI1','SI2','I1','I2','I3'].map(v => <MenuItem key={v} value={v}>{v}</MenuItem>)}
                     </Select>
-                    <Select
-                      label="Color Grade"
-                      value={form.diamondColor}
-                      onChange={e => set('diamondColor', e.target.value)}
-                    >
-                      <option value="">Not specified</option>
-                      {['D','E','F','G','H','I','J','K','L','M','N'].map(v => (
-                        <option key={v} value={v}>{v}</option>
-                      ))}
+                    <Select label="Color Grade" value={form.diamondColor} onChange={e => set('diamondColor', e.target.value)}>
+                      <MenuItem value="">Not specified</MenuItem>
+                      {['D','E','F','G','H','I','J','K','L','M','N'].map(v => <MenuItem key={v} value={v}>{v}</MenuItem>)}
                     </Select>
-                    <Input
-                      label="Carat Weight (ct.)"
-                      type="number"
-                      min={0}
-                      step={0.01}
-                      value={form.diamondCt}
-                      onChange={e => set('diamondCt', e.target.value)}
-                      placeholder="e.g. 0.50"
-                    />
-                  </div>
-                </div>
+                    <Input label="Carat Weight (ct.)" type="number" min={0} step={0.01} value={form.diamondCt} onChange={e => set('diamondCt', e.target.value)} placeholder="e.g. 0.50" />
+                  </Box>
+                </Box>
               )}
 
-              {/* Weight */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input
-                  label="Product Weight (g)"
-                  type="number"
-                  min={0}
-                  step={0.01}
-                  value={form.weight}
-                  onChange={e => set('weight', e.target.value)}
-                  placeholder="e.g. 4.20"
-                />
-              </div>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <Input label="Product Weight (g)" type="number" min={0} step={0.01} value={form.weight} onChange={e => set('weight', e.target.value)} placeholder="e.g. 4.20" />
+              </Box>
 
-              {/* Metal & Stone nav match preview */}
               {matchedNavMS.length > 0 && (
-                <div>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mb-2">
-                    This product will appear in "By Metal &amp; Stone" filter for:
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
+                <Box>
+                  <Typography sx={{ fontSize: 12, color: 'text.disabled', mb: 1 }}>
+                    This product will appear in "By Metal & Stone" filter for:
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
                     {matchedNavMS.map(opt => (
-                      <span key={opt} className="inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700 rounded-lg px-2 py-0.5 text-xs font-semibold">
-                        <Check size={10} />
-                        {opt}
-                      </span>
+                      <Box key={opt} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, bgcolor: 'rgba(16,185,129,0.08)', color: '#059669', border: '1px solid', borderColor: 'rgba(16,185,129,0.25)', borderRadius: 1.5, px: 1, py: 0.25, fontSize: 12, fontWeight: 600 }}>
+                        <Check size={10} /> {opt}
+                      </Box>
                     ))}
-                  </div>
-                </div>
+                  </Box>
+                </Box>
               )}
-            </div>
+            </Box>
           </Section>
 
-          {/* 7 ─ Frontend Filter Mapping ──────────────────────────────────── */}
+          {/* 7 – Frontend Filter Mapping */}
           <Section icon={SlidersHorizontal} title="Frontend Filter Mapping"
             subtitle={form.category
               ? `Mega-nav options for "${form.category}" — selections control which storefront filters show this product`
@@ -763,387 +647,307 @@ export default function ProductForm() {
             accentColor="cyan">
 
             {!form.category ? (
-              <div className="py-8 text-center">
-                <SlidersHorizontal size={36} className="mx-auto text-gray-300 dark:text-gray-600 mb-2" />
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Choose a category in the sidebar to unlock category-specific filter chips.
-                </p>
-              </div>
+              <Box sx={{ py: 4, textAlign: 'center' }}>
+                <Box sx={{ color: 'text.disabled', mb: 1, display: 'flex', justifyContent: 'center' }}><SlidersHorizontal size={36} /></Box>
+                <Typography sx={{ fontSize: 13, color: 'text.secondary' }}>Choose a category in the sidebar to unlock category-specific filter chips.</Typography>
+              </Box>
             ) : (
-              <div className="space-y-6">
-                {/* Featured In */}
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Star size={13} className="text-amber-500" />
-                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">Featured In</span>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <Star size={13} style={{ color: '#f59e0b' }} />
+                    <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Featured In</Typography>
                     {form.featured.length > 0 && (
-                      <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700 text-xs font-bold px-1.5 py-0.5 rounded-md">
+                      <Box sx={{ bgcolor: 'rgba(245,158,11,0.1)', color: '#d97706', border: '1px solid', borderColor: 'rgba(245,158,11,0.25)', fontSize: 11, fontWeight: 700, px: 0.75, py: 0.25, borderRadius: 1 }}>
                         {form.featured.length} selected
-                      </span>
+                      </Box>
                     )}
-                  </div>
-                  <ChipToggleGroup options={categoryMap.featured} selected={form.featured}
-                    onChange={val => set('featured', val)} color="warning" />
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1.5">
-                    Controls which "Featured" column items this product appears under in the mega-nav
-                  </p>
-                  {formErrors.featured && <p className="text-xs text-red-500 mt-1">{formErrors.featured}</p>}
-                </div>
+                  </Box>
+                  <ChipToggleGroup options={categoryMap.featured} selected={form.featured} onChange={val => set('featured', val)} color="warning" />
+                  <Typography sx={{ fontSize: 12, color: 'text.disabled', mt: 0.75 }}>Controls which "Featured" column items this product appears under in the mega-nav</Typography>
+                  {formErrors.featured && <Typography sx={{ fontSize: 11, color: 'error.main', mt: 0.5 }}>{formErrors.featured}</Typography>}
+                </Box>
 
-                {/* By Style */}
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Layers size={13} className="text-sky-500" />
-                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">By Style</span>
+                <Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <Layers size={13} style={{ color: '#0ea5e9' }} />
+                    <Typography sx={{ fontSize: 14, fontWeight: 600 }}>By Style</Typography>
                     {form.styles.length > 0 && (
-                      <span className="bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-700 text-xs font-bold px-1.5 py-0.5 rounded-md">
+                      <Box sx={{ bgcolor: 'rgba(14,165,233,0.1)', color: '#0284c7', border: '1px solid', borderColor: 'rgba(14,165,233,0.25)', fontSize: 11, fontWeight: 700, px: 0.75, py: 0.25, borderRadius: 1 }}>
                         {form.styles.length} selected
-                      </span>
+                      </Box>
                     )}
-                  </div>
-                  <ChipToggleGroup options={categoryMap.styles} selected={form.styles}
-                    onChange={val => set('styles', val)} color="info" />
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1.5">
-                    Controls "By Style" filter column in the mega-nav
-                  </p>
-                  {formErrors.styles && <p className="text-xs text-red-500 mt-1">{formErrors.styles}</p>}
-                </div>
-              </div>
+                  </Box>
+                  <ChipToggleGroup options={categoryMap.styles} selected={form.styles} onChange={val => set('styles', val)} color="info" />
+                  <Typography sx={{ fontSize: 12, color: 'text.disabled', mt: 0.75 }}>Controls "By Style" filter column in the mega-nav</Typography>
+                  {formErrors.styles && <Typography sx={{ fontSize: 11, color: 'error.main', mt: 0.5 }}>{formErrors.styles}</Typography>}
+                </Box>
+              </Box>
             )}
           </Section>
 
-          {/* 8 ─ Tags & Audience ──────────────────────────────────────────── */}
+          {/* 8 – Tags & Audience */}
           <Section icon={Users} title="Tags & Audience" subtitle="Searchable keywords and target customer segments" accentColor="teal">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Search Tags</label>
-                <TagInput
-                  value={form.tags}
-                  onChange={val => set('tags', val)}
-                  placeholder="Type a tag, press Enter…"
-                />
-                <p className="text-xs text-gray-500 dark:text-gray-400">e.g. diamond, ring, engagement, anniversary</p>
-              </div>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2.5 }}>
+              <Box>
+                <Typography sx={{ fontSize: 14, fontWeight: 500, mb: 0.75 }}>Search Tags</Typography>
+                <TagInput value={form.tags} onChange={val => set('tags', val)} placeholder="Type a tag, press Enter…" />
+                <Typography sx={{ fontSize: 12, color: 'text.disabled', mt: 0.5 }}>e.g. diamond, ring, engagement, anniversary</Typography>
+              </Box>
 
-              <div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                  Target Audience <span className="text-red-500">*</span>
-                </p>
-                <ChipToggleGroup options={FORWHO_OPTIONS} selected={form.forWho}
-                  onChange={val => { set('forWho', val); clearError('forWho'); }} color="emerald" />
-                {formErrors.forWho && <p className="text-xs text-red-500 mt-1.5">{formErrors.forWho}</p>}
-              </div>
-            </div>
+              <Box>
+                <Typography sx={{ fontSize: 14, fontWeight: 600, mb: 1 }}>
+                  Target Audience <Box component="span" sx={{ color: 'error.main' }}>*</Box>
+                </Typography>
+                <ChipToggleGroup options={FORWHO_OPTIONS} selected={form.forWho} onChange={val => { set('forWho', val); clearError('forWho'); }} color="emerald" />
+                {formErrors.forWho && <Typography sx={{ fontSize: 11, color: 'error.main', mt: 0.75 }}>{formErrors.forWho}</Typography>}
+              </Box>
+            </Box>
 
-            {/* AI Collection Tags */}
-            <div className="mt-5 space-y-1.5">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Collection Tags{' '}
-                <span className="text-gray-400 dark:text-gray-500 font-normal">(optional)</span>
-              </label>
-              <TagInput
-                value={form.collection}
-                onChange={val => set('collection', val)}
-                placeholder="e.g. Valentine's Day Collection…"
-              />
-              <p className="text-xs text-gray-400 dark:text-gray-500">
+            <Box sx={{ mt: 2.5 }}>
+              <Typography sx={{ fontSize: 14, fontWeight: 500, mb: 0.75 }}>
+                Collection Tags <Box component="span" sx={{ color: 'text.disabled', fontWeight: 400 }}>(optional)</Box>
+              </Typography>
+              <TagInput value={form.collection} onChange={val => set('collection', val)} placeholder="e.g. Valentine's Day Collection…" />
+              <Typography sx={{ fontSize: 12, color: 'text.disabled', mt: 0.5 }}>
                 The AI chatbot will prioritize this product for each tagged collection. Pick from the suggestions below or type a custom name and press Enter.
-              </p>
-              {/* Suggestion pills */}
-              <div className="flex flex-wrap gap-1.5 pt-1">
+              </Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 1 }}>
                 {AI_COLLECTION_OPTIONS.filter(o => !form.collection.includes(o)).map(opt => (
-                  <button
+                  <Box
                     key={opt}
+                    component="button"
                     type="button"
                     onClick={() => set('collection', [...form.collection, opt])}
-                    className="inline-flex items-center px-2 py-0.5 rounded-md border border-dashed border-gray-300 dark:border-gray-600 text-xs text-gray-500 dark:text-gray-400 hover:border-indigo-400 dark:hover:border-indigo-600 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                    sx={{
+                      display: 'inline-flex', alignItems: 'center', px: 1, py: 0.25,
+                      borderRadius: 1, border: '1px dashed', borderColor: 'divider',
+                      fontSize: 12, color: 'text.secondary', background: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                      '&:hover': { borderColor: 'primary.light', color: 'primary.main' }, transition: 'all 0.15s',
+                    }}
                   >
                     + {opt}
-                  </button>
+                  </Box>
                 ))}
-              </div>
-            </div>
+              </Box>
+            </Box>
           </Section>
 
-          {/* 9 ─ SEO ──────────────────────────────────────────────────────── */}
+          {/* 9 – SEO */}
           <Section icon={Search} title="SEO" subtitle="Search engine metadata — pre-filled from product name and description" accentColor="sky">
-            <div className="space-y-4">
-              <Input
-                label="Meta Title"
-                value={form.seoTitle || form.name}
-                onChange={e => set('seoTitle', e.target.value)}
-                maxLength={80}
-                helper={`${(form.seoTitle || form.name).length} / 60 characters recommended`}
-              />
-              <Textarea
-                label="Meta Description"
-                rows={2}
-                value={form.seoDescription}
-                onChange={e => set('seoDescription', e.target.value)}
-                placeholder="Brief description for search engines…"
-                maxLength={200}
-                helper={`${form.seoDescription.length} / 160 characters recommended`}
-              />
-              <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">URL Slug</label>
-                <div className="flex">
-                  <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm text-gray-400 dark:text-gray-500 whitespace-nowrap">
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Input label="Meta Title" value={form.seoTitle || form.name} onChange={e => set('seoTitle', e.target.value)} maxLength={80} helper={`${(form.seoTitle || form.name).length} / 60 characters recommended`} />
+              <Textarea label="Meta Description" rows={2} value={form.seoDescription} onChange={e => set('seoDescription', e.target.value)} placeholder="Brief description for search engines…" maxLength={200} helper={`${form.seoDescription.length} / 160 characters recommended`} />
+              <Box>
+                <Typography sx={{ fontSize: 14, fontWeight: 500, mb: 0.75 }}>URL Slug</Typography>
+                <Box sx={{ display: 'flex' }}>
+                  <Box sx={{ display: 'inline-flex', alignItems: 'center', px: 1.5, border: '1px solid', borderRight: 'none', borderColor: 'divider', bgcolor: 'action.hover', fontSize: 13, color: 'text.disabled', borderRadius: '8px 0 0 8px', whiteSpace: 'nowrap' }}>
                     /products/
-                  </span>
-                  <input
+                  </Box>
+                  <Box
+                    component="input"
                     type="text"
                     value={form.slug || slugify(form.name)}
                     onChange={e => set('slug', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
-                    className="flex-1 min-w-0 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-r-xl px-3.5 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    sx={{
+                      flex: 1, minWidth: 0, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider',
+                      borderRadius: '0 8px 8px 0', px: 1.75, py: 1.25, fontSize: 14, color: 'text.primary',
+                      outline: 'none', fontFamily: 'inherit',
+                      '&:focus': { borderColor: 'primary.main', boxShadow: '0 0 0 2px rgba(99,102,241,0.15)' },
+                    }}
                   />
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Auto-generated from product name — edit to customise</p>
-              </div>
-            </div>
+                </Box>
+                <Typography sx={{ fontSize: 12, color: 'text.disabled', mt: 0.5 }}>Auto-generated from product name — edit to customise</Typography>
+              </Box>
+            </Box>
           </Section>
 
-          {/* 10 ─ Reviews ─────────────────────────────────────────────────── */}
+          {/* 10 – Reviews */}
           <Section icon={MessageSquare} title="Reviews & Ratings"
             subtitle={isEdit ? 'Add and manage reviews for this product' : 'Save product first to manage reviews'}
             accentColor="amber">
 
             {isEdit && form.reviewCount > 0 && (
-              <div className="flex items-center gap-4 mb-5 flex-wrap">
-                <div className="text-center">
-                  <div className="text-4xl font-extrabold text-gray-900 dark:text-white leading-tight">
-                    {(form.rating || 0).toFixed(1)}
-                  </div>
-                  <div className="flex items-center gap-0.5 justify-center mt-1">
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 3, flexWrap: 'wrap' }}>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography sx={{ fontSize: 40, fontWeight: 800, lineHeight: 1 }}>{(form.rating || 0).toFixed(1)}</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, justifyContent: 'center', mt: 0.5 }}>
                     {[1,2,3,4,5].map(i => (
-                      <Star
-                        key={i}
-                        size={13}
-                        className={(form.rating || 0) >= i ? 'text-amber-400 fill-amber-400' : 'text-gray-200 dark:text-gray-700 fill-gray-200 dark:fill-gray-700'}
-                      />
+                      <Star key={i} size={13} style={{ fill: (form.rating || 0) >= i ? '#f59e0b' : '#e5e7eb', color: (form.rating || 0) >= i ? '#f59e0b' : '#e5e7eb' }} />
                     ))}
-                  </div>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                    {form.reviewCount} published review{form.reviewCount !== 1 ? 's' : ''}
-                  </p>
-                </div>
-                <button
+                  </Box>
+                  <Typography sx={{ fontSize: 12, color: 'text.disabled', mt: 0.25 }}>{form.reviewCount} published review{form.reviewCount !== 1 ? 's' : ''}</Typography>
+                </Box>
+                <Box
+                  component="button"
                   type="button"
                   onClick={() => navigate('/admin/reviews')}
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-700 rounded-xl px-3 py-1.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
+                  sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, fontSize: 13, fontWeight: 500, color: 'primary.main', border: '1px solid', borderColor: 'rgba(99,102,241,0.3)', borderRadius: 2, px: 1.5, py: 0.75, background: 'none', cursor: 'pointer', fontFamily: 'inherit', '&:hover': { bgcolor: 'rgba(99,102,241,0.06)' }, transition: 'background-color 0.15s' }}
                 >
-                  View All Reviews
-                  <ExternalLink size={12} />
-                </button>
-              </div>
+                  View All Reviews <ExternalLink size={12} />
+                </Box>
+              </Box>
             )}
-
             <ReviewManagerPanel productId={isEdit ? id : null} />
           </Section>
 
-        </div>
-        {/* ════ END LEFT COLUMN ════════════════════════════════════════════ */}
+        </Box>
 
-        {/* ════ RIGHT SIDEBAR ══════════════════════════════════════════════ */}
-        <div className="w-full lg:w-72 xl:w-80 flex-shrink-0 lg:sticky lg:top-20 lg:self-start">
+        {/* RIGHT SIDEBAR */}
+        <Box sx={{ width: { xs: '100%', lg: 288, xl: 320 }, flexShrink: 0, position: { lg: 'sticky' }, top: { lg: 80 }, alignSelf: { lg: 'flex-start' } }}>
 
-          {/* Status & Visibility ────────────────────────────────────────── */}
+          {/* Status & Visibility */}
           <SideCard title="Status & Visibility" icon={ToggleLeft}>
-            <div className="space-y-3">
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
               {[
-                { key: 'inStock',   label: 'In Stock',  desc: v => v ? 'Available for purchase' : 'Out of stock',       activeClass: 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/40' },
-                { key: 'certified', label: 'Certified', desc: v => v ? 'Has quality certification' : 'No certification', activeClass: 'bg-sky-50 dark:bg-sky-900/10 border-sky-100 dark:border-sky-800/40' },
-              ].map(({ key, label, desc, activeClass }) => (
-                <label key={key} className={`flex items-center justify-between gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${form[key] ? activeClass : 'border-gray-100 dark:border-gray-800'}`}>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{label}</p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">{desc(form[key])}</p>
-                  </div>
-                  <Toggle
-                    checked={form[key]}
-                    onChange={e => set(key, e.target.checked)}
-                  />
-                </label>
+                { key: 'inStock',   label: 'In Stock',  desc: v => v ? 'Available for purchase' : 'Out of stock',       activeBg: 'rgba(16,185,129,0.06)',  activeBorder: 'rgba(16,185,129,0.2)' },
+                { key: 'certified', label: 'Certified', desc: v => v ? 'Has quality certification' : 'No certification', activeBg: 'rgba(14,165,233,0.06)', activeBorder: 'rgba(14,165,233,0.2)' },
+              ].map(({ key, label, desc, activeBg, activeBorder }) => (
+                <Box
+                  key={key}
+                  component="label"
+                  sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5, p: 1.5, borderRadius: 2, border: '1px solid', cursor: 'pointer', transition: 'all 0.15s', bgcolor: form[key] ? activeBg : 'transparent', borderColor: form[key] ? activeBorder : 'divider' }}
+                >
+                  <Box>
+                    <Typography sx={{ fontSize: 13, fontWeight: 600 }}>{label}</Typography>
+                    <Typography sx={{ fontSize: 11.5, color: 'text.disabled' }}>{desc(form[key])}</Typography>
+                  </Box>
+                  <Toggle checked={form[key]} onChange={e => set(key, e.target.checked)} />
+                </Box>
               ))}
 
-              {/* Product Badge */}
-              <div>
-                <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2" style={{ letterSpacing: '0.9px', fontSize: '0.63rem' }}>
-                  Product Badge
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  <button
+              <Box>
+                <Typography sx={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'text.disabled', mb: 1 }}>Product Badge</Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
+                  <Box
+                    component="button"
                     type="button"
                     onClick={() => set('badge', '')}
-                    className={`px-2.5 py-1 rounded-lg border text-xs font-semibold transition-all ${!form.badge ? 'bg-gray-700 dark:bg-gray-200 border-gray-700 dark:border-gray-200 text-white dark:text-gray-900' : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-gray-400'}`}
+                    sx={{ px: 1.25, py: 0.5, borderRadius: 1.5, border: '1px solid', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', bgcolor: !form.badge ? '#374151' : 'background.paper', borderColor: !form.badge ? '#374151' : 'divider', color: !form.badge ? '#fff' : 'text.secondary' }}
                   >
                     None
-                  </button>
+                  </Box>
                   {BADGE_OPTIONS.map(b => {
                     const active = form.badge === b;
-                    const pillCls = BADGE_PILL_MAP[b?.toLowerCase()] || BADGE_PILL_MAP.default;
+                    const p = BADGE_PILL[b?.toLowerCase()] || BADGE_PILL.default;
                     return (
-                      <button
+                      <Box
                         key={b}
+                        component="button"
                         type="button"
                         onClick={() => set('badge', b)}
-                        className={`px-2.5 py-1 rounded-lg border text-xs font-semibold capitalize transition-all ${active ? pillCls + ' font-bold' : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-gray-400'}`}
+                        sx={{ px: 1.25, py: 0.5, borderRadius: 1.5, border: '1px solid', fontSize: 12, fontWeight: active ? 700 : 500, cursor: 'pointer', fontFamily: 'inherit', textTransform: 'capitalize', transition: 'all 0.15s', bgcolor: active ? p.bg : 'background.paper', borderColor: active ? p.border : 'divider', color: active ? p.color : 'text.secondary' }}
                       >
                         {b}
-                      </button>
+                      </Box>
                     );
                   })}
-                </div>
-              </div>
-            </div>
+                </Box>
+              </Box>
+            </Box>
           </SideCard>
 
-          {/* Product Flags ──────────────────────────────────────────────── */}
+          {/* Product Flags */}
           <SideCard title="Product Flags *" icon={Zap}>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">
-              Each flag creates a dedicated collection page (e.g. <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">/collection/new-arrivals</code>). Products appear on that page automatically once flagged.
-            </p>
-            <div className="flex flex-wrap gap-1.5">
+            <Typography sx={{ fontSize: 12, color: 'text.disabled', mb: 1.5 }}>
+              Each flag creates a dedicated collection page (e.g.{' '}
+              <Box component="code" sx={{ bgcolor: 'action.hover', px: 0.5, borderRadius: 0.5 }}>/collection/new-arrivals</Box>
+              ). Products appear on that page automatically once flagged.
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
               {PRODUCT_FLAGS.map(flag => {
                 const on = form.flags.includes(flag);
                 const col = FLAG_COLLECTIONS.find(c => c.flag === flag);
                 return (
-                  <div key={flag} className="flex items-center gap-1">
-                    <button
+                  <Box key={flag} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Box
+                      component="button"
                       type="button"
                       onClick={() => set('flags', on ? form.flags.filter(f => f !== flag) : [...form.flags, flag])}
-                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-xs font-medium transition-all duration-150 ${
-                        on
-                          ? 'bg-amber-500 border-amber-500 text-white font-semibold'
-                          : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-amber-300 dark:hover:border-amber-700'
-                      }`}
+                      sx={{
+                        display: 'inline-flex', alignItems: 'center', gap: 0.5,
+                        px: 1.25, py: 0.5, borderRadius: 1.5, border: '1px solid', fontSize: 12, fontWeight: on ? 600 : 500,
+                        cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+                        bgcolor: on ? '#f59e0b' : 'background.paper',
+                        borderColor: on ? '#f59e0b' : 'divider',
+                        color: on ? '#fff' : 'text.secondary',
+                        '&:hover': { borderColor: '#f59e0b', color: on ? '#fff' : '#d97706' },
+                      }}
                     >
-                      {on && <Check size={10} />}
-                      {flag}
-                    </button>
+                      {on && <Check size={10} />} {flag}
+                    </Box>
                     {col && (
-                      <a
-                        href={`/collection/${col.slug}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title={`View /collection/${col.slug}`}
-                        className="text-gray-300 dark:text-gray-600 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
-                      >
+                      <Box component="a" href={`/collection/${col.slug}`} target="_blank" rel="noopener noreferrer" title={`View /collection/${col.slug}`} sx={{ color: 'text.disabled', '&:hover': { color: 'primary.main' }, display: 'flex', transition: 'color 0.1s' }}>
                         <ExternalLink size={11} />
-                      </a>
+                      </Box>
                     )}
-                  </div>
+                  </Box>
                 );
               })}
-            </div>
-            {formErrors.flags && <p className="text-xs text-red-500 mt-2">{formErrors.flags}</p>}
+            </Box>
+            {formErrors.flags && <Typography sx={{ fontSize: 11, color: 'error.main', mt: 1 }}>{formErrors.flags}</Typography>}
           </SideCard>
 
-          {/* Category ───────────────────────────────────────────────────── */}
+          {/* Category */}
           <SideCard title="Category" icon={FolderOpen}>
-            <div className="space-y-3">
-              <Select
-                label="Category"
-                required
-                value={form.category}
-                onChange={e => setCategory(e.target.value)}
-                error={formErrors.category}
-              >
-                <option value="">Select category</option>
-                {CATEGORY_LIST.map(c => <option key={c} value={c}>{c}</option>)}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              <Select label="Category" required value={form.category} onChange={e => setCategory(e.target.value)} error={formErrors.category}>
+                <MenuItem value="">Select category</MenuItem>
+                {CATEGORY_LIST.map(c => <MenuItem key={c} value={c}>{c}</MenuItem>)}
               </Select>
-
               {subcategoryOpts.length > 0 ? (
-                <Select
-                  label="Subcategory"
-                  value={form.subcategory}
-                  onChange={e => set('subcategory', e.target.value)}
-                >
-                  <option value="">None</option>
-                  {subcategoryOpts.map(s => <option key={s} value={s}>{s}</option>)}
+                <Select label="Subcategory" value={form.subcategory} onChange={e => set('subcategory', e.target.value)}>
+                  <MenuItem value="">None</MenuItem>
+                  {subcategoryOpts.map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
                 </Select>
               ) : (
-                <Input
-                  label="Subcategory"
-                  value={form.subcategory}
-                  onChange={e => set('subcategory', e.target.value)}
-                  placeholder="e.g. Diamond Rings"
-                />
+                <Input label="Subcategory" value={form.subcategory} onChange={e => set('subcategory', e.target.value)} placeholder="e.g. Diamond Rings" />
               )}
-            </div>
+            </Box>
           </SideCard>
 
-          {/* Brand ──────────────────────────────────────────────────────── */}
+          {/* Brand */}
           <SideCard title="Brand" icon={Diamond}>
-            <Select
-              label="Brand"
-              required
-              value={form.brand}
-              onChange={e => set('brand', e.target.value)}
-              error={formErrors.brand}
-            >
-              <option value="">Select brand</option>
-              {brandsList.map(b => <option key={b} value={b}>{b}</option>)}
+            <Select label="Brand" required value={form.brand} onChange={e => set('brand', e.target.value)} error={formErrors.brand}>
+              <MenuItem value="">Select brand</MenuItem>
+              {brandsList.map(b => <MenuItem key={b} value={b}>{b}</MenuItem>)}
             </Select>
           </SideCard>
 
-          {/* Fulfillment ────────────────────────────────────────────────── */}
+          {/* Fulfillment */}
           <SideCard title="Fulfillment" icon={Truck}>
-            <div className="space-y-3">
-              <Input
-                label="Fulfilled By"
-                value={form.fulfilledBy}
-                onChange={e => set('fulfilledBy', e.target.value)}
-                placeholder="e.g. Jawhara"
-                helper="Who ships this product"
-              />
-              <Select
-                label="Delivery Time"
-                required
-                value={form.arrivesBy}
-                onChange={e => set('arrivesBy', e.target.value)}
-                error={formErrors.arrivesBy}
-              >
-                <option value="">Select delivery time</option>
-                {DELIVERY_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              <Input label="Fulfilled By" value={form.fulfilledBy} onChange={e => set('fulfilledBy', e.target.value)} placeholder="e.g. Jawhara" helper="Who ships this product" />
+              <Select label="Delivery Time" required value={form.arrivesBy} onChange={e => set('arrivesBy', e.target.value)} error={formErrors.arrivesBy}>
+                <MenuItem value="">Select delivery time</MenuItem>
+                {DELIVERY_OPTIONS.map(o => <MenuItem key={o} value={o}>{o}</MenuItem>)}
               </Select>
-            </div>
+            </Box>
           </SideCard>
 
-        </div>
-        {/* ════ END RIGHT SIDEBAR ══════════════════════════════════════════ */}
+        </Box>
+        {/* END RIGHT SIDEBAR */}
 
-      </div>
+      </Box>
 
-      {/* ── Floating save bar ─────────────────────────────────────────────── */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 bg-white/90 dark:bg-gray-900/90 backdrop-blur border-t border-gray-200 dark:border-gray-800 px-6 py-3 flex items-center justify-between gap-4">
-        <p className="text-xs text-gray-400 dark:text-gray-500 hidden sm:block">
+      {/* Floating save bar */}
+      <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 30, bgcolor: 'background.paper', backdropFilter: 'blur(8px)', borderTop: '1px solid', borderColor: 'divider', px: 3, py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+        <Typography sx={{ fontSize: 12, color: 'text.disabled', display: { xs: 'none', sm: 'block' } }}>
           {isEdit ? 'You are editing an existing product' : 'New product — fill all required fields to publish'}
-        </p>
-        <div className="flex items-center gap-2 ml-auto">
-          <button
-            type="button"
-            onClick={() => navigate('/admin/products')}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-xl px-4 h-9 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-          >
-            Discard
-          </button>
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl px-5 h-9 shadow-sm shadow-indigo-200 dark:shadow-indigo-900/30 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-          >
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
+          <Box component="button" type="button" onClick={() => navigate('/admin/products')} sx={discardBtnSx}>Discard</Box>
+          <Box component="button" type="submit" disabled={saving} sx={saveBtnSx}>
             {saving ? (
-              <svg className="animate-spin" width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+              <svg style={{ animation: 'spin 1s linear infinite' }} width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
                 <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
               </svg>
-            ) : (
-              <Save size={14} />
-            )}
+            ) : <Save size={14} />}
             {saving ? 'Saving…' : isEdit ? 'Save Changes' : 'Publish Product'}
-          </button>
-        </div>
-      </div>
+          </Box>
+        </Box>
+      </Box>
 
-    </form>
+    </Box>
   );
 }

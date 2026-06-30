@@ -1,14 +1,52 @@
+import { Box, Typography } from '@mui/material';
 import { PackageOpen } from 'lucide-react';
 
-export function EmptyState({ icon: Icon = PackageOpen, title = 'No data found', description, action, className = '' }) {
+export function EmptyState({
+  icon: Icon = PackageOpen,
+  title = 'No data found',
+  description,
+  action,
+  className = '',
+}) {
   return (
-    <div className={`flex flex-col items-center justify-center py-16 px-4 text-center ${className}`}>
-      <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-        <Icon size={28} className="text-gray-400 dark:text-gray-500" />
-      </div>
-      <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">{title}</h3>
-      {description && <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm mb-4">{description}</p>}
-      {action && <div className="mt-2">{action}</div>}
-    </div>
+    <Box
+      className={className}
+      sx={{
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        py: 9, px: 4, textAlign: 'center',
+      }}
+    >
+      <Box sx={{
+        width: 56, height: 56, borderRadius: 3,
+        bgcolor: 'action.hover',
+        border: '1px solid', borderColor: 'divider',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        mb: 2.5,
+        transition: 'border-color 0.2s ease',
+      }}>
+        <Icon size={24} strokeWidth={1.4} style={{ opacity: 0.35 }} />
+      </Box>
+
+      <Typography sx={{ fontSize: '14.5px', fontWeight: 700, mb: 0.75, letterSpacing: '-0.01em' }}>
+        {title}
+      </Typography>
+
+      {description && (
+        <Typography sx={{
+          fontSize: '13px', color: 'text.secondary',
+          maxWidth: 320, lineHeight: 1.6,
+          mb: action ? 2.5 : 0,
+        }}>
+          {description}
+        </Typography>
+      )}
+
+      {action && (
+        <Box sx={{ mt: description ? 0 : 2 }}>
+          {action}
+        </Box>
+      )}
+    </Box>
   );
 }

@@ -1,30 +1,85 @@
-export function Card({ children, className = '', hover = false, ...props }) {
+import { Paper, Box, Typography } from '@mui/material';
+
+export function Card({ children, className = '', hover = false, padding = false, sx = {}, ...props }) {
   return (
-    <div
-      className={`bg-white dark:bg-[#1c2128] rounded-2xl border border-gray-200 dark:border-[#30363d] shadow-sm ${hover ? 'card-hover hover:shadow-md' : ''} ${className}`}
+    <Paper
+      elevation={0}
+      className={className}
+      sx={{
+        borderRadius: 3,
+        border: '1px solid',
+        borderColor: 'divider',
+        overflow: 'hidden',
+        transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+        ...(hover && {
+          cursor: 'pointer',
+          '&:hover': {
+            borderColor: 'rgba(99,102,241,0.25)',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
+          },
+        }),
+        ...(padding && { p: 3 }),
+        ...sx,
+      }}
       {...props}
     >
       {children}
-    </div>
+    </Paper>
   );
 }
 
-export function CardHeader({ title, subtitle, action, className = '' }) {
+export function CardHeader({ title, subtitle, action, className = '', border = true }) {
   return (
-    <div className={`flex items-start justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-[#30363d] ${className}`}>
-      <div>
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
-        {subtitle && <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{subtitle}</p>}
-      </div>
-      {action && <div className="flex items-center gap-2 ml-4 shrink-0">{action}</div>}
-    </div>
+    <Box
+      className={className}
+      sx={{
+        display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+        px: 3, pt: 2.5, pb: 2,
+        ...(border && { borderBottom: '1px solid', borderColor: 'divider' }),
+      }}
+    >
+      <Box sx={{ minWidth: 0 }}>
+        <Typography sx={{
+          fontSize: '14.5px', fontWeight: 700, lineHeight: 1.3,
+          letterSpacing: '-0.015em',
+        }}>
+          {title}
+        </Typography>
+        {subtitle && (
+          <Typography sx={{ mt: 0.5, fontSize: '12px', color: 'text.secondary', lineHeight: 1.4 }}>
+            {subtitle}
+          </Typography>
+        )}
+      </Box>
+      {action && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 2, flexShrink: 0 }}>
+          {action}
+        </Box>
+      )}
+    </Box>
   );
 }
 
-export function CardBody({ children, className = '' }) {
+export function CardBody({ children, className = '', sx = {} }) {
   return (
-    <div className={`px-6 py-5 ${className}`}>
+    <Box className={className} sx={{ px: 3, pt: 2.5, pb: 3, ...sx }}>
       {children}
-    </div>
+    </Box>
+  );
+}
+
+export function CardFooter({ children, className = '', sx = {} }) {
+  return (
+    <Box
+      className={className}
+      sx={{
+        px: 2.5, py: 2,
+        borderTop: '1px solid', borderColor: 'divider',
+        bgcolor: 'action.hover',
+        ...sx,
+      }}
+    >
+      {children}
+    </Box>
   );
 }

@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2, LayoutGrid } from 'lucide-react';
+import { Box, Paper, Typography, TableHead, TableBody, TableRow, TableCell } from '@mui/material';
 import {
   PageHeader, Button, IconBtn, Input,
   Table, Th, Td, Tr, EmptyState,
-  Modal, Toast, useToast, Tooltip,
+  Modal, useToast, Tooltip,
 } from '../../components/admin/ui/index.js';
 import { StatusChip } from './adminUtils';
 
@@ -27,17 +28,8 @@ export default function Categories() {
   const [form, setForm]                 = useState(EMPTY);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const openAdd = () => {
-    setEditTarget(null);
-    setForm(EMPTY);
-    setDialogOpen(true);
-  };
-
-  const openEdit = (c) => {
-    setEditTarget(c);
-    setForm({ name: c.name, slug: c.slug });
-    setDialogOpen(true);
-  };
+  const openAdd = () => { setEditTarget(null); setForm(EMPTY); setDialogOpen(true); };
+  const openEdit = (c) => { setEditTarget(c); setForm({ name: c.name, slug: c.slug }); setDialogOpen(true); };
 
   const handleSave = () => {
     if (!form.name.trim()) return;
@@ -62,102 +54,79 @@ export default function Categories() {
     setCategories(prev => prev.map(c => c.id === id ? { ...c, active: !c.active } : c));
 
   return (
-    <div>
-      <Toast />
-
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       <PageHeader
         title="Categories"
-        subtitle={`${categories.length} product categories`}
-        action={
-          <Button icon={Plus} onClick={openAdd}>Add Category</Button>
-        }
+        subtitle={`${categories.length} product categor${categories.length !== 1 ? 'ies' : 'y'}`}
+        action={<Button icon={Plus} onClick={openAdd}>Add Category</Button>}
       />
 
-      {/* Card */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
-        <Table className="rounded-none border-0">
-          <thead>
-            <tr>
-              <Th className="w-14"></Th>
+      <Paper elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
+        <Box sx={{ px: 3, py: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+          <Typography sx={{ fontSize: '13.5px', fontWeight: 600 }}>
+            {categories.length} categor{categories.length !== 1 ? 'ies' : 'y'}
+          </Typography>
+        </Box>
+
+        <Table>
+          <TableHead>
+            <TableRow>
+              <Th sx={{ width: 56 }}></Th>
               <Th>Name</Th>
               <Th>Slug</Th>
               <Th>Status</Th>
-              <Th className="text-center">Actions</Th>
-            </tr>
-          </thead>
-          <tbody>
+              <Th align="center">Actions</Th>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {categories.length === 0 && (
-              <tr>
-                <td colSpan={5}>
+              <TableRow>
+                <TableCell colSpan={5} sx={{ p: 0, border: 0 }}>
                   <EmptyState
                     icon={LayoutGrid}
                     title="No categories yet"
                     description="Create your first category to organise products."
                     action={<Button icon={Plus} size="sm" onClick={openAdd}>Add Category</Button>}
                   />
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             )}
-
             {categories.map(cat => (
               <Tr key={cat.id}>
-                {/* Icon */}
                 <Td>
-                  <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
-                    <LayoutGrid size={16} />
-                  </div>
+                  <Box sx={{ width: 40, height: 40, borderRadius: 2.5, bgcolor: 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d97706', flexShrink: 0 }}>
+                    <LayoutGrid size={15} strokeWidth={1.75} />
+                  </Box>
                 </Td>
-
-                {/* Name */}
                 <Td>
-                  <span className="font-semibold text-gray-900 dark:text-white">{cat.name}</span>
+                  <Typography sx={{ fontSize: '13.5px', fontWeight: 600 }}>{cat.name}</Typography>
                 </Td>
-
-                {/* Slug */}
                 <Td>
-                  <code className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 px-2 py-0.5 rounded-md">
+                  <Box component="code" sx={{ fontSize: 12, fontFamily: 'monospace', color: 'text.secondary', bgcolor: 'action.hover', px: 1, py: 0.5, borderRadius: 1, border: '1px solid', borderColor: 'divider' }}>
                     {cat.slug}
-                  </code>
+                  </Box>
                 </Td>
-
-                {/* Status — clickable toggle */}
                 <Td>
-                  <button onClick={() => toggleActive(cat.id)} className="cursor-pointer">
-                    <StatusChip
-                      status={cat.active ? 'active' : 'blocked'}
-                      label={cat.active ? 'Active' : 'Inactive'}
-                    />
-                  </button>
+                  <Box component="button" onClick={() => toggleActive(cat.id)} sx={{ background: 'none', border: 'none', p: 0, cursor: 'pointer' }}>
+                    <StatusChip status={cat.active ? 'active' : 'blocked'} label={cat.active ? 'Active' : 'Inactive'} />
+                  </Box>
                 </Td>
-
-                {/* Actions */}
-                <Td className="text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <Tooltip content="Edit">
-                      <IconBtn
-                        icon={Pencil}
-                        label="Edit"
-                        onClick={() => openEdit(cat)}
-                        className="text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
-                      />
+                <Td align="center">
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+                    <Tooltip content="Edit category">
+                      <IconBtn icon={Pencil} label="Edit" onClick={() => openEdit(cat)} sx={{ color: 'primary.main', '&:hover': { bgcolor: 'rgba(99,102,241,0.08)' } }} />
                     </Tooltip>
-                    <Tooltip content="Delete">
-                      <IconBtn
-                        icon={Trash2}
-                        label="Delete"
-                        onClick={() => setDeleteTarget(cat)}
-                        className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      />
+                    <Tooltip content="Delete category">
+                      <IconBtn icon={Trash2} label="Delete" onClick={() => setDeleteTarget(cat)} sx={{ color: 'error.main', '&:hover': { bgcolor: 'rgba(239,68,68,0.08)' } }} />
                     </Tooltip>
-                  </div>
+                  </Box>
                 </Td>
               </Tr>
             ))}
-          </tbody>
+          </TableBody>
         </Table>
-      </div>
+      </Paper>
 
-      {/* Add / Edit modal */}
       <Modal
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
@@ -166,26 +135,17 @@ export default function Categories() {
         footer={
           <>
             <Button variant="secondary" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button
-              onClick={handleSave}
-              disabled={!form.name.trim()}
-            >
-              {editTarget ? 'Update' : 'Add'}
-            </Button>
+            <Button onClick={handleSave} disabled={!form.name.trim()}>{editTarget ? 'Update' : 'Add'}</Button>
           </>
         }
       >
-        <div className="space-y-4">
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           <Input
             label="Category Name"
             required
             placeholder="e.g. Rings"
             value={form.name}
-            onChange={e => setForm(f => ({
-              ...f,
-              name: e.target.value,
-              slug: e.target.value.toLowerCase().replace(/\s+/g, '-'),
-            }))}
+            onChange={e => setForm(f => ({ ...f, name: e.target.value, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') }))}
             autoFocus
           />
           <Input
@@ -195,10 +155,9 @@ export default function Categories() {
             onChange={e => setForm(f => ({ ...f, slug: e.target.value }))}
             helper="URL-friendly identifier"
           />
-        </div>
+        </Box>
       </Modal>
 
-      {/* Delete confirm modal */}
       <Modal
         open={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
@@ -211,11 +170,12 @@ export default function Categories() {
           </>
         }
       >
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <Typography sx={{ fontSize: '13.5px', color: 'text.secondary', lineHeight: 1.6 }}>
           Are you sure you want to delete{' '}
-          <strong className="text-gray-900 dark:text-white">{deleteTarget?.name}</strong>?
-        </p>
+          <Box component="strong" sx={{ color: 'text.primary', fontWeight: 600 }}>"{deleteTarget?.name}"</Box>?
+          This action cannot be undone.
+        </Typography>
       </Modal>
-    </div>
+    </Box>
   );
 }

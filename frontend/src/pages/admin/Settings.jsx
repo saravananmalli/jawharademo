@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { DirhamSymbol } from 'dirham/react';
 import {
   Save, Store, Bell, CreditCard, Truck, Globe, Palette,
-  X, Plus, Shield,
+  X, Plus, Clock,
 } from 'lucide-react';
+import { Box, Paper, Typography } from '@mui/material';
 import {
   Button, Card, CardBody, Input, Textarea, Toggle,
-  Badge, PageHeader, Skeleton, Spinner,
+  PageHeader, Skeleton,
 } from '../../components/admin/ui/index.js';
 import ImageUploader from '../../components/admin/ImageUploader';
 import api from '../../services/api';
@@ -32,9 +33,34 @@ const TABS = [
 
 function SectionLabel({ children }) {
   return (
-    <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4 mt-1">
+    <Typography sx={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'text.disabled', mb: 2, mt: 0.5 }}>
       {children}
-    </p>
+    </Typography>
+  );
+}
+
+function AedInput({ label, value, onChange, helper }) {
+  return (
+    <Box>
+      {label && <Typography sx={{ fontSize: 13, fontWeight: 500, color: 'text.primary', mb: 0.75 }}>{label}</Typography>}
+      <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+        <Typography sx={{ position: 'absolute', left: 12, fontSize: 13, color: 'text.disabled', pointerEvents: 'none', userSelect: 'none' }}>AED</Typography>
+        <Box
+          component="input"
+          type="number"
+          value={value}
+          onChange={onChange}
+          sx={{
+            width: '100%', pl: 6, pr: 2, py: 1.25, fontSize: 14,
+            border: '1px solid', borderColor: 'divider', borderRadius: 2,
+            bgcolor: 'background.paper', color: 'text.primary',
+            outline: 'none', fontFamily: 'inherit',
+            '&:focus': { borderColor: 'primary.main', boxShadow: '0 0 0 2px rgba(99,102,241,0.15)' },
+          }}
+        />
+      </Box>
+      {helper && <Typography sx={{ fontSize: 11, color: 'text.disabled', mt: 0.5 }}>{helper}</Typography>}
+    </Box>
   );
 }
 
@@ -134,7 +160,7 @@ export default function Settings() {
       await api.put('/settings', { delivery });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
-    } catch { /* handled by global interceptor */ }
+    } catch {}
     finally { setDeliverySaving(false); }
   };
 
@@ -144,7 +170,7 @@ export default function Settings() {
       await api.put('/settings', { branding });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
-    } catch { /* handled by global interceptor */ }
+    } catch {}
     finally { setBrandingSaving(false); }
   };
 
@@ -168,332 +194,204 @@ export default function Settings() {
         </Button>
       );
     }
-    return (
-      <Button onClick={handleSave} icon={Save}>Save Settings</Button>
-    );
+    return <Button onClick={handleSave} icon={Save}>Save Settings</Button>;
   };
 
   return (
-    <div>
-      <PageHeader
-        title="Settings"
-        subtitle="Configure your store preferences"
-      />
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <PageHeader title="Settings" subtitle="Configure your store preferences" />
 
       {saved && (
-        <div className="mb-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300">
-          Settings saved successfully.
-        </div>
+        <Paper elevation={0} sx={{ px: 2, py: 1.5, borderRadius: 2, border: '1px solid', bgcolor: 'rgba(16,185,129,0.08)', borderColor: 'rgba(16,185,129,0.3)' }}>
+          <Typography sx={{ fontSize: 13, color: 'success.main' }}>Settings saved successfully.</Typography>
+        </Paper>
       )}
 
       <Card>
         {/* Tab navigation */}
-        <div className="px-4 pt-4">
-          <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl mb-0 overflow-x-auto">
+        <Box sx={{ px: 2, pt: 2 }}>
+          <Box sx={{ display: 'flex', gap: 0.5, p: 0.75, bgcolor: 'action.hover', borderRadius: 2.5, overflowX: 'auto' }}>
             {TABS.map(tab => {
               const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
               return (
-                <button
+                <Box
                   key={tab.id}
+                  component="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-1.5 flex-shrink-0 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    activeTab === tab.id
-                      ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                  }`}
+                  sx={{
+                    display: 'flex', alignItems: 'center', gap: 0.75, flexShrink: 0,
+                    px: 1.5, py: 1, borderRadius: 2, fontSize: 13, fontWeight: 500,
+                    border: 'none', cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit',
+                    bgcolor: isActive ? 'background.paper' : 'transparent',
+                    color: isActive ? 'text.primary' : 'text.secondary',
+                    boxShadow: isActive ? '0 1px 3px rgba(0,0,0,0.12)' : 'none',
+                    '&:hover': { color: isActive ? 'text.primary' : 'text.primary', bgcolor: isActive ? 'background.paper' : 'rgba(0,0,0,0.04)' },
+                  }}
                 >
                   <Icon size={14} />
                   {tab.label}
-                </button>
+                </Box>
               );
             })}
-          </div>
-        </div>
+          </Box>
+        </Box>
 
         <CardBody>
-
-          {/* ── Store ─────────────────────────────────────────── */}
+          {/* Store */}
           {activeTab === 'store' && (
-            <div>
+            <Box>
               <SectionLabel>Store Identity</SectionLabel>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input
-                  label="Store Name"
-                  value={store.name}
-                  onChange={e => setStore(s => ({ ...s, name: e.target.value }))}
-                />
-                <Input
-                  label="Contact Email"
-                  type="email"
-                  value={store.email}
-                  onChange={e => setStore(s => ({ ...s, email: e.target.value }))}
-                />
-                <Input
-                  label="Phone Number"
-                  value={store.phone}
-                  onChange={e => setStore(s => ({ ...s, phone: e.target.value }))}
-                />
-                <Input
-                  label="Currency"
-                  value={store.currency}
-                  onChange={e => setStore(s => ({ ...s, currency: e.target.value }))}
-                />
-                <div className="sm:col-span-2">
-                  <Input
-                    label="Store Address"
-                    value={store.address}
-                    onChange={e => setStore(s => ({ ...s, address: e.target.value }))}
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  <Input
-                    label="Logo URL"
-                    value={store.logo}
-                    onChange={e => setStore(s => ({ ...s, logo: e.target.value }))}
-                    placeholder="https://..."
-                  />
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2.5 }}>
+                <Input label="Store Name" value={store.name} onChange={e => setStore(s => ({ ...s, name: e.target.value }))} />
+                <Input label="Contact Email" type="email" value={store.email} onChange={e => setStore(s => ({ ...s, email: e.target.value }))} />
+                <Input label="Phone Number" value={store.phone} onChange={e => setStore(s => ({ ...s, phone: e.target.value }))} />
+                <Input label="Currency" value={store.currency} onChange={e => setStore(s => ({ ...s, currency: e.target.value }))} />
+                <Box sx={{ gridColumn: { sm: '1 / -1' } }}>
+                  <Input label="Store Address" value={store.address} onChange={e => setStore(s => ({ ...s, address: e.target.value }))} />
+                </Box>
+                <Box sx={{ gridColumn: { sm: '1 / -1' } }}>
+                  <Input label="Logo URL" value={store.logo} onChange={e => setStore(s => ({ ...s, logo: e.target.value }))} placeholder="https://..." />
                   {store.logo && (
-                    <div className="mt-3">
-                      <img
-                        src={getImageUrl(store.logo)}
-                        alt="Logo preview"
-                        className="w-20 h-20 object-cover rounded-xl border border-gray-200 dark:border-gray-700"
-                      />
-                    </div>
+                    <Box sx={{ mt: 1.5 }}>
+                      <Box component="img" src={getImageUrl(store.logo)} alt="Logo preview" sx={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 2.5, border: '1px solid', borderColor: 'divider' }} />
+                    </Box>
                   )}
-                </div>
-              </div>
-            </div>
+                </Box>
+              </Box>
+            </Box>
           )}
 
-          {/* ── Notifications ─────────────────────────────────── */}
+          {/* Notifications */}
           {activeTab === 'notifications' && (
-            <div>
+            <Box>
               <SectionLabel>Alert Preferences</SectionLabel>
-              <div className="space-y-4">
-                <Toggle
-                  label="New Order Received"
-                  helper="Get notified when a new order is placed"
-                  checked={notif.newOrder}
-                  onChange={e => setNotif(n => ({ ...n, newOrder: e.target.checked }))}
-                />
-                <Toggle
-                  label="Low Stock Alert"
-                  helper="Get notified when a product runs low on stock"
-                  checked={notif.lowStock}
-                  onChange={e => setNotif(n => ({ ...n, lowStock: e.target.checked }))}
-                />
-                <Toggle
-                  label="New Customer Review"
-                  helper="Get notified when a customer leaves a review"
-                  checked={notif.newReview}
-                  onChange={e => setNotif(n => ({ ...n, newReview: e.target.checked }))}
-                />
-                <hr className="border-gray-100 dark:border-gray-800" />
-                <Toggle
-                  label="Email Notifications"
-                  helper="Receive all notifications via email"
-                  checked={notif.emailNotif}
-                  onChange={e => setNotif(n => ({ ...n, emailNotif: e.target.checked }))}
-                />
-              </div>
-            </div>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                <Toggle label="New Order Received" helper="Get notified when a new order is placed" checked={notif.newOrder} onChange={e => setNotif(n => ({ ...n, newOrder: e.target.checked }))} />
+                <Toggle label="Low Stock Alert" helper="Get notified when a product runs low on stock" checked={notif.lowStock} onChange={e => setNotif(n => ({ ...n, lowStock: e.target.checked }))} />
+                <Toggle label="New Customer Review" helper="Get notified when a customer leaves a review" checked={notif.newReview} onChange={e => setNotif(n => ({ ...n, newReview: e.target.checked }))} />
+                <Box sx={{ borderTop: '1px solid', borderColor: 'divider', pt: 2.5 }}>
+                  <Toggle label="Email Notifications" helper="Receive all notifications via email" checked={notif.emailNotif} onChange={e => setNotif(n => ({ ...n, emailNotif: e.target.checked }))} />
+                </Box>
+              </Box>
+            </Box>
           )}
 
-          {/* ── Payment ───────────────────────────────────────── */}
+          {/* Payment */}
           {activeTab === 'payment' && (
-            <div>
+            <Box>
               <SectionLabel>Payment Methods</SectionLabel>
-              <div className="space-y-4 mb-6">
-                <Toggle
-                  label="Cash on Delivery (COD)"
-                  helper="Allow customers to pay when they receive the order"
-                  checked={payment.cod}
-                  onChange={e => setPayment(p => ({ ...p, cod: e.target.checked }))}
-                />
-                <Toggle
-                  label="Credit / Debit Card"
-                  helper="Accept online card payments"
-                  checked={payment.card}
-                  onChange={e => setPayment(p => ({ ...p, card: e.target.checked }))}
-                />
-                <Toggle
-                  label="Bank Transfer"
-                  helper="Allow customers to pay via bank transfer"
-                  checked={payment.bankTransfer}
-                  onChange={e => setPayment(p => ({ ...p, bankTransfer: e.target.checked }))}
-                />
-              </div>
-              <hr className="border-gray-100 dark:border-gray-800 mb-6" />
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mb: 4 }}>
+                <Toggle label="Cash on Delivery (COD)" helper="Allow customers to pay when they receive the order" checked={payment.cod} onChange={e => setPayment(p => ({ ...p, cod: e.target.checked }))} />
+                <Toggle label="Credit / Debit Card" helper="Accept online card payments" checked={payment.card} onChange={e => setPayment(p => ({ ...p, card: e.target.checked }))} />
+                <Toggle label="Bank Transfer" helper="Allow customers to pay via bank transfer" checked={payment.bankTransfer} onChange={e => setPayment(p => ({ ...p, bankTransfer: e.target.checked }))} />
+              </Box>
+              <Box sx={{ borderTop: '1px solid', borderColor: 'divider', mb: 3 }} />
               <SectionLabel>Order Limits</SectionLabel>
-              <div className="w-56">
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Minimum Order Amount
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400 text-sm">
-                      AED
-                    </div>
-                    <input
-                      type="number"
-                      className="w-full pl-12 pr-4 py-2.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      value={payment.minOrder}
-                      onChange={e => setPayment(p => ({ ...p, minOrder: e.target.value }))}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+              <Box sx={{ maxWidth: 224 }}>
+                <AedInput label="Minimum Order Amount" value={payment.minOrder} onChange={e => setPayment(p => ({ ...p, minOrder: e.target.value }))} />
+              </Box>
+            </Box>
           )}
 
-          {/* ── Shipping ──────────────────────────────────────── */}
+          {/* Shipping */}
           {activeTab === 'shipping' && (
-            <div>
+            <Box>
               <SectionLabel>Shipping Rates</SectionLabel>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Free Shipping Threshold
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400 text-sm">AED</div>
-                    <input
-                      type="number"
-                      className="w-full pl-12 pr-4 py-2.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      value={shipping.freeThreshold}
-                      onChange={e => setShipping(s => ({ ...s, freeThreshold: e.target.value }))}
-                    />
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Orders above this amount get free shipping</p>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Standard Fee
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400 text-sm">AED</div>
-                    <input
-                      type="number"
-                      className="w-full pl-12 pr-4 py-2.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      value={shipping.standardFee}
-                      onChange={e => setShipping(s => ({ ...s, standardFee: e.target.value }))}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Express Fee
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400 text-sm">AED</div>
-                    <input
-                      type="number"
-                      className="w-full pl-12 pr-4 py-2.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      value={shipping.expressFee}
-                      onChange={e => setShipping(s => ({ ...s, expressFee: e.target.value }))}
-                    />
-                  </div>
-                </div>
-              </div>
-              <Toggle
-                label="Enable Same-Day Delivery"
-                helper="Offer same-day delivery as an option at checkout"
-                checked={shipping.sameDay}
-                onChange={e => setShipping(s => ({ ...s, sameDay: e.target.checked }))}
-              />
-            </div>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' }, gap: 2.5, mb: 4 }}>
+                <AedInput label="Free Shipping Threshold" value={shipping.freeThreshold} onChange={e => setShipping(s => ({ ...s, freeThreshold: e.target.value }))} helper="Orders above this amount get free shipping" />
+                <AedInput label="Standard Fee" value={shipping.standardFee} onChange={e => setShipping(s => ({ ...s, standardFee: e.target.value }))} />
+                <AedInput label="Express Fee" value={shipping.expressFee} onChange={e => setShipping(s => ({ ...s, expressFee: e.target.value }))} />
+              </Box>
+              <Toggle label="Enable Same-Day Delivery" helper="Offer same-day delivery as an option at checkout" checked={shipping.sameDay} onChange={e => setShipping(s => ({ ...s, sameDay: e.target.checked }))} />
+            </Box>
           )}
 
-          {/* ── Delivery Zones ────────────────────────────────── */}
+          {/* Delivery Zones */}
           {activeTab === 'delivery' && (
-            <div>
+            <Box>
               {deliveryLoading ? (
-                <div className="space-y-3">
-                  <Skeleton className="h-4 w-44" />
-                  <Skeleton className="h-10 w-full rounded-xl" />
-                  <Skeleton className="h-10 w-full rounded-xl" />
-                  <Skeleton className="h-4 w-36 mt-4" />
-                  {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-9 w-full rounded-xl" />)}
-                  <Skeleton className="h-9 w-28 rounded-xl mt-2" />
-                </div>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                  <Skeleton height={16} width={176} />
+                  <Skeleton height={40} />
+                  <Skeleton height={40} />
+                  <Skeleton height={16} width={144} sx={{ mt: 2 }} />
+                  {[1, 2, 3, 4].map(i => <Skeleton key={i} height={36} />)}
+                  <Skeleton height={36} width={112} sx={{ mt: 1 }} />
+                </Box>
               ) : (
                 <>
                   <SectionLabel>Delivery Restriction</SectionLabel>
-                  <div className="mb-6 space-y-2">
+                  <Box sx={{ mb: 3 }}>
                     <Toggle
                       label="Enable International Delivery (allow all countries)"
                       helper="When off, only the countries listed below can place orders."
                       checked={delivery.enableInternationalDelivery}
                       onChange={e => setDelivery(d => ({ ...d, enableInternationalDelivery: e.target.checked }))}
                     />
-                  </div>
+                  </Box>
 
-                  <hr className="border-gray-100 dark:border-gray-800 mb-6" />
+                  <Box sx={{ borderTop: '1px solid', borderColor: 'divider', mb: 3 }} />
                   <SectionLabel>Supported Countries</SectionLabel>
 
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2.5 }}>
                     {delivery.supportedCountryCodes.map((code, i) => (
-                      <div
+                      <Box
                         key={code}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"
+                        sx={{
+                          display: 'inline-flex', alignItems: 'center', gap: 0.75,
+                          px: 1.5, py: 0.5, borderRadius: 5, fontSize: 13, fontWeight: 500,
+                          bgcolor: 'rgba(99,102,241,0.08)', color: 'primary.main',
+                          border: '1px solid', borderColor: 'rgba(99,102,241,0.25)',
+                        }}
                       >
                         <span>{delivery.supportedCountryNames[i]} ({code})</span>
                         {delivery.supportedCountryCodes.length > 1 && (
-                          <button
+                          <Box
+                            component="button"
                             onClick={() => removeCountry(i)}
-                            className="text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-200"
+                            sx={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'primary.main', p: 0, opacity: 0.6, '&:hover': { opacity: 1 } }}
                           >
                             <X size={13} />
-                          </button>
+                          </Box>
                         )}
-                      </div>
+                      </Box>
                     ))}
-                  </div>
+                  </Box>
 
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Quick add GCC countries:</p>
-                  <div className="flex flex-wrap gap-2 mb-6">
+                  <Typography sx={{ fontSize: 12, color: 'text.disabled', mb: 1 }}>Quick add GCC countries:</Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3.5 }}>
                     {COUNTRY_PRESETS.map(p => (
-                      <button
+                      <Box
                         key={p.code}
+                        component="button"
                         onClick={() => addPreset(p)}
                         disabled={delivery.supportedCountryCodes.includes(p.code)}
-                        className="px-3 py-1 rounded-full text-xs font-medium border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-indigo-300 hover:text-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        sx={{
+                          px: 1.5, py: 0.5, borderRadius: 5, fontSize: 12, fontWeight: 500,
+                          border: '1px solid', borderColor: 'divider', bgcolor: 'transparent',
+                          color: 'text.secondary', cursor: 'pointer', fontFamily: 'inherit',
+                          '&:hover:not(:disabled)': { borderColor: 'primary.light', color: 'primary.main' },
+                          '&:disabled': { opacity: 0.4, cursor: 'not-allowed' },
+                          transition: 'colors 0.15s',
+                        }}
                       >
                         {p.name}
-                      </button>
+                      </Box>
                     ))}
-                  </div>
+                  </Box>
 
-                  <div className="flex items-end gap-2 mb-6">
-                    <div className="w-32">
-                      <Input
-                        label="Country Code"
-                        placeholder="e.g. SA"
-                        value={newCountryCode}
-                        onChange={e => setNewCountryCode(e.target.value.toUpperCase())}
-                        maxLength={3}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <Input
-                        label="Country Name"
-                        placeholder="e.g. Saudi Arabia"
-                        value={newCountryName}
-                        onChange={e => setNewCountryName(e.target.value)}
-                      />
-                    </div>
-                    <Button
-                      variant="secondary"
-                      icon={Plus}
-                      onClick={addCountry}
-                      disabled={!newCountryCode || !newCountryName}
-                    >
-                      Add
-                    </Button>
-                  </div>
+                  <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1.5, mb: 3.5 }}>
+                    <Box sx={{ width: 128 }}>
+                      <Input label="Country Code" placeholder="e.g. SA" value={newCountryCode} onChange={e => setNewCountryCode(e.target.value.toUpperCase())} maxLength={3} />
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                      <Input label="Country Name" placeholder="e.g. Saudi Arabia" value={newCountryName} onChange={e => setNewCountryName(e.target.value)} />
+                    </Box>
+                    <Button variant="secondary" icon={Plus} onClick={addCountry} disabled={!newCountryCode || !newCountryName}>Add</Button>
+                  </Box>
 
-                  <hr className="border-gray-100 dark:border-gray-800 mb-6" />
+                  <Box sx={{ borderTop: '1px solid', borderColor: 'divider', mb: 3 }} />
                   <SectionLabel>Restriction Message</SectionLabel>
                   <Textarea
                     label="Message shown to customers outside delivery zones"
@@ -504,17 +402,17 @@ export default function Settings() {
                   />
                 </>
               )}
-            </div>
+            </Box>
           )}
 
-          {/* ── Branding ──────────────────────────────────────── */}
+          {/* Branding */}
           {activeTab === 'branding' && (
-            <div className="space-y-8">
-              <div>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <Box>
                 <SectionLabel>Website Logo</SectionLabel>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                <Typography sx={{ fontSize: 12, color: 'text.secondary', mb: 1.5 }}>
                   Used in the browser header and desktop navigation. Recommended: PNG, transparent background, min 200×60 px.
-                </p>
+                </Typography>
                 <ImageUploader
                   key={`website-${branding.websiteLogo}`}
                   images={branding.websiteLogo ? [branding.websiteLogo] : []}
@@ -523,15 +421,15 @@ export default function Settings() {
                   single
                   category="branding"
                 />
-              </div>
+              </Box>
 
-              <hr className="border-gray-100 dark:border-gray-800" />
+              <Box sx={{ borderTop: '1px solid', borderColor: 'divider' }} />
 
-              <div>
+              <Box>
                 <SectionLabel>Mobile App Logo</SectionLabel>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                <Typography sx={{ fontSize: 12, color: 'text.secondary', mb: 1.5 }}>
                   Displayed in the mobile header and splash screens. Recommended: PNG, square or wide, min 512×512 px.
-                </p>
+                </Typography>
                 <ImageUploader
                   key={`mobile-${branding.mobileLogo}`}
                   images={branding.mobileLogo ? [branding.mobileLogo] : []}
@@ -540,15 +438,15 @@ export default function Settings() {
                   single
                   category="branding"
                 />
-              </div>
+              </Box>
 
-              <hr className="border-gray-100 dark:border-gray-800" />
+              <Box sx={{ borderTop: '1px solid', borderColor: 'divider' }} />
 
-              <div>
+              <Box>
                 <SectionLabel>Favicon</SectionLabel>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                <Typography sx={{ fontSize: 12, color: 'text.secondary', mb: 1.5 }}>
                   Shown in browser tabs and bookmarks. Recommended: PNG, square, 32×32 or 64×64 px.
-                </p>
+                </Typography>
                 <ImageUploader
                   key={`favicon-${branding.favicon}`}
                   images={branding.favicon ? [branding.favicon] : []}
@@ -557,17 +455,16 @@ export default function Settings() {
                   single
                   category="branding"
                 />
-              </div>
-            </div>
+              </Box>
+            </Box>
           )}
 
           {/* Save bar */}
-          <div className="flex justify-end mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4, pt: 3, borderTop: '1px solid', borderColor: 'divider' }}>
             {renderSaveButton()}
-          </div>
-
+          </Box>
         </CardBody>
       </Card>
-    </div>
+    </Box>
   );
 }

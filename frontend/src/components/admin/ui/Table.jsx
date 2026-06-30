@@ -1,37 +1,76 @@
-export function Table({ children, className = '' }) {
+import {
+  Table as MuiTable, TableHead, TableBody, TableRow,
+  TableCell, Box,
+} from '@mui/material';
+
+export function Table({ children, className = '', stickyHeader = false }) {
   return (
-    <div className={`w-full overflow-x-auto ${className}`}>
-      <table className="w-full text-sm">{children}</table>
-    </div>
+    <Box className={className} sx={{ width: '100%', overflowX: 'auto' }}>
+      <MuiTable
+        stickyHeader={stickyHeader}
+        sx={{ minWidth: 500, tableLayout: 'auto' }}
+      >
+        {children}
+      </MuiTable>
+    </Box>
   );
 }
 
-export function Th({ children, className = '', sortable = false, onClick }) {
+export function Th({
+  children,
+  className = '',
+  sortable = false,
+  onClick,
+  align = 'left',
+  sx = {},
+}) {
   return (
-    <th
-      className={`px-4 py-3 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider bg-gray-50 dark:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d] whitespace-nowrap first:pl-5 last:pr-5 ${sortable ? 'cursor-pointer hover:text-gray-800 dark:hover:text-gray-200 select-none' : ''} ${className}`}
+    <TableCell
+      className={className}
+      align={align}
       onClick={sortable ? onClick : undefined}
+      sx={{
+        cursor: sortable ? 'pointer' : 'default',
+        userSelect: sortable ? 'none' : undefined,
+        whiteSpace: 'nowrap',
+        transition: 'color 0.1s ease',
+        '&:hover': sortable ? { color: 'text.primary' } : {},
+        ...sx,
+      }}
     >
       {children}
-    </th>
+    </TableCell>
   );
 }
 
-export function Td({ children, className = '' }) {
+export function Td({
+  children,
+  className = '',
+  align = 'left',
+  sx = {},
+}) {
   return (
-    <td className={`px-4 py-3 text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-[#21262d] first:pl-5 last:pr-5 ${className}`}>
+    <TableCell className={className} align={align} sx={sx}>
       {children}
-    </td>
+    </TableCell>
   );
 }
 
-export function Tr({ children, className = '', onClick }) {
+export function Tr({ children, className = '', onClick, sx = {} }) {
   return (
-    <tr
-      className={`bg-white dark:bg-[#1c2128] hover:bg-gray-50/80 dark:hover:bg-[#22272e] transition-colors duration-100 ${onClick ? 'cursor-pointer' : ''} ${className}`}
+    <TableRow
+      className={className}
       onClick={onClick}
+      hover
+      sx={{
+        cursor: onClick ? 'pointer' : 'default',
+        '&:last-child td': { border: 0 },
+        ...sx,
+      }}
     >
       {children}
-    </tr>
+    </TableRow>
   );
 }
+
+export { TableHead as Thead, TableBody as Tbody, TableRow as TRow };

@@ -3,16 +3,18 @@ import {
   Star, RefreshCw, Plus, Edit2, Trash2, CheckCircle,
   EyeOff, Clock, Trash, MessageSquare,
 } from 'lucide-react';
+import {
+  Box, Paper, Grid, Typography, TableHead, TableBody, TableRow, TableCell, IconButton, Chip, MenuItem,
+} from '@mui/material';
 import api from '../../services/api';
 import { StatusChip } from './adminUtils';
 import ReviewManagerPanel from '../../components/admin/ReviewManagerPanel';
 import {
-  PageHeader, StatCard, Card, CardBody, Table, Th, Td, Tr,
+  PageHeader, StatCard, Table, Th, Td, Tr,
   Skeleton, EmptyState, Pagination, SearchInput, Select,
-  Button, IconBtn, Modal, Tooltip, Toggle, Textarea,
+  Button, IconBtn, Modal, Tooltip, Toggle, Textarea, Input,
 } from '../../components/admin/ui/index.js';
 
-// ── UAE cities ─────────────────────────────────────────────────────────────────
 const UAE_LOCATIONS = [
   'Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Ras Al Khaimah',
   'Fujairah', 'Umm Al Quwain', 'Al Ain',
@@ -27,79 +29,73 @@ const STATUS_LABEL = { published: 'Approved', pending: 'Pending', hidden: 'Rejec
 
 const PER_PAGE = 15;
 
-// ── Star rating display ────────────────────────────────────────────────────────
 function StarRating({ rating }) {
   return (
-    <div className="flex items-center gap-0.5">
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
       {[1, 2, 3, 4, 5].map(i => (
-        <Star key={i} size={13} className={i <= rating ? 'text-amber-400 fill-amber-400' : 'text-gray-300'} />
+        <Star
+          key={i}
+          size={13}
+          color={i <= rating ? '#f59e0b' : undefined}
+          fill={i <= rating ? '#f59e0b' : 'none'}
+          style={{ opacity: i <= rating ? 1 : 0.25 }}
+        />
       ))}
-    </div>
+    </Box>
   );
 }
 
-// ── Interactive star picker ────────────────────────────────────────────────────
 function StarPicker({ value, onChange }) {
   const [hover, setHover] = useState(0);
   return (
-    <div className="flex items-center gap-1">
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
       {[1, 2, 3, 4, 5].map(i => (
-        <button
+        <Box
           key={i}
+          component="button"
           type="button"
           onMouseEnter={() => setHover(i)}
           onMouseLeave={() => setHover(0)}
           onClick={() => onChange(i)}
-          className="focus:outline-none"
+          sx={{ background: 'none', border: 'none', p: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
         >
           <Star
             size={22}
-            className={(hover || value) >= i ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}
+            color={(hover || value) >= i ? '#f59e0b' : undefined}
+            fill={(hover || value) >= i ? '#f59e0b' : 'none'}
+            style={{ opacity: (hover || value) >= i ? 1 : 0.25 }}
           />
-        </button>
+        </Box>
       ))}
-    </div>
+    </Box>
   );
 }
 
-// ── Review form (used in Add + Edit dialogs) ───────────────────────────────────
 function ReviewForm({ value, onChange }) {
   const set = (k, v) => onChange({ ...value, [k]: v });
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Customer Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={value.userName}
-            onChange={e => set('userName', e.target.value)}
-            placeholder="Customer name"
-            className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3.5 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-          />
-        </div>
-        <div className="space-y-1.5">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Location (UAE)</label>
-          <select
-            value={value.location}
-            onChange={e => set('location', e.target.value)}
-            className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3.5 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none cursor-pointer"
-          >
-            <option value="">Select city…</option>
-            {UAE_LOCATIONS.map(loc => (
-              <option key={loc} value={loc}>{loc}</option>
-            ))}
-          </select>
-        </div>
-      </div>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2.5 }}>
+        <Input
+          label="Customer Name"
+          required
+          value={value.userName}
+          onChange={e => set('userName', e.target.value)}
+          placeholder="Customer name"
+        />
+        <Select label="Location (UAE)" value={value.location} onChange={e => set('location', e.target.value)}>
+          <MenuItem value="">Select city…</MenuItem>
+          {UAE_LOCATIONS.map(loc => <MenuItem key={loc} value={loc}>{loc}</MenuItem>)}
+        </Select>
+      </Box>
 
-      <div className="space-y-1.5">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Rating <span className="text-red-500">*</span></label>
+      <Box>
+        <Typography sx={{ fontSize: 13, fontWeight: 500, color: 'text.primary', mb: 0.75 }}>
+          Rating <Box component="span" sx={{ color: 'error.main' }}>*</Box>
+        </Typography>
         <StarPicker value={value.rating} onChange={v => set('rating', v)} />
-      </div>
+      </Box>
 
       <Textarea
         label="Review Text"
@@ -110,82 +106,22 @@ function ReviewForm({ value, onChange }) {
         rows={3}
       />
 
-      <div className="flex flex-wrap items-center gap-6">
-        <div className="space-y-1.5">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
-          <select
-            value={value.status}
-            onChange={e => set('status', e.target.value)}
-            className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3.5 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none cursor-pointer"
-          >
-            <option value="published">Approved</option>
-            <option value="pending">Pending</option>
-            <option value="hidden">Rejected</option>
-          </select>
-        </div>
-        <Toggle
-          label="Verified Purchase"
-          checked={value.verified}
-          onChange={e => set('verified', e.target.checked)}
-        />
-        <Toggle
-          label="Featured"
-          checked={value.featured}
-          onChange={e => set('featured', e.target.checked)}
-        />
-      </div>
-    </div>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 3 }}>
+        <Box>
+          <Typography sx={{ fontSize: 13, fontWeight: 500, color: 'text.primary', mb: 0.75 }}>Status</Typography>
+          <Select value={value.status} onChange={e => set('status', e.target.value)}>
+            <MenuItem value="published">Approved</MenuItem>
+            <MenuItem value="pending">Pending</MenuItem>
+            <MenuItem value="hidden">Rejected</MenuItem>
+          </Select>
+        </Box>
+        <Toggle label="Verified Purchase" checked={value.verified} onChange={e => set('verified', e.target.checked)} />
+        <Toggle label="Featured" checked={value.featured} onChange={e => set('featured', e.target.checked)} />
+      </Box>
+    </Box>
   );
 }
 
-// ── Skeleton rows ──────────────────────────────────────────────────────────────
-function ReviewsTableSkeleton() {
-  return (
-    <>
-      <thead>
-        <tr>
-          <Th className="w-8"><Skeleton className="h-4 w-4" /></Th>
-          <Th>Customer</Th>
-          <Th>Product</Th>
-          <Th>Rating</Th>
-          <Th>Review</Th>
-          <Th>Status</Th>
-          <Th>Flags</Th>
-          <Th>Date</Th>
-          <Th className="text-center">Actions</Th>
-        </tr>
-      </thead>
-      <tbody>
-        {Array.from({ length: 8 }).map((_, i) => (
-          <Tr key={i}>
-            <Td><Skeleton className="h-4 w-4" /></Td>
-            <Td>
-              <div className="flex items-center gap-2">
-                <Skeleton className="w-8 h-8 rounded-full shrink-0" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-            </Td>
-            <Td><Skeleton className="h-4 w-32" /></Td>
-            <Td><Skeleton className="h-4 w-20" /></Td>
-            <Td><Skeleton className="h-4 w-40" /></Td>
-            <Td><Skeleton className="h-5 w-16 rounded-full" /></Td>
-            <Td><Skeleton className="h-4 w-12" /></Td>
-            <Td><Skeleton className="h-4 w-16" /></Td>
-            <Td>
-              <div className="flex items-center justify-center gap-1">
-                <Skeleton className="h-7 w-7 rounded-lg" />
-                <Skeleton className="h-7 w-7 rounded-lg" />
-                <Skeleton className="h-7 w-7 rounded-lg" />
-              </div>
-            </Td>
-          </Tr>
-        ))}
-      </tbody>
-    </>
-  );
-}
-
-// ── Main component ─────────────────────────────────────────────────────────────
 export default function Reviews() {
   const [reviews, setReviews]   = useState([]);
   const [stats, setStats]       = useState({ published: 0, pending: 0, hidden: 0 });
@@ -197,17 +133,14 @@ export default function Reviews() {
   const [searchQ, setSearchQ]           = useState('');
   const [page, setPage]                 = useState(1);
 
-  // Selection
   const [selected, setSelected] = useState(new Set());
 
-  // Dialog state
-  const [dialogMode, setDialogMode] = useState(null); // 'add' | 'edit' | 'confirm'
+  const [dialogMode, setDialogMode] = useState(null);
   const [editTarget, setEditTarget] = useState(null);
   const [formData, setFormData]     = useState(BLANK);
   const [saving, setSaving]         = useState(false);
   const [flash, setFlash]           = useState(null);
 
-  // Add dialog state
   const [addForm, setAddForm]                   = useState(BLANK);
   const [addProduct, setAddProduct]             = useState(null);
   const [productOptions, setProductOptions]     = useState([]);
@@ -216,7 +149,6 @@ export default function Reviews() {
   const addSaving                               = useRef(false);
   const [addSavingState, setAddSavingState]     = useState(false);
 
-  // Confirm payload
   const [confirmPayload, setConfirmPayload] = useState(null);
 
   const showFlash = (msg, severity = 'success') => {
@@ -237,7 +169,6 @@ export default function Reviews() {
     }
   }, []);
 
-  // Debounce product search
   useEffect(() => {
     const t = setTimeout(() => searchProducts(productQuery), 300);
     return () => clearTimeout(t);
@@ -273,7 +204,7 @@ export default function Reviews() {
     setLoading(true);
     try {
       const params = new URLSearchParams({
-        page: page,
+        page,
         limit: PER_PAGE,
         sort: sortBy,
         ...(statusFilter && { status: statusFilter }),
@@ -293,7 +224,6 @@ export default function Reviews() {
   useEffect(() => { loadReviews(); }, [loadReviews]);
   useEffect(() => { setPage(1); setSelected(new Set()); }, [statusFilter, sortBy, searchQ]);
 
-  // Selection helpers
   const pageIds = reviews.map(r => r._id);
   const allPageSelected = pageIds.length > 0 && pageIds.every(id => selected.has(id));
   const somePageSelected = pageIds.some(id => selected.has(id)) && !allPageSelected;
@@ -318,7 +248,6 @@ export default function Reviews() {
     });
   };
 
-  // Edit
   const openEdit = (r) => {
     setEditTarget(r._id);
     setFormData({
@@ -351,7 +280,6 @@ export default function Reviews() {
     }
   };
 
-  // Status change (single row)
   const handleStatusChange = async (id, newStatus) => {
     try {
       const { data } = await api.put(`/admin/reviews/${id}`, { status: newStatus });
@@ -363,19 +291,16 @@ export default function Reviews() {
     }
   };
 
-  // Single delete
   const promptDelete = (id) => {
     setConfirmPayload({ ids: [id], action: 'delete' });
     setDialogMode('confirm');
   };
 
-  // Bulk actions
   const promptBulk = (action) => {
     setConfirmPayload({ ids: [...selected], action });
     setDialogMode('confirm');
   };
 
-  // Execute confirm
   const executeConfirm = async () => {
     const { ids, action } = confirmPayload;
     setDialogMode(null);
@@ -425,296 +350,277 @@ export default function Reviews() {
   };
 
   return (
-    <div>
-      {/* Page header */}
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       <PageHeader
         title="Reviews"
         subtitle={`${total} review${total !== 1 ? 's' : ''} total`}
         action={
-          <div className="flex items-center gap-2">
-            <IconBtn
-              icon={RefreshCw}
-              label="Refresh"
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <IconButton
               onClick={loadReviews}
               disabled={loading}
-              className={loading ? '[&>svg]:animate-spin' : ''}
-            />
-            <Button icon={Plus} onClick={openAddDialog}>
-              Add Review
-            </Button>
-          </div>
+              size="small"
+              sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, color: 'text.secondary', '&:hover': { color: 'text.primary', bgcolor: 'action.hover' } }}
+            >
+              <RefreshCw size={14} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+            </IconButton>
+            <Button icon={Plus} onClick={openAddDialog}>Add Review</Button>
+          </Box>
         }
       />
 
-      {/* Flash message */}
+      {/* Flash */}
       {flash && (
-        <div className={`mb-4 px-4 py-3 rounded-xl text-sm font-medium border ${
-          flash.severity === 'error'
-            ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800'
-            : 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
-        }`}>
-          {flash.msg}
-        </div>
+        <Paper
+          elevation={0}
+          sx={{
+            px: 2, py: 1.5, borderRadius: 2, border: '1px solid',
+            bgcolor: flash.severity === 'error' ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)',
+            borderColor: flash.severity === 'error' ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)',
+          }}
+        >
+          <Typography sx={{ fontSize: 13, fontWeight: 600, color: flash.severity === 'error' ? 'error.main' : 'success.main' }}>
+            {flash.msg}
+          </Typography>
+        </Paper>
       )}
 
       {/* Stats row */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <StatCard title="Approved" value={stats.published} icon={CheckCircle}  color="emerald" />
-        <StatCard title="Pending"  value={stats.pending}   icon={Clock}        color="amber"   />
-        <StatCard title="Rejected" value={stats.hidden}    icon={EyeOff}       color="rose"    />
-      </div>
+      <Grid container spacing={2.5}>
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <StatCard title="Approved" value={stats.published} icon={CheckCircle} color="emerald" />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <StatCard title="Pending" value={stats.pending} icon={Clock} color="amber" />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <StatCard title="Rejected" value={stats.hidden} icon={EyeOff} color="rose" />
+        </Grid>
+      </Grid>
 
       {/* Filter toolbar */}
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <SearchInput
-          value={searchQ}
-          onChange={setSearchQ}
-          placeholder="Search by customer name…"
-          className="min-w-[220px] flex-1"
-        />
-        <Select
-          value={statusFilter}
-          onChange={e => setStatusFilter(e.target.value)}
-          className="min-w-[160px]"
-        >
-          <option value="">All Statuses</option>
-          <option value="published">Approved</option>
-          <option value="pending">Pending</option>
-          <option value="hidden">Rejected</option>
-        </Select>
-        <Select
-          value={sortBy}
-          onChange={e => setSortBy(e.target.value)}
-          className="min-w-[160px]"
-        >
-          <option value="newest">Newest First</option>
-          <option value="oldest">Oldest First</option>
-          <option value="highest">Highest Rating</option>
-          <option value="lowest">Lowest Rating</option>
-        </Select>
-      </div>
+      <Paper elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', p: 2 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1.5 }}>
+          <SearchInput value={searchQ} onChange={setSearchQ} placeholder="Search by customer name…" sx={{ flex: 1, minWidth: 220 }} />
+          <Select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} sx={{ minWidth: 160 }}>
+            <MenuItem value="">All Statuses</MenuItem>
+            <MenuItem value="published">Approved</MenuItem>
+            <MenuItem value="pending">Pending</MenuItem>
+            <MenuItem value="hidden">Rejected</MenuItem>
+          </Select>
+          <Select value={sortBy} onChange={e => setSortBy(e.target.value)} sx={{ minWidth: 160 }}>
+            <MenuItem value="newest">Newest First</MenuItem>
+            <MenuItem value="oldest">Oldest First</MenuItem>
+            <MenuItem value="highest">Highest Rating</MenuItem>
+            <MenuItem value="lowest">Lowest Rating</MenuItem>
+          </Select>
+        </Box>
+      </Paper>
 
       {/* Bulk action bar */}
       {selectedCount > 0 && (
-        <div className="flex flex-wrap items-center gap-3 px-4 py-3 mb-4 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800">
-          <span className="text-sm font-bold text-indigo-700 dark:text-indigo-400">
+        <Paper
+          elevation={0}
+          sx={{
+            display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1.5,
+            px: 2.5, py: 1.5, borderRadius: 2.5, border: '1px solid',
+            bgcolor: 'rgba(99,102,241,0.06)', borderColor: 'rgba(99,102,241,0.25)',
+          }}
+        >
+          <Typography sx={{ fontSize: 13, fontWeight: 700, color: 'primary.main' }}>
             {selectedCount} Review{selectedCount > 1 ? 's' : ''} Selected
-          </span>
-          <div className="flex flex-wrap gap-2">
-            <Button size="sm" variant="success" icon={CheckCircle} onClick={() => promptBulk('published')}>
-              Approve
-            </Button>
-            <Button size="sm" variant="warning" icon={EyeOff} onClick={() => promptBulk('hidden')}>
-              Reject
-            </Button>
-            <Button size="sm" variant="danger" icon={Trash} onClick={() => promptBulk('delete')}>
-              Delete
-            </Button>
-            <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
-              Clear
-            </Button>
-          </div>
-        </div>
+          </Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+            <Button size="sm" variant="success" icon={CheckCircle} onClick={() => promptBulk('published')}>Approve</Button>
+            <Button size="sm" variant="warning" icon={EyeOff} onClick={() => promptBulk('hidden')}>Reject</Button>
+            <Button size="sm" variant="danger" icon={Trash} onClick={() => promptBulk('delete')}>Delete</Button>
+            <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>Clear</Button>
+          </Box>
+        </Paper>
       )}
 
-      {/* Table */}
-      <Card>
-        <CardBody className="p-0">
-          <Table>
-            {loading && reviews.length === 0 ? (
-              <ReviewsTableSkeleton />
-            ) : (
-              <>
-                <thead>
-                  <tr>
-                    <Th className="w-10">
-                      <input
-                        type="checkbox"
-                        checked={allPageSelected}
-                        ref={el => { if (el) el.indeterminate = somePageSelected; }}
-                        onChange={toggleAll}
-                        className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                      />
-                    </Th>
-                    <Th>Customer</Th>
-                    <Th>Product</Th>
-                    <Th>Rating</Th>
-                    <Th>Review</Th>
-                    <Th>Status</Th>
-                    <Th>Flags</Th>
-                    <Th>Date</Th>
-                    <Th className="text-center">Actions</Th>
-                  </tr>
-                </thead>
-                <tbody className={loading && reviews.length > 0 ? 'opacity-50 transition-opacity duration-150' : ''}>
-                  {reviews.length === 0 ? (
-                    <tr>
-                      <td colSpan={9}>
-                        <EmptyState
-                          icon={MessageSquare}
-                          title="No reviews found"
-                          description="Try adjusting the filters or search query."
-                          className="py-16"
-                        />
-                      </td>
-                    </tr>
-                  ) : reviews.map(r => {
-                    const isSelected = selected.has(r._id);
-                    return (
-                      <Tr
-                        key={r._id}
-                        className={isSelected ? 'bg-indigo-50/60 dark:bg-indigo-900/10' : ''}
-                      >
-                        <Td>
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => toggleOne(r._id)}
-                            className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                          />
-                        </Td>
-                        <Td>
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-xs font-semibold text-indigo-600 dark:text-indigo-400 flex-shrink-0 overflow-hidden">
-                              {r.avatar
-                                ? <img src={r.avatar} alt={r.userName} className="w-full h-full object-cover" />
-                                : (r.userInitial || r.userName?.[0])}
-                            </div>
-                            <div>
-                              <p className="text-sm font-semibold text-gray-900 dark:text-white truncate max-w-[120px]">
-                                {r.userName}
-                              </p>
-                              {r.location && (
-                                <p className="text-xs text-gray-400 dark:text-gray-500 truncate max-w-[120px]">
-                                  {r.location}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </Td>
-                        <Td>
-                          <span className="text-sm text-gray-700 dark:text-gray-300 truncate block max-w-[160px]">
-                            {r.product?.name || '—'}
-                          </span>
-                        </Td>
-                        <Td className="whitespace-nowrap">
-                          <StarRating rating={r.rating} />
-                        </Td>
-                        <Td>
-                          {r.title && (
-                            <p className="text-sm font-semibold text-gray-900 dark:text-white truncate max-w-[200px]">
-                              {r.title}
-                            </p>
-                          )}
-                          <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[200px]">
-                            {r.text}
-                          </p>
-                        </Td>
-                        <Td>
-                          <StatusChip status={r.status} label={STATUS_LABEL[r.status] || r.status} />
-                        </Td>
-                        <Td>
-                          <div className="flex flex-wrap gap-1">
-                            {r.verified && (
-                              <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold border border-indigo-300 text-indigo-600 dark:border-indigo-700 dark:text-indigo-400">
-                                Verified
-                              </span>
-                            )}
-                            {r.featured && (
-                              <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold border border-violet-300 text-violet-600 dark:border-violet-700 dark:text-violet-400">
-                                Featured
-                              </span>
-                            )}
-                          </div>
-                        </Td>
-                        <Td>
-                          <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                            {new Date(r.createdAt).toLocaleDateString('en-AE', {
-                              day: 'numeric', month: 'short', year: 'numeric',
-                            })}
-                          </span>
-                        </Td>
-                        <Td className="text-center">
-                          <div className="flex items-center justify-center gap-0.5">
-                            {r.status !== 'published' && (
-                              <Tooltip content="Approve">
-                                <IconBtn
-                                  icon={CheckCircle}
-                                  label="Approve"
-                                  size="sm"
-                                  className="text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
-                                  onClick={() => handleStatusChange(r._id, 'published')}
-                                />
-                              </Tooltip>
-                            )}
-                            {r.status !== 'hidden' && (
-                              <Tooltip content="Reject">
-                                <IconBtn
-                                  icon={EyeOff}
-                                  label="Reject"
-                                  size="sm"
-                                  className="text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20"
-                                  onClick={() => handleStatusChange(r._id, 'hidden')}
-                                />
-                              </Tooltip>
-                            )}
-                            {r.status !== 'pending' && (
-                              <Tooltip content="Set Pending">
-                                <IconBtn
-                                  icon={Clock}
-                                  label="Set Pending"
-                                  size="sm"
-                                  onClick={() => handleStatusChange(r._id, 'pending')}
-                                />
-                              </Tooltip>
-                            )}
-                            <Tooltip content="Edit">
-                              <IconBtn
-                                icon={Edit2}
-                                label="Edit"
-                                size="sm"
-                                onClick={() => openEdit(r)}
-                              />
-                            </Tooltip>
-                            <Tooltip content="Delete">
-                              <IconBtn
-                                icon={Trash2}
-                                label="Delete"
-                                size="sm"
-                                className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                onClick={() => promptDelete(r._id)}
-                              />
-                            </Tooltip>
-                          </div>
-                        </Td>
-                      </Tr>
-                    );
-                  })}
-                </tbody>
-              </>
+      {/* Table card */}
+      <Paper elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <Th sx={{ width: 40 }}>
+                <Box
+                  component="input"
+                  type="checkbox"
+                  checked={allPageSelected}
+                  ref={el => { if (el) el.indeterminate = somePageSelected; }}
+                  onChange={toggleAll}
+                  sx={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#6366f1' }}
+                />
+              </Th>
+              <Th>Customer</Th>
+              <Th>Product</Th>
+              <Th>Rating</Th>
+              <Th>Review</Th>
+              <Th>Status</Th>
+              <Th>Flags</Th>
+              <Th>Date</Th>
+              <Th align="center">Actions</Th>
+            </TableRow>
+          </TableHead>
+          <TableBody sx={{ opacity: loading && reviews.length > 0 ? 0.5 : 1, transition: 'opacity 0.15s' }}>
+            {loading && reviews.length === 0 && Array.from({ length: 8 }).map((_, i) => (
+              <Tr key={i}>
+                <Td><Skeleton width={16} height={16} /></Td>
+                <Td>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Skeleton width={32} height={32} sx={{ borderRadius: '50%', flexShrink: 0 }} />
+                    <Skeleton height={14} width={96} />
+                  </Box>
+                </Td>
+                <Td><Skeleton height={14} width={128} /></Td>
+                <Td><Skeleton height={14} width={80} /></Td>
+                <Td><Skeleton height={14} width={160} /></Td>
+                <Td><Skeleton height={22} width={64} sx={{ borderRadius: 5 }} /></Td>
+                <Td><Skeleton height={14} width={48} /></Td>
+                <Td><Skeleton height={14} width={64} /></Td>
+                <Td>
+                  <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.5 }}>
+                    <Skeleton width={28} height={28} /><Skeleton width={28} height={28} /><Skeleton width={28} height={28} />
+                  </Box>
+                </Td>
+              </Tr>
+            ))}
+
+            {!loading && reviews.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={9} sx={{ p: 0, border: 0 }}>
+                  <EmptyState icon={MessageSquare} title="No reviews found" description="Try adjusting the filters or search query." />
+                </TableCell>
+              </TableRow>
             )}
-          </Table>
 
-          {totalPages > 1 && (
-            <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800">
-              <Pagination
-                page={page}
-                totalPages={totalPages}
-                onPage={(p) => { setPage(p); setSelected(new Set()); }}
-                totalItems={total}
-                perPage={PER_PAGE}
-              />
-            </div>
-          )}
-        </CardBody>
-      </Card>
+            {reviews.map(r => {
+              const isSelected = selected.has(r._id);
+              return (
+                <Tr key={r._id} sx={{ bgcolor: isSelected ? 'rgba(99,102,241,0.06)' : undefined }}>
+                  <Td>
+                    <Box
+                      component="input"
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleOne(r._id)}
+                      sx={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#6366f1' }}
+                    />
+                  </Td>
+                  <Td>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box sx={{
+                        width: 32, height: 32, borderRadius: '50%',
+                        bgcolor: 'rgba(99,102,241,0.1)', display: 'flex',
+                        alignItems: 'center', justifyContent: 'center',
+                        fontSize: 12, fontWeight: 700, color: 'primary.main',
+                        flexShrink: 0, overflow: 'hidden',
+                      }}>
+                        {r.avatar
+                          ? <Box component="img" src={r.avatar} alt={r.userName} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          : (r.userInitial || r.userName?.[0])
+                        }
+                      </Box>
+                      <Box>
+                        <Typography sx={{ fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 120 }}>
+                          {r.userName}
+                        </Typography>
+                        {r.location && (
+                          <Typography sx={{ fontSize: 11, color: 'text.disabled', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 120 }}>
+                            {r.location}
+                          </Typography>
+                        )}
+                      </Box>
+                    </Box>
+                  </Td>
+                  <Td>
+                    <Typography sx={{ fontSize: 13, color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 }}>
+                      {r.product?.name || '—'}
+                    </Typography>
+                  </Td>
+                  <Td sx={{ whiteSpace: 'nowrap' }}>
+                    <StarRating rating={r.rating} />
+                  </Td>
+                  <Td>
+                    {r.title && (
+                      <Typography sx={{ fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>
+                        {r.title}
+                      </Typography>
+                    )}
+                    <Typography sx={{ fontSize: 13, color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>
+                      {r.text}
+                    </Typography>
+                  </Td>
+                  <Td>
+                    <StatusChip status={r.status} label={STATUS_LABEL[r.status] || r.status} />
+                  </Td>
+                  <Td>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {r.verified && (
+                        <Chip label="Verified" size="small" sx={{ fontSize: 10, fontWeight: 700, height: 20, bgcolor: 'rgba(99,102,241,0.08)', color: 'primary.main', border: '1px solid', borderColor: 'rgba(99,102,241,0.25)' }} />
+                      )}
+                      {r.featured && (
+                        <Chip label="Featured" size="small" sx={{ fontSize: 10, fontWeight: 700, height: 20, bgcolor: 'rgba(139,92,246,0.08)', color: '#7c3aed', border: '1px solid', borderColor: 'rgba(139,92,246,0.25)' }} />
+                      )}
+                    </Box>
+                  </Td>
+                  <Td>
+                    <Typography sx={{ fontSize: 12, color: 'text.secondary', whiteSpace: 'nowrap' }}>
+                      {new Date(r.createdAt).toLocaleDateString('en-AE', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </Typography>
+                  </Td>
+                  <Td align="center">
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.25 }}>
+                      {r.status !== 'published' && (
+                        <Tooltip content="Approve">
+                          <IconBtn icon={CheckCircle} label="Approve" size="sm" sx={{ color: 'success.main', '&:hover': { bgcolor: 'rgba(16,185,129,0.08)' } }} onClick={() => handleStatusChange(r._id, 'published')} />
+                        </Tooltip>
+                      )}
+                      {r.status !== 'hidden' && (
+                        <Tooltip content="Reject">
+                          <IconBtn icon={EyeOff} label="Reject" size="sm" sx={{ color: 'warning.main', '&:hover': { bgcolor: 'rgba(245,158,11,0.08)' } }} onClick={() => handleStatusChange(r._id, 'hidden')} />
+                        </Tooltip>
+                      )}
+                      {r.status !== 'pending' && (
+                        <Tooltip content="Set Pending">
+                          <IconBtn icon={Clock} label="Set Pending" size="sm" onClick={() => handleStatusChange(r._id, 'pending')} />
+                        </Tooltip>
+                      )}
+                      <Tooltip content="Edit">
+                        <IconBtn icon={Edit2} label="Edit" size="sm" sx={{ color: 'primary.main', '&:hover': { bgcolor: 'rgba(99,102,241,0.08)' } }} onClick={() => openEdit(r)} />
+                      </Tooltip>
+                      <Tooltip content="Delete">
+                        <IconBtn icon={Trash2} label="Delete" size="sm" sx={{ color: 'error.main', '&:hover': { bgcolor: 'rgba(239,68,68,0.08)' } }} onClick={() => promptDelete(r._id)} />
+                      </Tooltip>
+                    </Box>
+                  </Td>
+                </Tr>
+              );
+            })}
+          </TableBody>
+        </Table>
 
-      {/* ReviewManagerPanel (still uses MUI internally — keep as-is) */}
-      <div className="mt-8">
+        {totalPages > 1 && (
+          <Box sx={{ px: 3, py: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPage={(p) => { setPage(p); setSelected(new Set()); }}
+              totalItems={total}
+              perPage={PER_PAGE}
+            />
+          </Box>
+        )}
+      </Paper>
+
+      {/* ReviewManagerPanel */}
+      <Box sx={{ mt: 2 }}>
         <ReviewManagerPanel />
-      </div>
+      </Box>
 
-      {/* ── Add Review dialog ── */}
+      {/* Add Review dialog */}
       <Modal
         open={dialogMode === 'add'}
         onClose={() => setDialogMode(null)}
@@ -734,56 +640,66 @@ export default function Reviews() {
           </>
         }
       >
-        <div className="space-y-4">
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           {/* Product search */}
-          <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Product <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
+          <Box>
+            <Typography sx={{ fontSize: 13, fontWeight: 500, color: 'text.primary', mb: 0.75 }}>
+              Product <Box component="span" sx={{ color: 'error.main' }}>*</Box>
+            </Typography>
+            <Input
               value={productQuery}
               onChange={e => setProductQuery(e.target.value)}
               placeholder="Search by name or design code…"
-              className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3.5 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
             {productSearching && (
-              <p className="text-xs text-gray-400">Searching…</p>
+              <Typography sx={{ fontSize: 12, color: 'text.disabled', mt: 0.5 }}>Searching…</Typography>
             )}
             {productOptions.length > 0 && !addProduct && (
-              <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
+              <Paper elevation={0} sx={{ mt: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden' }}>
                 {productOptions.map(p => (
-                  <button
+                  <Box
                     key={p._id}
+                    component="button"
                     type="button"
                     onClick={() => { setAddProduct(p); setProductQuery(p.designCode ? `${p.name} — ${p.designCode}` : p.name); setProductOptions([]); }}
-                    className="w-full text-left px-3.5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-100 dark:border-gray-800 last:border-0"
+                    sx={{
+                      display: 'block', width: '100%', textAlign: 'left',
+                      px: 1.75, py: 1.25, fontSize: 13, color: 'text.primary',
+                      background: 'none', border: 'none', borderBottom: '1px solid', borderColor: 'divider',
+                      cursor: 'pointer', '&:last-child': { border: 0 },
+                      '&:hover': { bgcolor: 'action.hover' },
+                    }}
                   >
                     {p.name}{p.designCode ? ` — ${p.designCode}` : ''}
-                  </button>
+                  </Box>
                 ))}
-              </div>
+              </Paper>
             )}
             {addProduct && (
-              <div className="flex items-center justify-between px-3.5 py-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl">
-                <span className="text-sm font-medium text-indigo-700 dark:text-indigo-400">
+              <Box sx={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                mt: 0.75, px: 1.75, py: 1, borderRadius: 2, border: '1px solid',
+                bgcolor: 'rgba(99,102,241,0.06)', borderColor: 'rgba(99,102,241,0.25)',
+              }}>
+                <Typography sx={{ fontSize: 13, fontWeight: 600, color: 'primary.main' }}>
                   {addProduct.name}{addProduct.designCode ? ` — ${addProduct.designCode}` : ''}
-                </span>
-                <button
+                </Typography>
+                <Box
+                  component="button"
                   type="button"
                   onClick={() => { setAddProduct(null); setProductQuery(''); }}
-                  className="text-xs text-indigo-500 hover:text-indigo-700 dark:hover:text-indigo-300 underline"
+                  sx={{ background: 'none', border: 'none', fontSize: 12, color: 'primary.main', cursor: 'pointer', textDecoration: 'underline', p: 0, ml: 1 }}
                 >
                   Change
-                </button>
-              </div>
+                </Box>
+              </Box>
             )}
-          </div>
+          </Box>
           <ReviewForm value={addForm} onChange={setAddForm} />
-        </div>
+        </Box>
       </Modal>
 
-      {/* ── Edit Review dialog ── */}
+      {/* Edit Review dialog */}
       <Modal
         open={dialogMode === 'edit'}
         onClose={() => setDialogMode(null)}
@@ -792,12 +708,7 @@ export default function Reviews() {
         footer={
           <>
             <Button variant="secondary" onClick={() => setDialogMode(null)}>Cancel</Button>
-            <Button
-              variant="primary"
-              onClick={handleSave}
-              loading={saving}
-              disabled={saving || !canSave}
-            >
+            <Button variant="primary" onClick={handleSave} loading={saving} disabled={saving || !canSave}>
               {saving ? 'Saving…' : 'Update Review'}
             </Button>
           </>
@@ -806,7 +717,7 @@ export default function Reviews() {
         <ReviewForm value={formData} onChange={setFormData} />
       </Modal>
 
-      {/* ── Confirm dialog ── */}
+      {/* Confirm dialog */}
       <Modal
         open={dialogMode === 'confirm'}
         onClose={() => setDialogMode(null)}
@@ -824,8 +735,10 @@ export default function Reviews() {
           </>
         }
       >
-        <p className="text-sm text-gray-500 dark:text-gray-400">{confirmBody()}</p>
+        <Typography sx={{ fontSize: '13.5px', color: 'text.secondary', lineHeight: 1.6 }}>
+          {confirmBody()}
+        </Typography>
       </Modal>
-    </div>
+    </Box>
   );
 }

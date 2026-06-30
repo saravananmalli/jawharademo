@@ -1,6 +1,6 @@
 export { Badge, StatusBadge } from './Badge';
 export { Button, IconBtn } from './Button';
-export { Card, CardHeader, CardBody } from './Card';
+export { Card, CardHeader, CardBody, CardFooter } from './Card';
 export { Input, Select, Textarea, Toggle } from './Input';
 export { Modal } from './Modal';
 export { Table, Th, Td, Tr } from './Table';

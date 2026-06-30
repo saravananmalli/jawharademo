@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Plus, Pencil, Trash2, Image, GripVertical, LayoutTemplate, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, Image, GripVertical, LayoutTemplate } from 'lucide-react';
+import { Box, Paper, Grid, Typography, Switch, IconButton } from '@mui/material';
 import {
   Button, IconBtn, Input, Textarea, Toggle,
   Modal, Skeleton,
@@ -9,17 +10,6 @@ import api           from '../../services/api';
 import { getImageUrl } from '../../utils/imageUrl';
 
 const EMPTY = { title: '', description: '', imageUrl: '', order: 1, active: true };
-
-// ── Small inline toggle ───────────────────────────────────────────────────────
-function SmallToggle({ checked, onChange, title }) {
-  return (
-    <label className="relative inline-flex items-center cursor-pointer" title={title}>
-      <input type="checkbox" className="sr-only peer" checked={checked} onChange={onChange} />
-      <div className="w-8 h-4 bg-gray-200 dark:bg-gray-700 peer-checked:bg-indigo-600 rounded-full transition-colors duration-200" />
-      <div className="absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform duration-200 peer-checked:translate-x-4" />
-    </label>
-  );
-}
 
 export default function MobileHomeBanner() {
   const [banners, setBanners]           = useState([]);
@@ -102,7 +92,6 @@ export default function MobileHomeBanner() {
     }
   };
 
-  // Drag-to-reorder
   const handleDragStart = (index) => { dragIndex.current = index; };
 
   const handleDrop = async (dropIndex) => {
@@ -123,149 +112,152 @@ export default function MobileHomeBanner() {
   };
 
   return (
-    <div>
-      {/* Page header */}
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <LayoutTemplate size={22} className="text-gray-400" />
-            <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white">Mobile Home Banners</h1>
-          </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+        <Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+            <LayoutTemplate size={22} style={{ opacity: 0.5 }} />
+            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>Mobile Home Banners</Typography>
+          </Box>
+          <Typography sx={{ fontSize: 13, color: 'text.secondary' }}>
             {banners.length} banner{banners.length !== 1 ? 's' : ''} — drag to reorder · recommended size: 1080 × 540 px
-          </p>
-        </div>
+          </Typography>
+        </Box>
         <Button icon={Plus} onClick={openAdd}>Add Banner</Button>
-      </div>
+      </Box>
 
       {error && (
-        <div className="mb-4 flex items-start gap-2 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-700 dark:text-red-400">
-          <span className="flex-1">{error}</span>
-          <button onClick={() => setError('')} className="shrink-0 hover:opacity-70"><X size={14} /></button>
-        </div>
+        <Paper elevation={0} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 2, py: 1.5, borderRadius: 2, border: '1px solid', bgcolor: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.3)' }}>
+          <Typography sx={{ flex: 1, fontSize: 13, color: 'error.main' }}>{error}</Typography>
+          <IconButton size="small" onClick={() => setError('')} sx={{ color: 'error.main', p: 0.25 }}>✕</IconButton>
+        </Paper>
       )}
       {success && (
-        <div className="mb-4 px-4 py-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl text-sm text-emerald-700 dark:text-emerald-400">
-          {success}
-        </div>
+        <Paper elevation={0} sx={{ px: 2, py: 1.5, borderRadius: 2, border: '1px solid', bgcolor: 'rgba(16,185,129,0.08)', borderColor: 'rgba(16,185,129,0.3)' }}>
+          <Typography sx={{ fontSize: 13, color: 'success.main' }}>{success}</Typography>
+        </Paper>
       )}
 
       {loading && banners.length === 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <Grid container spacing={2}>
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-              <Skeleton className="h-44 w-full" />
-              <div className="p-3 space-y-2">
-                <div className="flex justify-between">
-                  <Skeleton className="h-4 w-2/5" />
-                  <Skeleton className="h-4 w-14 rounded-full" />
-                </div>
-                <Skeleton className="h-3 w-1/3" />
-                <div className="flex gap-2 pt-1">
-                  <Skeleton className="h-7 w-7 rounded-full" />
-                  <Skeleton className="h-7 w-7 rounded-full" />
-                  <Skeleton className="h-7 w-7 rounded-full" />
-                </div>
-              </div>
-            </div>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i}>
+              <Paper elevation={0} sx={{ borderRadius: 2.5, border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
+                <Skeleton height={176} sx={{ borderRadius: 0 }} />
+                <Box sx={{ p: 1.5, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Skeleton height={16} width="40%" />
+                    <Skeleton height={16} width={56} sx={{ borderRadius: 5 }} />
+                  </Box>
+                  <Skeleton height={12} width="33%" />
+                  <Box sx={{ display: 'flex', gap: 1, pt: 0.5 }}>
+                    <Skeleton width={28} height={28} sx={{ borderRadius: '50%' }} />
+                    <Skeleton width={28} height={28} sx={{ borderRadius: '50%' }} />
+                    <Skeleton width={28} height={28} sx={{ borderRadius: '50%' }} />
+                  </Box>
+                </Box>
+              </Paper>
+            </Grid>
           ))}
-        </div>
+        </Grid>
       ) : banners.length === 0 ? (
-        <div className="text-center py-24">
-          <LayoutTemplate size={52} className="mx-auto mb-3 text-gray-200 dark:text-gray-700" />
-          <h2 className="text-lg font-semibold text-gray-500 dark:text-gray-400 mb-1">No mobile home banners yet</h2>
-          <p className="text-sm text-gray-400 dark:text-gray-600 mb-5 max-w-md mx-auto">
+        <Box sx={{ textAlign: 'center', py: 12 }}>
+          <Box sx={{ color: 'text.disabled', mb: 1.5, display: 'flex', justifyContent: 'center' }}>
+            <LayoutTemplate size={52} />
+          </Box>
+          <Typography sx={{ fontSize: 18, fontWeight: 600, color: 'text.secondary', mb: 0.5 }}>No mobile home banners yet</Typography>
+          <Typography sx={{ fontSize: 13, color: 'text.disabled', mb: 2.5, maxWidth: 480, mx: 'auto' }}>
             These banners appear at the top of the mobile app home screen. They are separate from the web app banners so you can use a portrait crop.
-          </p>
+          </Typography>
           <Button icon={Plus} onClick={openAdd}>Add First Banner</Button>
-        </div>
+        </Box>
       ) : (
-        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 transition-opacity duration-150 ${loading ? 'opacity-50' : 'opacity-100'}`}>
+        <Grid container spacing={2} sx={{ opacity: loading ? 0.5 : 1, transition: 'opacity 0.15s' }}>
           {banners.map((b, index) => (
-            <div
-              key={b._id}
-              draggable
-              onDragStart={() => handleDragStart(index)}
-              onDragOver={e => e.preventDefault()}
-              onDrop={() => handleDrop(index)}
-              className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden flex flex-col cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow"
-            >
-              {/* Banner image — landscape ratio */}
-              <div className="h-44 bg-gray-100 dark:bg-gray-800 relative overflow-hidden shrink-0 flex items-center justify-center">
-                {b.imageUrl ? (
-                  <img
-                    src={getImageUrl(b.imageUrl)}
-                    alt={b.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="text-center text-gray-400 dark:text-gray-600">
-                    <Image size={40} className="mx-auto" />
-                    <span className="text-xs block mt-1.5">No image</span>
-                  </div>
-                )}
-                {/* Order badge */}
-                <div className="absolute top-2 left-2 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
-                  #{b.order}
-                </div>
-                {/* Drag handle */}
-                <div className="absolute top-2 right-2 text-white/70">
-                  <GripVertical size={16} />
-                </div>
-                {/* Active/hidden status */}
-                {!b.active && (
-                  <div className="absolute bottom-2 left-2 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                    Hidden
-                  </div>
-                )}
-              </div>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={b._id}>
+              <Paper
+                elevation={0}
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={e => e.preventDefault()}
+                onDrop={() => handleDrop(index)}
+                sx={{
+                  borderRadius: 2.5, border: '1px solid', borderColor: 'divider',
+                  overflow: 'hidden', display: 'flex', flexDirection: 'column',
+                  cursor: 'grab', '&:active': { cursor: 'grabbing' },
+                  '&:hover': { boxShadow: 3 }, transition: 'box-shadow 0.2s',
+                }}
+              >
+                <Box sx={{ height: 176, bgcolor: 'action.hover', position: 'relative', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {b.imageUrl ? (
+                    <Box component="img" src={getImageUrl(b.imageUrl)} alt={b.title} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <Box sx={{ textAlign: 'center', color: 'text.disabled' }}>
+                      <Image size={40} />
+                      <Typography sx={{ fontSize: 11, mt: 0.75 }}>No image</Typography>
+                    </Box>
+                  )}
+                  <Box sx={{ position: 'absolute', top: 8, left: 8, bgcolor: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 10, fontWeight: 700, px: 1, py: 0.25, borderRadius: 1 }}>
+                    #{b.order}
+                  </Box>
+                  <Box sx={{ position: 'absolute', top: 8, right: 8, color: 'rgba(255,255,255,0.7)' }}>
+                    <GripVertical size={16} />
+                  </Box>
+                  {!b.active && (
+                    <Box sx={{ position: 'absolute', bottom: 8, left: 8, bgcolor: '#f59e0b', color: '#fff', fontSize: 10, fontWeight: 700, px: 1, py: 0.25, borderRadius: 5 }}>
+                      Hidden
+                    </Box>
+                  )}
+                </Box>
 
-              {/* Card content */}
-              <div className="p-3 flex-1 flex flex-col bg-white dark:bg-gray-900">
-                <div className="flex items-start justify-between gap-2 mb-1">
-                  <p className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">
-                    {b.title || <em className="text-gray-400 font-normal">No title</em>}
-                  </p>
-                  <span className={`shrink-0 px-2 py-0.5 text-[10px] font-semibold rounded-full ${
-                    b.active
-                      ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-500'
-                  }`}>
-                    {b.active ? 'Active' : 'Hidden'}
-                  </span>
-                </div>
-                {b.description && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 line-clamp-2 leading-relaxed">
-                    {b.description}
-                  </p>
-                )}
-                <div className="flex items-center gap-2 mt-auto pt-2">
-                  <button
-                    onClick={() => openEdit(b)}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                  >
-                    <Pencil size={11} /> Edit
-                  </button>
-                  <SmallToggle
-                    checked={b.active}
-                    onChange={() => toggleActive(b)}
-                    title={b.active ? 'Click to hide' : 'Click to show'}
-                  />
-                  <IconBtn
-                    icon={Trash2}
-                    size="sm"
-                    label="Delete"
-                    onClick={() => setDeleteTarget(b)}
-                    className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
-                  />
-                </div>
-              </div>
-            </div>
+                <Box sx={{ p: 1.5, flex: 1, display: 'flex', flexDirection: 'column', bgcolor: 'background.paper' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1, mb: 0.5 }}>
+                    <Typography sx={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {b.title || <Box component="em" sx={{ color: 'text.disabled', fontStyle: 'normal', fontWeight: 400 }}>No title</Box>}
+                    </Typography>
+                    <Box sx={{
+                      flexShrink: 0, px: 1, py: 0.25, fontSize: 10, fontWeight: 600, borderRadius: 5,
+                      bgcolor: b.active ? 'rgba(16,185,129,0.1)' : 'action.hover',
+                      color: b.active ? '#059669' : 'text.disabled',
+                    }}>
+                      {b.active ? 'Active' : 'Hidden'}
+                    </Box>
+                  </Box>
+                  {b.description && (
+                    <Typography sx={{ fontSize: 12, color: 'text.secondary', mb: 1, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: 1.5 }}>
+                      {b.description}
+                    </Typography>
+                  )}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 'auto', pt: 1 }}>
+                    <Box
+                      component="button"
+                      onClick={() => openEdit(b)}
+                      sx={{
+                        flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75,
+                        px: 1.5, py: 0.75, fontSize: 12, fontWeight: 500,
+                        border: '1px solid', borderColor: 'divider', color: 'text.secondary',
+                        borderRadius: 1.5, background: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                        '&:hover': { bgcolor: 'action.hover' }, transition: 'background-color 0.15s',
+                      }}
+                    >
+                      <Pencil size={11} /> Edit
+                    </Box>
+                    <Switch
+                      size="small"
+                      checked={b.active}
+                      onChange={() => toggleActive(b)}
+                      title={b.active ? 'Click to hide' : 'Click to show'}
+                      sx={{ '& .MuiSwitch-thumb': { width: 12, height: 12 }, '& .MuiSwitch-track': { borderRadius: 8 } }}
+                    />
+                    <IconBtn icon={Trash2} size="sm" label="Delete" onClick={() => setDeleteTarget(b)} sx={{ color: 'error.main', '&:hover': { bgcolor: 'rgba(239,68,68,0.08)' } }} />
+                  </Box>
+                </Box>
+              </Paper>
+            </Grid>
           ))}
-        </div>
+        </Grid>
       )}
 
-      {/* ── Add / Edit Dialog ──────────────────────────────────────────────── */}
       <Modal
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
@@ -280,56 +272,22 @@ export default function MobileHomeBanner() {
           </>
         }
       >
-        <div className="space-y-4">
-          <div>
-            <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <Box>
+            <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'text.secondary', mb: 1 }}>
               Banner Image * — landscape format recommended (1080 × 540 px)
-            </p>
-            <ImageUploader
-              images={form.imageUrl ? [form.imageUrl] : []}
-              onChange={urls => setF('imageUrl', urls[0] || '')}
-              maxImages={1}
-              category="mobile"
-              single
-            />
-          </div>
-
-          <Input
-            label="Title"
-            value={form.title}
-            onChange={e => setF('title', e.target.value)}
-            placeholder="e.g. Summer Collection 2026"
-            autoFocus
-          />
-
-          <Textarea
-            label="Description"
-            value={form.description}
-            onChange={e => setF('description', e.target.value)}
-            placeholder="e.g. Discover our latest jewellery designs"
-            rows={2}
-          />
-
-          <div className="grid grid-cols-2 gap-4 items-end">
-            <Input
-              label="Display Order"
-              type="number"
-              value={form.order}
-              onChange={e => setF('order', Number(e.target.value))}
-              min={1}
-            />
-            <div className="pb-1">
-              <Toggle
-                label="Active (visible in app)"
-                checked={form.active}
-                onChange={e => setF('active', e.target.checked)}
-              />
-            </div>
-          </div>
-        </div>
+            </Typography>
+            <ImageUploader images={form.imageUrl ? [form.imageUrl] : []} onChange={urls => setF('imageUrl', urls[0] || '')} maxImages={1} category="mobile" single />
+          </Box>
+          <Input label="Title" value={form.title} onChange={e => setF('title', e.target.value)} placeholder="e.g. Summer Collection 2026" autoFocus />
+          <Textarea label="Description" value={form.description} onChange={e => setF('description', e.target.value)} placeholder="e.g. Discover our latest jewellery designs" rows={2} />
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, alignItems: 'flex-end' }}>
+            <Input label="Display Order" type="number" value={form.order} onChange={e => setF('order', Number(e.target.value))} min={1} />
+            <Toggle label="Active (visible in app)" checked={form.active} onChange={e => setF('active', e.target.checked)} />
+          </Box>
+        </Box>
       </Modal>
 
-      {/* ── Delete Confirm Dialog ──────────────────────────────────────────── */}
       <Modal
         open={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
@@ -342,10 +300,10 @@ export default function MobileHomeBanner() {
           </>
         }
       >
-        <p className="text-sm text-gray-700 dark:text-gray-300">
-          Delete banner <strong>{deleteTarget?.title || `#${deleteTarget?.order}`}</strong>? This cannot be undone.
-        </p>
+        <Typography sx={{ fontSize: '13.5px', color: 'text.secondary', lineHeight: 1.6 }}>
+          Delete banner <Box component="strong" sx={{ color: 'text.primary', fontWeight: 600 }}>{deleteTarget?.title || `#${deleteTarget?.order}`}</Box>? This cannot be undone.
+        </Typography>
       </Modal>
-    </div>
+    </Box>
   );
 }

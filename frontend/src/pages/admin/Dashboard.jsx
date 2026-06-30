@@ -4,20 +4,24 @@ import { DirhamSymbol } from 'dirham/react';
 import DateRangeFilter, { computeDateRange } from './DateRangeFilter';
 import {
   TrendingUp, ShoppingBag, Clock, XCircle,
-  Gem, Trophy, Star, LayoutGrid,
+  Gem, Trophy, Star, LayoutGrid, ArrowRight,
 } from 'lucide-react';
 import ReactApexChart from 'react-apexcharts';
+import {
+  Box, Grid, Paper, Typography, Chip, Button,
+  TableHead, TableBody, TableRow, TableCell,
+  Skeleton,
+} from '@mui/material';
 import api from '../../services/api';
 import { StatusChip } from './adminUtils';
 import { useAdminTheme } from './AdminThemeContext';
 import { StatCard } from '../../components/admin/ui/StatCard';
 import { Card, CardHeader, CardBody } from '../../components/admin/ui/Card';
+import { Table, Th, Td, Tr } from '../../components/admin/ui/Table';
 
-// ── Palette ───────────────────────────────────────────────────────────────────
 const PIE_COLORS = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#0ea5e9'];
 const BAR_COLOR  = '#6366f1';
 
-// ── Main component ────────────────────────────────────────────────────────────
 export default function Dashboard() {
   const { mode } = useAdminTheme();
   const isDark = mode === 'dark';
@@ -53,16 +57,13 @@ export default function Dashboard() {
     }).catch(() => {}).finally(() => setLoading(false));
   }, [dateRange.startDate, dateRange.endDate]);
 
-  // Derived metrics from API data
   const derived = useMemo(() => {
     const rev    = summary?.totalRevenue || 0;
     const orders = summary?.totalOrders  || 0;
     const getStatus = (s) => statusData.find(x => x.status === s)?.count || 0;
-
     const pending    = getStatus('pending');
     const delivered  = getStatus('delivered');
     const cancelled  = getStatus('cancelled');
-    const processing = getStatus('processing');
 
     const trend = sales.length >= 2
       ? Math.round(((sales.at(-1).revenue - sales.at(-2).revenue) / (sales.at(-2).revenue || 1)) * 100)
@@ -77,8 +78,7 @@ export default function Dashboard() {
     }, {});
 
     return {
-      rev, orders, trend, orderTrend,
-      pending, delivered, cancelled, processing,
+      rev, orders, trend, orderTrend, pending, delivered, cancelled,
       categories: Object.entries(categories)
         .map(([name, value]) => ({ name, value }))
         .sort((a, b) => b.value - a.value)
@@ -90,52 +90,40 @@ export default function Dashboard() {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   });
 
-  // ── ApexCharts: Revenue area ──────────────────────────────────────────────
-  const revenueLabels = sales.map(s => s.month);
-  const revenueData   = sales.map(s => s.revenue);
+  const chartFont = '"Inter", sans-serif';
+  const gridColor = isDark ? '#1e2535' : '#f1f5f9';
+  const labelColor = isDark ? '#6b7280' : '#9ca3af';
 
   const revenueOptions = {
-    chart: { type: 'area', toolbar: { show: false }, background: 'transparent', fontFamily: 'Inter, sans-serif' },
+    chart: { type: 'area', toolbar: { show: false }, background: 'transparent', fontFamily: chartFont },
     theme: { mode: isDark ? 'dark' : 'light' },
     colors: ['#6366f1'],
     dataLabels: { enabled: false },
     stroke: { curve: 'smooth', width: 2.5 },
     fill: {
       type: 'gradient',
-      gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.0, stops: [0, 100] },
+      gradient: { shadeIntensity: 1, opacityFrom: 0.22, opacityTo: 0.0, stops: [0, 100] },
     },
-    grid: {
-      borderColor: isDark ? '#1f2937' : '#f1f5f9',
-      strokeDashArray: 4,
-      padding: { left: -4, right: 0 },
-    },
+    grid: { borderColor: gridColor, strokeDashArray: 4, padding: { left: -4, right: 0 } },
     xaxis: {
-      categories: revenueLabels,
-      axisBorder: { show: false },
-      axisTicks: { show: false },
-      labels: { style: { colors: isDark ? '#6b7280' : '#9ca3af', fontSize: '11px' } },
+      categories: sales.map(s => s.month),
+      axisBorder: { show: false }, axisTicks: { show: false },
+      labels: { style: { colors: labelColor, fontSize: '11px' } },
     },
     yaxis: {
       labels: {
-        style: { colors: isDark ? '#6b7280' : '#9ca3af', fontSize: '11px' },
+        style: { colors: labelColor, fontSize: '11px' },
         formatter: (v) => `AED ${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`,
       },
     },
-    tooltip: {
-      theme: isDark ? 'dark' : 'light',
-      y: { formatter: (v) => `AED ${v.toLocaleString()}` },
-    },
+    tooltip: { theme: isDark ? 'dark' : 'light', y: { formatter: (v) => `AED ${v.toLocaleString()}` } },
     markers: { size: 4, colors: ['#6366f1'], strokeWidth: 0 },
   };
 
-  // ── ApexCharts: Status donut ──────────────────────────────────────────────
-  const statusLabels = statusData.map(d => d.status);
-  const statusValues = statusData.map(d => d.count);
-
   const donutOptions = {
-    chart: { type: 'donut', background: 'transparent', fontFamily: 'Inter, sans-serif' },
+    chart: { type: 'donut', background: 'transparent', fontFamily: chartFont },
     theme: { mode: isDark ? 'dark' : 'light' },
-    labels: statusLabels,
+    labels: statusData.map(d => d.status),
     colors: PIE_COLORS,
     legend: { show: false },
     plotOptions: { pie: { donut: { size: '62%' } } },
@@ -149,146 +137,111 @@ export default function Dashboard() {
     stroke: { width: 0 },
   };
 
-  // ── ApexCharts: Top products horizontal bar ───────────────────────────────
   const topProductsSlice = topProducts.slice(0, 6);
-  const barLabels  = topProductsSlice.map(p => p.name?.length > 18 ? p.name.slice(0, 18) + '…' : p.name);
-  const barData    = topProductsSlice.map(p => p.sold || 0);
-
   const barOptions = {
-    chart: { type: 'bar', toolbar: { show: false }, background: 'transparent', fontFamily: 'Inter, sans-serif' },
+    chart: { type: 'bar', toolbar: { show: false }, background: 'transparent', fontFamily: chartFont },
     theme: { mode: isDark ? 'dark' : 'light' },
     colors: [BAR_COLOR],
-    plotOptions: {
-      bar: { horizontal: true, borderRadius: 5, barHeight: '60%', distributed: false },
-    },
+    plotOptions: { bar: { horizontal: true, borderRadius: 4, barHeight: '60%' } },
     dataLabels: {
       enabled: true,
       style: { fontSize: '10px', colors: [isDark ? '#d1d5db' : '#6b7280'] },
-      formatter: (v) => v,
-      offsetX: 6,
-      textAnchor: 'start',
+      formatter: (v) => v, offsetX: 6, textAnchor: 'start',
     },
-    grid: {
-      borderColor: isDark ? '#1f2937' : '#f1f5f9',
-      strokeDashArray: 4,
-      xaxis: { lines: { show: true } },
-      yaxis: { lines: { show: false } },
-    },
+    grid: { borderColor: gridColor, strokeDashArray: 4, xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } },
     xaxis: {
-      categories: barLabels,
-      axisBorder: { show: false },
-      axisTicks: { show: false },
-      labels: { style: { colors: isDark ? '#6b7280' : '#9ca3af', fontSize: '10px' } },
+      categories: topProductsSlice.map(p => p.name?.length > 18 ? p.name.slice(0, 18) + '…' : p.name),
+      axisBorder: { show: false }, axisTicks: { show: false },
+      labels: { style: { colors: labelColor, fontSize: '10px' } },
     },
-    yaxis: {
-      labels: { style: { colors: isDark ? '#9ca3af' : '#4b5563', fontSize: '10px' } },
-    },
+    yaxis: { labels: { style: { colors: isDark ? '#9ca3af' : '#4b5563', fontSize: '10px' } } },
     tooltip: { theme: isDark ? 'dark' : 'light' },
   };
 
-  // ── Skeleton rows ─────────────────────────────────────────────────────────
-  const skeletonRows = [1, 2, 3, 4].map(i => (
-    <tr key={i} className="border-b border-gray-100 dark:border-gray-800">
-      {[1, 2, 3, 4, 5].map(j => (
-        <td key={j} className="px-4 py-3">
-          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-        </td>
-      ))}
-    </tr>
-  ));
+  const skeletonCols = [1, 2, 3, 4, 5];
 
   return (
-    <div>
-      {/* ── Header ─────────────────────────────────────────────────────── */}
-      <div className="mb-6 flex items-start justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white">Dashboard</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{now}</p>
-        </div>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3.5 }}>
+      {/* Page header */}
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 800, lineHeight: 1.2, letterSpacing: '-0.03em', fontSize: { xs: '1.5rem', md: '1.75rem' } }}>Dashboard</Typography>
+          <Typography sx={{ fontSize: '13.5px', color: 'text.secondary', mt: 0.75 }}>{now}</Typography>
+        </Box>
         <DateRangeFilter currentPreset={dateRange.preset || 'today'} onChange={handleFilterChange} />
-      </div>
+      </Box>
 
-      {/* ── KPI Cards ──────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {/* Gradient cards for first two */}
-        <StatCard
-          gradient
-          color="indigo"
-          title="Total Revenue"
-          value={<span className="flex items-center gap-1"><DirhamSymbol size="0.82em" /> {derived.rev.toLocaleString()}</span>}
-          change={derived.trend}
-          changeLabel={dateRange.label || 'Today'}
-          icon={TrendingUp}
-          loading={loading}
-        />
-        <StatCard
-          gradient
-          color="violet"
-          title="Total Orders"
-          value={derived.orders.toLocaleString()}
-          change={derived.orderTrend}
-          changeLabel={dateRange.label || 'Today'}
-          icon={ShoppingBag}
-          loading={loading}
-        />
-        <StatCard
-          color="amber"
-          title="Pending Orders"
-          value={loading ? '—' : derived.pending.toLocaleString()}
-          changeLabel="Awaiting processing"
-          icon={Clock}
-        />
-        <StatCard
-          color="rose"
-          title="Cancelled Orders"
-          value={loading ? '—' : derived.cancelled.toLocaleString()}
-          changeLabel="Refunded / void"
-          icon={XCircle}
-        />
-      </div>
+      {/* KPI Cards */}
+      <Grid container spacing={2.5}>
+        {[
+          {
+            color: 'indigo', title: 'Total Revenue', icon: TrendingUp,
+            value: <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}><DirhamSymbol size="0.78em" /> {derived.rev.toLocaleString()}</Box>,
+            change: derived.trend, changeLabel: dateRange.label || 'Today', loading,
+          },
+          {
+            color: 'violet', title: 'Total Orders', icon: ShoppingBag,
+            value: derived.orders.toLocaleString(),
+            change: derived.orderTrend, changeLabel: dateRange.label || 'Today', loading,
+          },
+          {
+            color: 'amber', title: 'Pending Orders', icon: Clock,
+            value: loading ? '—' : derived.pending.toLocaleString(),
+            changeLabel: 'Awaiting processing',
+          },
+          {
+            color: 'rose', title: 'Cancelled Orders', icon: XCircle,
+            value: loading ? '—' : derived.cancelled.toLocaleString(),
+            changeLabel: 'Refunded / void',
+          },
+        ].map((stat, i) => (
+          <Grid key={i} size={{ xs: 12, sm: 6, md: 3 }}>
+            <StatCard {...stat} />
+          </Grid>
+        ))}
+      </Grid>
 
-      {/* ── Charts Row 1: Revenue Trend + Order Status Donut ────────────── */}
-      <div className="flex gap-5 mb-5 flex-wrap lg:flex-nowrap">
-        {/* Revenue area chart */}
-        <div className="flex-1 min-w-0 lg:flex-[2_1_0]">
-          <Card>
+      {/* Charts Row 1 */}
+      <Grid container spacing={2.5}>
+        <Grid size={{ xs: 12, md: 8 }}>
+          <Card sx={{ height: '100%' }}>
             <CardHeader
               title="Revenue Trend"
               subtitle={dateRange.label || 'Today'}
               action={
-                <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
-                  <TrendingUp size={11} /> Revenue
-                </span>
+                <Chip
+                  label="Revenue"
+                  icon={<TrendingUp size={10} />}
+                  size="small"
+                  sx={{ bgcolor: 'rgba(99,102,241,0.1)', color: 'primary.main', fontWeight: 600, fontSize: 11 }}
+                />
               }
             />
             <CardBody>
               {sales.length > 0 ? (
                 <ReactApexChart
                   type="area"
-                  series={[{ name: 'Revenue', data: revenueData }]}
+                  series={[{ name: 'Revenue', data: sales.map(s => s.revenue) }]}
                   options={revenueOptions}
-                  height={240}
+                  height={290}
                 />
               ) : (
-                <div className="h-60 flex items-center justify-center">
-                  <p className="text-sm text-gray-400 dark:text-gray-500">
-                    Sales data will appear once orders are placed.
-                  </p>
-                </div>
+                <EmptyChart icon={TrendingUp} color="#6366f1" message="Sales data will appear once orders are placed." />
               )}
             </CardBody>
           </Card>
-        </div>
-
-        {/* Order status donut */}
-        <div className="flex-1 min-w-0 lg:flex-[1_1_0]">
-          <Card className="h-full">
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Card sx={{ height: '100%' }}>
             <CardHeader
               title="Orders by Status"
               action={
-                <span className="text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
-                  <Gem size={11} /> Status
-                </span>
+                <Chip
+                  label="Status"
+                  icon={<Gem size={10} />}
+                  size="small"
+                  sx={{ bgcolor: 'rgba(139,92,246,0.1)', color: '#8b5cf6', fontWeight: 600, fontSize: 11 }}
+                />
               }
             />
             <CardBody>
@@ -296,202 +249,234 @@ export default function Dashboard() {
                 <>
                   <ReactApexChart
                     type="donut"
-                    series={statusValues}
+                    series={statusData.map(d => d.count)}
                     options={donutOptions}
-                    height={180}
+                    height={200}
                   />
-                  <div className="mt-3 space-y-2">
+                  <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1.25 }}>
                     {statusData.map((d, i) => (
-                      <div key={d.status} className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className="w-2 h-2 rounded-full shrink-0"
-                            style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }}
-                          />
-                          <span className="text-xs text-gray-600 dark:text-gray-300 capitalize">{d.status}</span>
-                        </div>
-                        <span className="text-xs font-bold text-gray-900 dark:text-white">{d.count}</span>
-                      </div>
+                      <Box key={d.status} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: PIE_COLORS[i % PIE_COLORS.length] }} />
+                          <Typography sx={{ fontSize: '12.5px', color: 'text.secondary', textTransform: 'capitalize' }}>{d.status}</Typography>
+                        </Box>
+                        <Typography sx={{ fontSize: '12.5px', fontWeight: 700 }}>{d.count}</Typography>
+                      </Box>
                     ))}
-                  </div>
+                  </Box>
                 </>
               ) : (
-                <div className="h-60 flex items-center justify-center">
-                  <p className="text-sm text-gray-400 dark:text-gray-500">No order data yet.</p>
-                </div>
+                <EmptyChart icon={Gem} color="#8b5cf6" message="No order data yet." />
               )}
             </CardBody>
           </Card>
-        </div>
-      </div>
+        </Grid>
+      </Grid>
 
-      {/* ── Charts Row 2: Best Selling + Top Categories ──────────────── */}
-      <div className="flex gap-5 mb-5 flex-wrap md:flex-nowrap">
-        {/* Horizontal bar — best sellers */}
-        <div className="flex-[7_1_0] min-w-0 w-full md:w-auto">
-          <Card className="h-full">
+      {/* Charts Row 2 */}
+      <Grid container spacing={2.5}>
+        <Grid size={{ xs: 12, md: 7 }}>
+          <Card sx={{ height: '100%' }}>
             <CardHeader
               title="Best Selling Products"
               subtitle={dateRange.label || 'Today'}
               action={
-                <span className="text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
-                  <Trophy size={11} /> Top 6
-                </span>
+                <Chip
+                  label="Top 6"
+                  icon={<Trophy size={10} />}
+                  size="small"
+                  sx={{ bgcolor: 'rgba(245,158,11,0.1)', color: '#d97706', fontWeight: 600, fontSize: 11 }}
+                />
               }
             />
             <CardBody>
               {topProducts.length > 0 ? (
                 <ReactApexChart
                   type="bar"
-                  series={[{ name: 'Units Sold', data: barData }]}
+                  series={[{ name: 'Units Sold', data: topProductsSlice.map(p => p.sold || 0) }]}
                   options={barOptions}
-                  height={220}
+                  height={260}
                 />
               ) : (
-                <div className="h-56 flex items-center justify-center">
-                  <p className="text-sm text-gray-400 dark:text-gray-500">No sales data yet.</p>
-                </div>
+                <EmptyChart icon={Trophy} color="#f59e0b" message="No sales data yet." />
               )}
             </CardBody>
           </Card>
-        </div>
-
-        {/* Top Categories + Trending products */}
-        <div className="flex-[5_1_0] min-w-0 w-full md:w-auto">
-          <Card className="h-full">
+        </Grid>
+        <Grid size={{ xs: 12, md: 5 }}>
+          <Card sx={{ height: '100%' }}>
             <CardHeader
               title="Top Categories"
               action={
-                <span className="text-xs font-medium text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-2.5 py-1 rounded-full flex items-center gap-1">
-                  <LayoutGrid size={11} /> Categories
-                </span>
+                <Chip
+                  label="Categories"
+                  icon={<LayoutGrid size={10} />}
+                  size="small"
+                  sx={{ bgcolor: 'rgba(20,184,166,0.1)', color: '#0d9488', fontWeight: 600, fontSize: 11 }}
+                />
               }
             />
             <CardBody>
               {derived.categories.length > 0 ? (
-                <div className="space-y-3">
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   {derived.categories.map((cat, i) => {
                     const max = derived.categories[0].value;
                     const pct = Math.round((cat.value / max) * 100);
-                    const color = PIE_COLORS[i % PIE_COLORS.length];
                     return (
-                      <div key={cat.name}>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">{cat.name}</span>
-                          <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{cat.value} sold</span>
-                        </div>
-                        <div className="h-1.5 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
-                          <div
-                            className="h-full rounded-full transition-all duration-700 ease-out"
-                            style={{ width: `${pct}%`, backgroundColor: color }}
+                      <Box key={cat.name}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.75 }}>
+                          <Typography sx={{ fontSize: '12.5px', fontWeight: 600 }}>{cat.name}</Typography>
+                          <Typography sx={{ fontSize: 11, fontWeight: 700, color: 'text.disabled' }}>{cat.value} sold</Typography>
+                        </Box>
+                        <Box sx={{ height: 6, borderRadius: 999, bgcolor: 'action.hover', overflow: 'hidden' }}>
+                          <Box
+                            sx={{
+                              height: '100%', borderRadius: 999,
+                              bgcolor: PIE_COLORS[i % PIE_COLORS.length],
+                              width: `${pct}%`,
+                              transition: 'width 0.7s ease-out',
+                            }}
                           />
-                        </div>
-                      </div>
+                        </Box>
+                      </Box>
                     );
                   })}
-                </div>
+                </Box>
               ) : (
-                <div className="h-40 flex items-center justify-center">
-                  <p className="text-sm text-gray-400 dark:text-gray-500">No category data yet.</p>
-                </div>
+                <EmptyChart icon={LayoutGrid} color="#14b8a6" message="No category data yet." small />
               )}
 
               {topProducts.length > 0 && (
                 <>
-                  <hr className="my-4 border-gray-100 dark:border-gray-800" />
-                  <div className="flex items-center gap-1.5 mb-3">
-                    <Star size={14} className="text-amber-500" />
-                    <span className="text-sm font-bold text-gray-900 dark:text-white">Trending Products</span>
-                  </div>
-                  <div className="space-y-2">
+                  <Box sx={{ borderTop: '1px solid', borderColor: 'divider', my: 2.5 }} />
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                    <Star size={13} color="#f59e0b" fill="#f59e0b" />
+                    <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Trending</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                     {topProducts.slice(0, 4).map((p, i) => (
-                      <div key={i} className="flex items-center gap-2.5">
-                        <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-extrabold flex items-center justify-center shrink-0">
+                      <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Box sx={{
+                          width: 20, height: 20, borderRadius: 1, flexShrink: 0,
+                          bgcolor: 'rgba(99,102,241,0.1)',
+                          color: 'primary.main',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 10, fontWeight: 800,
+                        }}>
                           {i + 1}
-                        </span>
-                        <span className="flex-1 text-xs text-gray-700 dark:text-gray-300 truncate">{p.name}</span>
-                        <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-full px-2 py-0.5 whitespace-nowrap">
-                          {p.sold || 0} sold
-                        </span>
-                      </div>
+                        </Box>
+                        <Typography sx={{ flex: 1, fontSize: '12.5px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {p.name}
+                        </Typography>
+                        <Chip
+                          label={p.sold || 0}
+                          size="small"
+                          sx={{ fontSize: 10, height: 20, fontWeight: 700, color: 'text.secondary', bgcolor: 'action.hover' }}
+                        />
+                      </Box>
                     ))}
-                  </div>
+                  </Box>
                 </>
               )}
             </CardBody>
           </Card>
-        </div>
-      </div>
+        </Grid>
+      </Grid>
 
-      {/* ── Recent Orders ─────────────────────────────────────────────── */}
+      {/* Recent Orders */}
       <Card>
         <CardHeader
           title="Recent Orders"
           action={
-            <Link
+            <Button
+              component={Link}
               to="/admin/orders"
-              className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-lg px-3 py-1.5 transition-colors"
+              size="small"
+              variant="outlined"
+              color="primary"
+              endIcon={<ArrowRight size={12} />}
+              sx={{ borderRadius: 2.5, fontSize: 12 }}
             >
               View All
-            </Link>
+            </Button>
           }
         />
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[600px]">
-            <thead>
-              <tr className="border-b border-gray-100 dark:border-gray-800">
-                {['Order ID', 'Customer', 'Total', 'Status', 'Date'].map(h => (
-                  <th
-                    key={h}
-                    className="px-6 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {loading && recentOrders.length === 0
-                ? skeletonRows
-                : recentOrders.length > 0
-                  ? recentOrders.map(o => (
-                    <tr
-                      key={o._id}
-                      className="border-b border-gray-50 dark:border-gray-800/60 hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors"
-                    >
-                      <td className="px-6 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">
+        <Table>
+          <TableHead>
+            <TableRow>
+              {['Order ID', 'Customer', 'Total', 'Status', 'Date'].map(h => (
+                <Th key={h}>{h}</Th>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {loading && recentOrders.length === 0
+              ? Array.from({ length: 4 }).map((_, i) => (
+                <TableRow key={i}>
+                  {skeletonCols.map(j => (
+                    <TableCell key={j}>
+                      <Skeleton variant="text" height={16} sx={{ borderRadius: 1 }} />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+              : recentOrders.length > 0
+                ? recentOrders.map(o => (
+                  <Tr key={o._id}>
+                    <Td>
+                      <Typography sx={{ fontFamily: 'monospace', fontSize: 12, color: 'text.secondary' }}>
                         #{o._id.slice(-8).toUpperCase()}
-                      </td>
-                      <td className="px-6 py-3">
-                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                          {o.user?.name || '—'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-3">
-                        <span className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1">
-                          <DirhamSymbol size="0.85em" /> {o.totalAmount?.toLocaleString()}
-                        </span>
-                      </td>
-                      <td className="px-6 py-3">
-                        <StatusChip status={o.status} />
-                      </td>
-                      <td className="px-6 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      </Typography>
+                    </Td>
+                    <Td>
+                      <Typography sx={{ fontSize: '13px', fontWeight: 600 }}>
+                        {o.user?.name || '—'}
+                      </Typography>
+                    </Td>
+                    <Td>
+                      <Typography sx={{ fontSize: '13px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <DirhamSymbol size="0.85em" /> {o.totalAmount?.toLocaleString()}
+                      </Typography>
+                    </Td>
+                    <Td><StatusChip status={o.status} /></Td>
+                    <Td>
+                      <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>
                         {new Date(o.createdAt).toLocaleDateString()}
-                      </td>
-                    </tr>
-                  ))
-                  : (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-sm text-gray-400 dark:text-gray-500">
-                        No orders yet.
-                      </td>
-                    </tr>
-                  )
-              }
-            </tbody>
-          </table>
-        </div>
+                      </Typography>
+                    </Td>
+                  </Tr>
+                ))
+                : (
+                  <TableRow>
+                    <TableCell colSpan={5} sx={{ textAlign: 'center', py: 6 }}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                        <ShoppingBag size={22} style={{ opacity: 0.3 }} />
+                        <Typography sx={{ fontSize: 13, color: 'text.disabled' }}>No orders yet.</Typography>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                )
+            }
+          </TableBody>
+        </Table>
       </Card>
-    </div>
+    </Box>
+  );
+}
+
+function EmptyChart({ icon: Icon, color, message, small = false }) {
+  return (
+    <Box sx={{ height: small ? 120 : 290, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
+      <Box sx={{
+        width: small ? 40 : 52, height: small ? 40 : 52,
+        borderRadius: 3,
+        bgcolor: `${color}14`,
+        border: `1px solid ${color}22`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <Icon size={small ? 18 : 22} color={color} strokeWidth={1.5} />
+      </Box>
+      <Typography sx={{ fontSize: 13, color: 'text.disabled', textAlign: 'center', maxWidth: 260, lineHeight: 1.6 }}>{message}</Typography>
+    </Box>
   );
 }

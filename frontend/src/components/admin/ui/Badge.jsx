@@ -1,29 +1,59 @@
-const VARIANTS = {
-  default:  'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
-  primary:  'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300',
-  success:  'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-  warning:  'bg-amber-50 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
-  danger:   'bg-red-50 text-red-700 dark:bg-red-900/40 dark:text-red-300',
-  info:     'bg-sky-50 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300',
-  purple:   'bg-purple-50 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
+import { Box, Chip } from '@mui/material';
+
+const VARIANT_MAP = {
+  default:  { bg: 'rgba(100,116,139,0.1)',  color: '#64748b',  border: 'rgba(100,116,139,0.18)' },
+  primary:  { bg: 'rgba(99,102,241,0.1)',   color: '#4f46e5',  border: 'rgba(99,102,241,0.2)'   },
+  success:  { bg: 'rgba(16,185,129,0.1)',   color: '#059669',  border: 'rgba(16,185,129,0.2)'   },
+  warning:  { bg: 'rgba(245,158,11,0.1)',   color: '#d97706',  border: 'rgba(245,158,11,0.2)'   },
+  danger:   { bg: 'rgba(239,68,68,0.1)',    color: '#dc2626',  border: 'rgba(239,68,68,0.2)'    },
+  info:     { bg: 'rgba(14,165,233,0.1)',   color: '#0284c7',  border: 'rgba(14,165,233,0.2)'   },
+  purple:   { bg: 'rgba(168,85,247,0.1)',   color: '#7c3aed',  border: 'rgba(168,85,247,0.2)'   },
+  orange:   { bg: 'rgba(249,115,22,0.1)',   color: '#ea580c',  border: 'rgba(249,115,22,0.2)'   },
 };
 
 const DOT_COLORS = {
-  default: 'bg-gray-400',
-  primary: 'bg-indigo-500',
-  success: 'bg-emerald-500',
-  warning: 'bg-amber-500',
-  danger:  'bg-red-500',
-  info:    'bg-sky-500',
-  purple:  'bg-purple-500',
+  default: '#94a3b8',
+  primary: '#6366f1',
+  success: '#10b981',
+  warning: '#f59e0b',
+  danger:  '#ef4444',
+  info:    '#0ea5e9',
+  purple:  '#a855f7',
+  orange:  '#f97316',
 };
 
 export function Badge({ children, variant = 'default', dot = false, className = '' }) {
+  const v = VARIANT_MAP[variant] || VARIANT_MAP.default;
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${VARIANTS[variant] || VARIANTS.default} ${className}`}>
-      {dot && <span className={`w-1.5 h-1.5 rounded-full ${DOT_COLORS[variant]}`} />}
-      {children}
-    </span>
+    <Chip
+      className={className}
+      label={
+        dot ? (
+          <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+            <Box
+              component="span"
+              sx={{
+                width: 5.5, height: 5.5, borderRadius: '50%',
+                bgcolor: DOT_COLORS[variant] || DOT_COLORS.default,
+                flexShrink: 0, display: 'inline-block',
+              }}
+            />
+            {children}
+          </Box>
+        ) : children
+      }
+      size="small"
+      sx={{
+        bgcolor: v.bg,
+        color: v.color,
+        border: `1px solid ${v.border}`,
+        fontWeight: 600,
+        fontSize: '11px',
+        height: 22,
+        borderRadius: 1.5,
+        '& .MuiChip-label': { px: 1.25 },
+      }}
+    />
   );
 }
 
