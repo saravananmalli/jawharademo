@@ -795,6 +795,7 @@ export default function MobileDashboard() {
   const isStories       = activeKey === 'stories';
   const isMostLoved     = activeKey === 'most_loved';
   const isBestSellers   = activeKey === 'best_sellers';
+  const isCategories    = activeKey === 'categories';
   const imgAspect       = SECTION_ASPECT[activeKey] || '3/2';
   const gridCfg         = SECTION_GRID[activeKey] || DEFAULT_GRID;
 
@@ -1005,54 +1006,92 @@ export default function MobileDashboard() {
                             opacity: item.active ? 1 : 0.55, transition: 'opacity 0.15s',
                           }}
                         >
-                          <Box sx={{ aspectRatio: imgAspect, bgcolor: 'action.hover', position: 'relative', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {item.imageUrl ? (
-                              <Box component="img" src={getImageUrl(item.imageUrl)} alt={item.title} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            ) : (
-                              <Box sx={{ textAlign: 'center', color: 'text.disabled' }}>
-                                <Image size={32} />
-                                <Typography sx={{ fontSize: 11, mt: 0.5 }}>No image</Typography>
+                          {isCategories ? (
+                            /* Category tile: icon left, name + link right, actions bottom */
+                            <>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.25 }}>
+                                <Box sx={{ width: 44, height: 44, borderRadius: 2, overflow: 'hidden', flexShrink: 0, bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  {item.imageUrl
+                                    ? <Box component="img" src={getImageUrl(item.imageUrl)} alt={item.title} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    : <Image size={20} style={{ opacity: 0.3 }} />}
+                                </Box>
+                                <Box sx={{ minWidth: 0, flex: 1 }}>
+                                  <Typography sx={{ fontSize: 12, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {item.title || <Box component="em" sx={{ color: 'text.disabled', fontStyle: 'normal', fontWeight: 400 }}>No name</Box>}
+                                  </Typography>
+                                  {item.ctaLink && <Typography sx={{ fontSize: 10, color: 'text.disabled', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.ctaLink}</Typography>}
+                                </Box>
+                                <Box sx={{ fontSize: 10, fontWeight: 700, color: 'text.disabled', flexShrink: 0 }}>#{index + 1}</Box>
                               </Box>
-                            )}
-                            <Box sx={{ position: 'absolute', top: 8, left: 8, bgcolor: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 10, fontWeight: 700, px: 0.75, py: 0.25, borderRadius: 1 }}>
-                              #{index + 1}
-                            </Box>
-                            <Box sx={{ position: 'absolute', top: 8, right: 8, color: 'rgba(255,255,255,0.7)' }}>
-                              <GripVertical size={16} />
-                            </Box>
-                            {item.badge && (
-                              <Box sx={{ position: 'absolute', bottom: 8, left: 8, bgcolor: 'primary.main', color: '#fff', fontSize: 10, fontWeight: 700, px: 1, py: 0.25, borderRadius: 5 }}>
-                                {item.badge}
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1.25, pb: 1, pt: 0.5, borderTop: '1px solid', borderColor: 'divider' }}>
+                                <Box
+                                  component="button"
+                                  onClick={() => openEdit(item)}
+                                  sx={{
+                                    flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75,
+                                    px: 1, py: 0.5, fontSize: 11, fontWeight: 500,
+                                    border: '1px solid', borderColor: 'divider', color: 'text.secondary',
+                                    borderRadius: 1.5, background: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                                    '&:hover': { bgcolor: 'action.hover' },
+                                  }}
+                                >
+                                  <Pencil size={11} /> Edit
+                                </Box>
+                                <Switch size="small" checked={item.active} onChange={() => toggleItemActive(item)} sx={{ '& .MuiSwitch-thumb': { width: 12, height: 12 } }} />
+                                <IconBtn icon={Trash2} size="sm" label="Delete" onClick={() => setDeleteTarget(item)} sx={{ color: 'error.main', '&:hover': { bgcolor: 'rgba(239,68,68,0.08)' } }} />
                               </Box>
-                            )}
-                          </Box>
-
-                          <Box sx={{ p: 1.5, flex: 1, display: 'flex', flexDirection: 'column' }}>
-                            <Typography sx={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {item.title || <Box component="em" sx={{ color: 'text.disabled', fontStyle: 'normal', fontWeight: 400 }}>No title</Box>}
-                            </Typography>
-                            {item.subtitle && <Typography sx={{ fontSize: 12, color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.subtitle}</Typography>}
-                            {item.description && <Typography sx={{ fontSize: 11.5, color: 'text.disabled', mt: 0.25, display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.description}</Typography>}
-                            {item.ctaText && <Typography sx={{ fontSize: 11.5, color: 'primary.main', mt: 0.25 }}>CTA: {item.ctaText}</Typography>}
-
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 'auto', pt: 1.5 }}>
-                              <Box
-                                component="button"
-                                onClick={() => openEdit(item)}
-                                sx={{
-                                  flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75,
-                                  px: 1.5, py: 0.75, fontSize: 12, fontWeight: 500,
-                                  border: '1px solid', borderColor: 'divider', color: 'text.secondary',
-                                  borderRadius: 1.5, background: 'none', cursor: 'pointer', fontFamily: 'inherit',
-                                  '&:hover': { bgcolor: 'action.hover' }, transition: 'background-color 0.15s',
-                                }}
-                              >
-                                <Pencil size={12} /> Edit
+                            </>
+                          ) : (
+                            /* Generic card: image on top, info + actions below */
+                            <>
+                              <Box sx={{ aspectRatio: imgAspect, bgcolor: 'action.hover', position: 'relative', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                {item.imageUrl ? (
+                                  <Box component="img" src={getImageUrl(item.imageUrl)} alt={item.title} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                  <Box sx={{ textAlign: 'center', color: 'text.disabled' }}>
+                                    <Image size={32} />
+                                    <Typography sx={{ fontSize: 11, mt: 0.5 }}>No image</Typography>
+                                  </Box>
+                                )}
+                                <Box sx={{ position: 'absolute', top: 8, left: 8, bgcolor: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 10, fontWeight: 700, px: 0.75, py: 0.25, borderRadius: 1 }}>
+                                  #{index + 1}
+                                </Box>
+                                <Box sx={{ position: 'absolute', top: 8, right: 8, color: 'rgba(255,255,255,0.7)' }}>
+                                  <GripVertical size={16} />
+                                </Box>
+                                {item.badge && (
+                                  <Box sx={{ position: 'absolute', bottom: 8, left: 8, bgcolor: 'primary.main', color: '#fff', fontSize: 10, fontWeight: 700, px: 1, py: 0.25, borderRadius: 5 }}>
+                                    {item.badge}
+                                  </Box>
+                                )}
                               </Box>
-                              <Switch size="small" checked={item.active} onChange={() => toggleItemActive(item)} title={item.active ? 'Hide item' : 'Show item'} sx={{ '& .MuiSwitch-thumb': { width: 12, height: 12 } }} />
-                              <IconBtn icon={Trash2} size="sm" label="Delete" onClick={() => setDeleteTarget(item)} sx={{ color: 'error.main', '&:hover': { bgcolor: 'rgba(239,68,68,0.08)' } }} />
-                            </Box>
-                          </Box>
+                              <Box sx={{ p: 1.5, flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                <Typography sx={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  {item.title || <Box component="em" sx={{ color: 'text.disabled', fontStyle: 'normal', fontWeight: 400 }}>No title</Box>}
+                                </Typography>
+                                {item.subtitle && <Typography sx={{ fontSize: 12, color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.subtitle}</Typography>}
+                                {item.description && <Typography sx={{ fontSize: 11.5, color: 'text.disabled', mt: 0.25, display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.description}</Typography>}
+                                {item.ctaText && <Typography sx={{ fontSize: 11.5, color: 'primary.main', mt: 0.25 }}>CTA: {item.ctaText}</Typography>}
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 'auto', pt: 1.5 }}>
+                                  <Box
+                                    component="button"
+                                    onClick={() => openEdit(item)}
+                                    sx={{
+                                      flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75,
+                                      px: 1.5, py: 0.75, fontSize: 12, fontWeight: 500,
+                                      border: '1px solid', borderColor: 'divider', color: 'text.secondary',
+                                      borderRadius: 1.5, background: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                                      '&:hover': { bgcolor: 'action.hover' }, transition: 'background-color 0.15s',
+                                    }}
+                                  >
+                                    <Pencil size={12} /> Edit
+                                  </Box>
+                                  <Switch size="small" checked={item.active} onChange={() => toggleItemActive(item)} title={item.active ? 'Hide item' : 'Show item'} sx={{ '& .MuiSwitch-thumb': { width: 12, height: 12 } }} />
+                                  <IconBtn icon={Trash2} size="sm" label="Delete" onClick={() => setDeleteTarget(item)} sx={{ color: 'error.main', '&:hover': { bgcolor: 'rgba(239,68,68,0.08)' } }} />
+                                </Box>
+                              </Box>
+                            </>
+                          )}
                         </Paper>
                       </Grid>
                     ))}
@@ -1072,39 +1111,77 @@ export default function MobileDashboard() {
       <Modal
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
-        title={editTarget ? 'Edit Item' : 'Add Item'}
-        size="lg"
+        title={
+          isCategories
+            ? (editTarget ? 'Edit Category' : 'Add Category')
+            : (editTarget ? 'Edit Item' : 'Add Item')
+        }
+        size="md"
         footer={
           <>
             <Button variant="secondary" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleSave} loading={saving} disabled={saving || (!isStories && !form.imageUrl)}>
-              {editTarget ? 'Update' : 'Add Item'}
+              {editTarget ? 'Update' : isCategories ? 'Add Category' : 'Add Item'}
             </Button>
           </>
         }
       >
-        {activeSection && (
-          <Typography sx={{ fontSize: 12, color: 'text.secondary', mt: -1, mb: 2 }}>Section: {activeSection.label}</Typography>
+        {isCategories ? (
+          /* ── Simplified form for Top Categories ── */
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+            <Box>
+              <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'text.secondary', mb: 1 }}>
+                Category Icon * <Box component="span" sx={{ fontWeight: 400 }}>(square, 400×400 px recommended)</Box>
+              </Typography>
+              <ImageUploader
+                images={form.imageUrl ? [form.imageUrl] : []}
+                onChange={urls => setF('imageUrl', urls[0] || '')}
+                maxImages={1} category="mobile" single
+              />
+            </Box>
+            <Input
+              label="Category Name *"
+              value={form.title}
+              onChange={e => setF('title', e.target.value)}
+              placeholder="e.g. Rings, Earrings, Pendants"
+              autoFocus
+            />
+            <Input
+              label="Link"
+              value={form.ctaLink}
+              onChange={e => setF('ctaLink', e.target.value)}
+              placeholder="e.g. /category/rings"
+              helper="Deep link used when the user taps this category tile"
+            />
+            <Toggle label="Active (visible in app)" checked={form.active} onChange={e => setF('active', e.target.checked)} />
+          </Box>
+        ) : (
+          /* ── Generic form for all other sections ── */
+          <>
+            {activeSection && (
+              <Typography sx={{ fontSize: 12, color: 'text.secondary', mt: -1, mb: 2 }}>Section: {activeSection.label}</Typography>
+            )}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+              <Box>
+                <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'text.secondary', mb: 1 }}>
+                  {isStories ? 'Customer Avatar (optional)' : 'Image *'}
+                </Typography>
+                <ImageUploader images={form.imageUrl ? [form.imageUrl] : []} onChange={urls => setF('imageUrl', urls[0] || '')} maxImages={1} category="mobile" single />
+              </Box>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <Input label={isStories ? 'Customer Name' : 'Title'} required={isStories} value={form.title} onChange={e => setF('title', e.target.value)} autoFocus />
+                <Input label={isStories ? 'Star Rating (1–5)' : 'Badge / Label'} value={form.badge} onChange={e => setF('badge', e.target.value)} placeholder={isStories ? 'e.g. 5' : 'e.g. BEST SELL · 50% OFF'} />
+              </Box>
+              <Input label="Subtitle" value={form.subtitle} onChange={e => setF('subtitle', e.target.value)} placeholder="Short supporting text shown below the title" />
+              <Textarea label={isStories ? 'Review Text' : 'Description'} value={form.description} onChange={e => setF('description', e.target.value)} placeholder={isStories ? 'What the customer said…' : 'Additional detail or promotional copy'} rows={2} />
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <Input label="CTA Button Text" value={form.ctaText} onChange={e => setF('ctaText', e.target.value)} placeholder="e.g. Shop Now · Explore" />
+                <Input label="CTA Link / Deep Link" value={form.ctaLink} onChange={e => setF('ctaLink', e.target.value)} placeholder="e.g. /category/rings" />
+              </Box>
+              <Toggle label="Active (visible in app)" checked={form.active} onChange={e => setF('active', e.target.checked)} />
+            </Box>
+          </>
         )}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-          <Box>
-            <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'text.secondary', mb: 1 }}>
-              {isStories ? 'Customer Avatar (optional)' : 'Image *'}
-            </Typography>
-            <ImageUploader images={form.imageUrl ? [form.imageUrl] : []} onChange={urls => setF('imageUrl', urls[0] || '')} maxImages={1} category="mobile" single />
-          </Box>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-            <Input label={isStories ? 'Customer Name' : 'Title'} required={isStories} value={form.title} onChange={e => setF('title', e.target.value)} autoFocus />
-            <Input label={isStories ? 'Star Rating (1–5)' : 'Badge / Label'} value={form.badge} onChange={e => setF('badge', e.target.value)} placeholder={isStories ? 'e.g. 5' : 'e.g. BEST SELL · 50% OFF'} />
-          </Box>
-          <Input label="Subtitle" value={form.subtitle} onChange={e => setF('subtitle', e.target.value)} placeholder="Short supporting text shown below the title" />
-          <Textarea label={isStories ? 'Review Text' : 'Description'} value={form.description} onChange={e => setF('description', e.target.value)} placeholder={isStories ? 'What the customer said…' : 'Additional detail or promotional copy'} rows={2} />
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-            <Input label="CTA Button Text" value={form.ctaText} onChange={e => setF('ctaText', e.target.value)} placeholder="e.g. Shop Now · Explore" />
-            <Input label="CTA Link / Deep Link" value={form.ctaLink} onChange={e => setF('ctaLink', e.target.value)} placeholder="e.g. /category/rings" />
-          </Box>
-          <Toggle label="Active (visible in app)" checked={form.active} onChange={e => setF('active', e.target.checked)} />
-        </Box>
       </Modal>
 
       <Modal
