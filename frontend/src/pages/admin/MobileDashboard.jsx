@@ -433,6 +433,172 @@ function MostLovedPanel({ activeItems, loadingItems, onAdd, onEdit, onDelete, on
   );
 }
 
+// ── BestSellersPanel ────────────────────────────────────────────────────────────
+// Fixed 3-slot layout: 1 wide image on top, 2 side-by-side below.
+function BestSellersPanel({ items, loadingItems, onReload, setError }) {
+  const [editSlot, setEditSlot]   = useState(null); // 1 | 2 | 3
+  const [imgUrl, setImgUrl]       = useState('');
+  const [ctaLink, setCtaLink]     = useState('');
+  const [saving, setSaving]       = useState(false);
+  const [deleting, setDeleting]   = useState(null);
+
+  const slot = (n) => items.find(i => i.order === n) || null;
+
+  const openSlot = (n) => {
+    const existing = slot(n);
+    setImgUrl(existing?.imageUrl || '');
+    setCtaLink(existing?.ctaLink || '');
+    setEditSlot(n);
+  };
+
+  const saveSlot = async () => {
+    if (!imgUrl) return;
+    setSaving(true);
+    try {
+      const existing = slot(editSlot);
+      const payload = {
+        screen: 'dashboard', section: 'best_sellers', slot: 'best_sellers',
+        imageUrl: imgUrl, ctaLink, order: editSlot, active: true,
+        title: `Best Seller ${editSlot}`,
+      };
+      if (existing) {
+        await api.put(`/admin/mobile-assets/${existing._id}`, payload);
+      } else {
+        await api.post('/admin/mobile-assets', payload);
+      }
+      setEditSlot(null);
+      onReload();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Save failed.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deleteSlot = async (n) => {
+    const existing = slot(n);
+    if (!existing) return;
+    setDeleting(n);
+    try {
+      await api.delete(`/admin/mobile-assets/${existing._id}`);
+      onReload();
+    } catch {
+      setError('Delete failed.');
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const SlotCard = ({ n, aspect }) => {
+    const item = slot(n);
+    const labels = { 1: 'Top — full width', 2: 'Bottom left', 3: 'Bottom right' };
+    return (
+      <Box sx={{ position: 'relative' }}>
+        <Paper
+          elevation={0}
+          sx={{
+            border: '1px solid', borderColor: item ? 'divider' : 'primary.main',
+            borderStyle: item ? 'solid' : 'dashed',
+            borderRadius: 2.5, overflow: 'hidden', position: 'relative',
+            aspectRatio: aspect, bgcolor: 'action.hover',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer',
+            '&:hover': { borderColor: 'primary.main', bgcolor: 'action.selected' },
+            transition: 'all 0.15s',
+          }}
+          onClick={() => openSlot(n)}
+        >
+          {item?.imageUrl ? (
+            <Box component="img" src={getImageUrl(item.imageUrl)} alt={`Slot ${n}`}
+              sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          ) : (
+            <Box sx={{ textAlign: 'center', color: 'text.disabled', userSelect: 'none' }}>
+              <Image size={28} />
+              <Typography sx={{ fontSize: 11, mt: 0.5 }}>Click to upload</Typography>
+            </Box>
+          )}
+
+          {/* Slot badge */}
+          <Box sx={{ position: 'absolute', top: 8, left: 8, bgcolor: 'rgba(0,0,0,0.62)', color: '#fff', fontSize: 10, fontWeight: 700, px: 0.75, py: 0.25, borderRadius: 1 }}>
+            {labels[n]}
+          </Box>
+        </Paper>
+
+        {/* Delete button */}
+        {item && (
+          <IconButton
+            size="small"
+            onClick={(e) => { e.stopPropagation(); deleteSlot(n); }}
+            disabled={deleting === n}
+            sx={{ position: 'absolute', top: 6, right: 6, bgcolor: 'rgba(0,0,0,0.55)', color: '#fff', p: 0.5, '&:hover': { bgcolor: 'rgba(239,68,68,0.85)' } }}
+          >
+            <Trash2 size={13} />
+          </IconButton>
+        )}
+      </Box>
+    );
+  };
+
+  if (loadingItems) {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        <Skeleton variant="rectangular" sx={{ borderRadius: 2.5, aspectRatio: '2/1', width: '100%' }} />
+        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
+          <Skeleton variant="rectangular" sx={{ borderRadius: 2.5, aspectRatio: '1/1' }} />
+          <Skeleton variant="rectangular" sx={{ borderRadius: 2.5, aspectRatio: '1/1' }} />
+        </Box>
+      </Box>
+    );
+  }
+
+  return (
+    <>
+      <Typography sx={{ fontSize: 12, color: 'text.secondary', mb: 2 }}>
+        Upload exactly 3 images. Click any slot to upload or replace its image.
+      </Typography>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        <SlotCard n={1} aspect="2/1" />
+        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
+          <SlotCard n={2} aspect="1/1" />
+          <SlotCard n={3} aspect="1/1" />
+        </Box>
+      </Box>
+
+      <Modal
+        open={editSlot !== null}
+        onClose={() => setEditSlot(null)}
+        title={`Edit Slot ${editSlot} — ${editSlot === 1 ? 'Top (full width)' : editSlot === 2 ? 'Bottom Left' : 'Bottom Right'}`}
+        size="md"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setEditSlot(null)}>Cancel</Button>
+            <Button onClick={saveSlot} loading={saving} disabled={saving || !imgUrl}>Save</Button>
+          </>
+        }
+      >
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <Box>
+            <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'text.secondary', mb: 1 }}>
+              {editSlot === 1 ? 'Image * — landscape (1080 × 540 px recommended)' : 'Image * — square (1080 × 1080 px recommended)'}
+            </Typography>
+            <ImageUploader
+              images={imgUrl ? [imgUrl] : []}
+              onChange={urls => setImgUrl(urls[0] || '')}
+              maxImages={1} category="mobile" single
+            />
+          </Box>
+          <Input
+            label="CTA Link (optional)"
+            value={ctaLink}
+            onChange={e => setCtaLink(e.target.value)}
+            placeholder="e.g. /collection/diamond-best-sellers"
+          />
+        </Box>
+      </Modal>
+    </>
+  );
+}
+
 export default function MobileDashboard() {
   const [sections, setSections]         = useState([]);
   const [activeKey, setActiveKey]       = useState(null);
@@ -624,12 +790,13 @@ export default function MobileDashboard() {
     }
   };
 
-  const activeSection = sections.find(s => s.key === activeKey);
-  const activeItems   = items[activeKey] || [];
-  const isStories     = activeKey === 'stories';
-  const isMostLoved   = activeKey === 'most_loved';
-  const imgAspect     = SECTION_ASPECT[activeKey] || '3/2';
-  const gridCfg       = SECTION_GRID[activeKey] || DEFAULT_GRID;
+  const activeSection   = sections.find(s => s.key === activeKey);
+  const activeItems     = items[activeKey] || [];
+  const isStories       = activeKey === 'stories';
+  const isMostLoved     = activeKey === 'most_loved';
+  const isBestSellers   = activeKey === 'best_sellers';
+  const imgAspect       = SECTION_ASPECT[activeKey] || '3/2';
+  const gridCfg         = SECTION_GRID[activeKey] || DEFAULT_GRID;
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -750,7 +917,7 @@ export default function MobileDashboard() {
           <Box sx={{ flex: 1, minWidth: 0 }}>
             {activeSection ? (
               <>
-                {!isMostLoved && (
+                {!isMostLoved && !isBestSellers && (
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2.5, flexWrap: 'wrap', gap: 2 }}>
                     <Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
@@ -769,7 +936,24 @@ export default function MobileDashboard() {
                   </Box>
                 )}
 
-                {isMostLoved ? (
+                {isBestSellers ? (
+                  <>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                      <Typography sx={{ fontSize: 16, fontWeight: 700 }}>{activeSection.label}</Typography>
+                      {!activeSection.enabled && (
+                        <Box sx={{ px: 1, py: 0.25, fontSize: 11, fontWeight: 500, border: '1px solid', borderColor: 'warning.main', color: 'warning.main', borderRadius: 5 }}>
+                          Hidden in app
+                        </Box>
+                      )}
+                    </Box>
+                    <BestSellersPanel
+                      items={activeItems}
+                      loadingItems={loadingItems}
+                      onReload={() => { setItems(prev => { const n = { ...prev }; delete n['best_sellers']; return n; }); loadItems('best_sellers'); }}
+                      setError={setError}
+                    />
+                  </>
+                ) : isMostLoved ? (
                   <MostLovedPanel
                     activeItems={activeItems}
                     loadingItems={loadingItems}
