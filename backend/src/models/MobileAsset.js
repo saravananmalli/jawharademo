@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const mobileAssetSchema = new mongoose.Schema({
-  screen:      { type: String, enum: ['onboarding', 'home', 'dashboard'], required: true },
+  screen:      { type: String, enum: ['onboarding', 'home', 'dashboard', 'category'], required: true },
   slot:        { type: String, default: '' },
   section:     { type: String, default: '' },
   title:       { type: String, default: '' },

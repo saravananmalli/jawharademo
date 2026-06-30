@@ -62,6 +62,7 @@ const NAV = [
       { to: '/admin/mobile/dashboard',   icon: Monitor,    label: 'Dashboard' },
       { to: '/admin/mobile/onboarding',  icon: PlayCircle, label: 'Onboarding Screens' },
       { to: '/admin/mobile/home-banner', icon: Layers,     label: 'Home Banner' },
+      { to: '/admin/mobile/categories',  icon: Tag,        label: 'Categories' },
     ],
   },
   { section: 'System' },
@@ -83,6 +84,7 @@ const BREADCRUMB_MAP = {
   '/admin/mobile/dashboard':   { section: 'Mobile',   label: 'Dashboard' },
   '/admin/mobile/onboarding':  { section: 'Mobile',   label: 'Onboarding' },
   '/admin/mobile/home-banner': { section: 'Mobile',   label: 'Home Banner' },
+  '/admin/mobile/categories':  { section: 'Mobile',   label: 'Categories' },
   '/admin/settings':           { section: 'System',   label: 'Settings' },
 };
 

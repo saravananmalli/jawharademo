@@ -55,6 +55,7 @@ const Settings          = lazy(() => import('./pages/admin/Settings'));
 const MobileOnboarding  = lazy(() => import('./pages/admin/MobileOnboarding'));
 const MobileHomeBanner  = lazy(() => import('./pages/admin/MobileHomeBanner'));
 const MobileDashboard   = lazy(() => import('./pages/admin/MobileDashboard'));
+const MobileCategories  = lazy(() => import('./pages/admin/MobileCategories'));
 
 function Layout({ children }) {
   return (
@@ -146,6 +147,7 @@ export default function App() {
                     <Route path="mobile/dashboard"     element={<MobileDashboard />} />
                     <Route path="mobile/onboarding"    element={<MobileOnboarding />} />
                     <Route path="mobile/home-banner"   element={<MobileHomeBanner />} />
+                    <Route path="mobile/categories"    element={<MobileCategories />} />
                   </Route>
 
                   <Route path="*" element={<Layout><NotFound /></Layout>} />

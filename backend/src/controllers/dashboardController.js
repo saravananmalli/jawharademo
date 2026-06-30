@@ -3,8 +3,7 @@ const MobileAsset = require('../models/MobileAsset');
 
 const DEFAULT_SECTIONS = [
   { key: 'banner_slider', label: 'Top Banner Slider',     order: 1,  enabled: true },
-  { key: 'categories',   label: 'Categories',             order: 2,  enabled: true },
-  { key: 'offers',       label: 'Limited-Time Offers',    order: 3,  enabled: true },
+  { key: 'offers',       label: 'Limited-Time Offers',    order: 2,  enabled: true },
   { key: 'collections',  label: 'Diamond Collections',    order: 4,  enabled: true },
   { key: 'most_loved',   label: 'Most Loved',             order: 5,  enabled: true },
   { key: 'gifting',      label: 'Gifting',                order: 6,  enabled: true },
