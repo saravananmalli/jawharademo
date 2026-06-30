@@ -541,7 +541,7 @@ function BestSellersPanel({ items, loadingItems, onReload, setError }) {
 
   if (loadingItems) {
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+      <Box sx={{ maxWidth: 480, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         <Skeleton variant="rectangular" sx={{ borderRadius: 2.5, aspectRatio: '2/1', width: '100%' }} />
         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
           <Skeleton variant="rectangular" sx={{ borderRadius: 2.5, aspectRatio: '1/1' }} />
@@ -556,7 +556,7 @@ function BestSellersPanel({ items, loadingItems, onReload, setError }) {
       <Typography sx={{ fontSize: 12, color: 'text.secondary', mb: 2 }}>
         Upload exactly 3 images. Click any slot to upload or replace its image.
       </Typography>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+      <Box sx={{ maxWidth: 480, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         <SlotCard n={1} aspect="2/1" />
         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
           <SlotCard n={2} aspect="1/1" />
